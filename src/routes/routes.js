@@ -5,10 +5,10 @@ import { USER_ROLES } from '../constants/navigation';
 const Home = lazy(() => import('../pages/Home/Home'));
 const Brands = lazy(() => import('../pages/Brands/Brands'));
 const Campaign = lazy(() => import('../pages/Campaign/Campaign'));
+const Videos = lazy(() => import('../pages/Videos/Videos'));
 const Users = lazy(() => import('../pages/Users'));
 const AITools = lazy(() => import('../pages/AITools'));
 // import PriceDistributions from '../pages/PriceDistributions';
-// import Videos from '../pages/Videos';
 // import Settings from '../pages/Settings';
 // import Reports from '../pages/Reports';
 const Unauthorized = lazy(() => import('../pages/Auth/Unauthorized'));
@@ -34,24 +34,24 @@ export const routes = [
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
   },
   {
-    path: '/users',
-    component: Users,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
+    path: '/videos',
+    component: Videos,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN, USER_ROLES.END_USER, USER_ROLES.CREATOR]
   },
   {
     path: '/ai-tools',
     component: AITools,
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
   },
+  {
+    path: '/users',
+    component: Users,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
+  },
   // {
   //   path: '/price-distributions',
   //   component: PriceDistributions,
   //   allowedRoles: [USER_ROLES.SUPER_ADMIN]
-  // },
-  // {
-  //   path: '/videos',
-  //   component: Videos,
-  //   allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN, USER_ROLES.CREATOR]
   // },
   // {
   //   path: '/settings',

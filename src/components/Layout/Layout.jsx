@@ -36,13 +36,20 @@ const Layout = () => {
     }
   };
 
+  // Check if the current page should show header actions
+  const shouldShowHeaderActions = () => {
+    const path = location.pathname;
+    return path === '/campaign' || path === '/videos';
+  };
+
   return (
     <div className={styles.layout}>
       <Header 
         title={getPageTitle()}
-        showSearch={location.pathname === '/campaign'}
-        showAdd={location.pathname === '/campaign'}
-        showMore={location.pathname === '/campaign'}
+        showHamburger={true}
+        showSearch={shouldShowHeaderActions()}
+        showAdd={shouldShowHeaderActions()}
+        showMore={shouldShowHeaderActions()}
         onMenuClick={handleMenuClick}
       />
       <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />

@@ -1,0 +1,12 @@
+.container {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-top: var(--spacing-4);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}

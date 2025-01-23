@@ -2,14 +2,15 @@
   position: relative;
   min-height: 100vh;
   background-color: var(--white);
-  padding-bottom: 80px;
+  padding-top: 60px;
 }
 
 .countdown {
-  background-color: var(--bg-color);
-  padding: var(--spacing-4);
-  color: var(--text-secondary);
+  background-color: #F5F1ED;
+  padding: var(--spacing-3);
+  color: #48464C;
   font-size: var(--text-sm);
+  text-align: center;
 }
 
 .info {
@@ -22,11 +23,16 @@
 .amount {
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);
-  color: var(--text-primary);
+  color: var(--primary);
+}
+.title{
+  padding: 0px var(--spacing-4);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
 }
 
 .points {
-  padding: var(--spacing-4);
+  padding: var(--spacing-2) var(--spacing-4);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -136,9 +142,15 @@
 }
 
 .submissionsList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-direction: row; /* Stack items vertically */
+  overflow-y: auto; /* Enable vertical scrolling */
   gap: var(--spacing-4);
+  max-height: 400px; /* Set the height to control the visible area */
+}
+
+.submissionsList > * {
+  flex-shrink: 0; /* Prevent items from shrinking */
 }
 
 .date {

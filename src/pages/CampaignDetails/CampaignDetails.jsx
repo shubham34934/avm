@@ -5,6 +5,14 @@ import Timeline from '../../components/Timeline/Timeline';
 import SubmissionCard from '../../components/Submission/SubmissionCard';
 import DateRange from '../../components/DateRange/DateRange';
 import Header from '../../components/Header/Header';
+import userAvatar from "./../../assets/images/users/1.png";
+import MoreIcon  from "./../../assets/icons/more.svg";
+import thumbnail1 from "./../../assets/images/thumbnails/1.png";
+import thumbnail2 from "./../../assets/images/thumbnails/2.png";
+import thumbnail3 from "./../../assets/images/thumbnails/3.png";
+import rightArrow  from "./../../assets/icons/rightArrow.svg";
+
+
 
 const CampaignDetails = () => {
   const navigate = useNavigate();
@@ -66,19 +74,19 @@ const CampaignDetails = () => {
   const submissions = [
     {
       id: 1,
-      image: '/images/nature.jpg',
+      image: thumbnail1,
       title: 'Amazing Nature',
       views: '2.4M'
     },
     {
       id: 2,
-      image: '/images/tech.jpg',
+      image: thumbnail2,
       title: 'Tech Innovations',
       views: '2.8M'
     },
     {
       id: 3,
-      image: '/images/community.jpg',
+      image: thumbnail3,
       title: 'Community',
       views: '1.5M'
     }
@@ -88,17 +96,22 @@ const CampaignDetails = () => {
     navigate(-1);
   };
 
-  const handleSearch = () => {
-    // Handle search
-  };
-
-  const handleAdd = () => {
-    // Handle add
-  };
-
   const handleMore = () => {
     // Handle more options
   };
+
+  const campaignDetailsDescription= "Create compelling videos showcasing the product in everyday use. Top-performing videos will be rewarded and featured on our official channels.";
+
+  const campaignDetailsPoints = [
+    "Highlight the product benefits clearly.",
+    "Keep the video length between 30 seconds and 1 minute.",
+    "Use natural lighting and a clean background.",
+    "Ensure the brand logo is visible in the video.",
+    "Add captions or text overlays for clarity.",
+    "Avoid offensive or inappropriate content.",
+    "Submit videos in HD quality for best results."
+  ];
+  
 
   return (
     <div className={styles.container}>
@@ -106,10 +119,8 @@ const CampaignDetails = () => {
         title="Summer Vibes Campaign"
         showBack
         onBack={handleBack}
-        showSearch
-        onSearch={handleSearch}
-        showAdd
-        onAdd={handleAdd}
+        showSearch={false}
+        showAdd={false}
         showMore
         onMore={handleMore}
       />
@@ -122,28 +133,25 @@ const CampaignDetails = () => {
         <DateRange startDate="15Aug" endDate="20Aug" />
         <div className={styles.amount}>Rs 1,50,000.00</div>
       </div>
-
+      <h2 className={styles.title}>About Campaign</h2>
       <div className={styles.points}>
-        <p>Create engaging summer-themed videos. Top videos will be featured on our platform with exciting prizes.</p>
+        <p>{campaignDetailsDescription}</p>
         <ul>
-          {[...Array(7)].map((_, i) => (
-            <li key={i}>Point {i + 1}</li>
+          {campaignDetailsPoints.map((point, i) => (
+            <li key={i}>{point}</li>
           ))}
         </ul>
       </div>
 
       <div className={styles.admin}>
-        <img src="/avatars/admin.jpg" alt="Admin" className={styles.adminAvatar} />
+        <img src={userAvatar} alt="Admin" className={styles.adminAvatar} />
         <div className={styles.adminInfo}>
           <h3>Admin_Name</h3>
           <p>Brand Admin</p>
         </div>
         <button onClick={handleMore} className={styles.moreButton}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <img src={MoreIcon} alt="More"  />
+         
         </button>
       </div>
 
@@ -151,9 +159,7 @@ const CampaignDetails = () => {
         <div className={styles.sectionHeader}>
           <h2>Submissions</h2>
           <button className={styles.viewAll}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <img src={rightArrow} alt="view all"  />
           </button>
         </div>
         <div className={styles.submissionsList}>

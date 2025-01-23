@@ -137,3 +137,12 @@ input:focus-visible {
 body {
   -webkit-tap-highlight-color: transparent; /* Disables highlight on touch */
 }
+
+* {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+*::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}

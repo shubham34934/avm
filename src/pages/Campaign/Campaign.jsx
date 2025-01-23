@@ -3,6 +3,7 @@ import Header from '../../components/Header/Header';
 import styles from './Campaign.module.css';
 import CampaignCard from '../../components/CampaignCard/CampaignCard';
 import brandLogo from "./../../assets/images/brand.png"; 
+import FloatingActionButton from '../../components/FloatingActionButton/FloatingActionButton';
 
 const updatedCampaigns = [
   { id: 1, name: 'Campaign 1', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 40000.00 , brandName:"Brand Name", brandLogo:brandLogo},
@@ -53,9 +54,7 @@ const Campaign = () => {
           />
         ))}
       </div>
-      <button className={styles.fab} aria-label="Add new campaign">
-        <span className={styles.fabIcon}>+</span>
-      </button>
+      <FloatingActionButton />
     </div>
   );
 };

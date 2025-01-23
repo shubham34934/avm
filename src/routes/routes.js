@@ -5,8 +5,9 @@ import { USER_ROLES } from '../constants/navigation';
 const Home = lazy(() => import('../pages/Home/Home'));
 const Brands = lazy(() => import('../pages/Brands/Brands'));
 const Campaign = lazy(() => import('../pages/Campaign/Campaign'));
+const CreateCampaign = lazy(() => import('../pages/CreateCampaign/CreateCampaign'));
 const Videos = lazy(() => import('../pages/Videos/Videos'));
-const Users = lazy(() => import('../pages/Users'));
+const Users = lazy(() => import('../pages/Users/Users'));
 const AITools = lazy(() => import('../pages/AITools'));
 // import PriceDistributions from '../pages/PriceDistributions';
 // import Settings from '../pages/Settings';
@@ -31,6 +32,11 @@ export const routes = [
   {
     path: '/campaign',
     component: Campaign,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
+  },
+  {
+    path: '/campaign/create',
+    component: CreateCampaign,
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
   },
   {

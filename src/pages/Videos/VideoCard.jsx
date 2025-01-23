@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import styles from './VideoCard.module.css';
-import MoreIcon from '../../assets/icons/more.svg';
+import Tag from '../../components/Tag/Tag';
 
 const VideoCard = ({ 
   title, 
@@ -37,7 +37,7 @@ const VideoCard = ({
             <span className={styles.userName}>{userName}</span>
             <span className={styles.timestamp}>{timestamp}</span>
           </div>
-          <span className={styles.status}>{status}</span>
+          <Tag text={status} variant={status.toLowerCase()} size="small" />
         </div>
       </div>
     </div>

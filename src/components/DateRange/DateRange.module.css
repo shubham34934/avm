@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--text-secondary);
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  width: 20px;
+}
+
+.text {
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}

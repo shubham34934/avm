@@ -1,9 +1,9 @@
 import { useUser } from '../../hooks/useUser';
 import StatsCard from '../../components/Stats/StatsCard';
-import CampaignCard from '../../components/Campaign/CampaignCard';
+import CampaignCard from '../../components/CampaignCard/CampaignCard';
 import VideoCard from '../../components/VideoCard/VideoCard';
 import styles from './Home.module.css';
-
+import brandLogo from './../../assets/images/brand.png';
 const Home = () => {
   const { user } = useUser();
 
@@ -19,10 +19,8 @@ const Home = () => {
       name: 'Summer Campaign',
       startDate: '2025-08-15',
       endDate: '2025-08-20',
-      brand: {
-        name: 'Brand Name',
-        logo: '/brand-logo.png',
-      },
+      brandName:'Brand Name',
+      brandLogo:brandLogo,
       amount: 40000,
       status: 'In Progress',
     },

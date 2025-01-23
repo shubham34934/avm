@@ -1,37 +1,20 @@
 import { useState } from 'react';
 import Header from '../../components/Header/Header';
 import styles from './Campaign.module.css';
+import CampaignCard from '../../components/CampaignCard/CampaignCard';
+import brandLogo from "./../../assets/images/brand.png"; 
 
-const CampaignCard = ({ name, status, dateRange, amount }) => (
-  <div className={styles.card}>
-    <div className={styles.cardHeader}>
-      <h3 className={styles.cardTitle}>{name}</h3>
-      {status && <span className={styles.status}>{status}</span>}
-      <button className={styles.moreButton} aria-label="More options">
-        <span className={styles.moreIcon}>⋮</span>
-      </button>
-    </div>
-    <div className={styles.cardBody}>
-      <div className={styles.dateRange}>
-        <span className={styles.icon}>📅</span>
-        <span>{dateRange}</span>
-      </div>
-      <div className={styles.amount}>
-        <span>Rs {amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-      </div>
-    </div>
-  </div>
-);
+const updatedCampaigns = [
+  { id: 1, name: 'Campaign 1', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 40000.00 , brandName:"Brand Name", brandLogo:brandLogo},
+  { id: 2, name: 'Campaign 2', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 150000.00, brandName:"Brand Name" , brandLogo:brandLogo},
+  { id: 3, name: 'Campaign 3', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 150000.00, brandName:"Brand Name" , brandLogo:brandLogo},
+  { id: 4, name: 'Campaign 4', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 40000.00, brandName:"Brand Name" , brandLogo:brandLogo},
+  { id: 5, name: 'Campaign 5', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 150000.00, brandName:"Brand Name" , brandLogo:brandLogo},
+  { id: 6, name: 'Campaign 6', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 40000.00, brandName:"Brand Name" , brandLogo:brandLogo}
+];
 
 const Campaign = () => {
-  const [campaigns] = useState([
-    { id: 1, name: 'Campaign 1', status: 'In Progress', dateRange: '15Aug - 20Aug', amount: 40000.00 },
-    { id: 2, name: 'Campaign 2', status: 'In Progress', dateRange: '15Aug - 20Aug', amount: 150000.00 },
-    { id: 3, name: 'Campaign 3', status: 'In Progress', dateRange: '15Aug - 20Aug', amount: 150000.00 },
-    { id: 4, name: 'Campaign 4', status: 'In Progress', dateRange: '15Aug - 20Aug', amount: 40000.00 },
-    { id: 5, name: 'Campaign 5', status: 'In Progress', dateRange: '15Aug - 20Aug', amount: 150000.00 },
-    { id: 6, name: 'Campaign 6', status: 'In Progress', dateRange: '15Aug - 20Aug', amount: 40000.00 },
-  ]);
+  const [campaigns] = useState(updatedCampaigns);
 
   const handleSearch = () => {
     // Implement search functionality
@@ -62,8 +45,11 @@ const Campaign = () => {
             key={campaign.id}
             name={campaign.name}
             status={campaign.status}
-            dateRange={campaign.dateRange}
+            startDate={campaign.startDate}
+            endDate={campaign.endDate}
             amount={campaign.amount}
+            brandName={campaign.brandName}
+            brandLogo={campaign.brandLogo}
           />
         ))}
       </div>

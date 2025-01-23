@@ -1,0 +1,23 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  font-weight: var(--font-medium);
+  text-transform: capitalize;
+}
+
+.small {
+  padding: 2px 6px;
+  font-size: var(--text-xs);
+}
+
+.medium {
+  padding: 4px 8px;
+  font-size: var(--text-sm);
+}
+
+.large {
+  padding: 6px 12px;
+  font-size: var(--text-base);
+}

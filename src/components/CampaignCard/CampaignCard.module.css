@@ -29,7 +29,7 @@
 
 .title {
   font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
+  font-weight: 400;
   color: var(--text-primary);
   margin: 0;
   white-space: nowrap;

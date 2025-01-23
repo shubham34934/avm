@@ -2,11 +2,14 @@
   position: relative;
   min-height: 100vh;
   background-color: var(--bg-color);
-  padding-top: var(--spacing-4);
+  padding-top: calc(60px + var(--spacing-4));
 }
 
 .content {
   display: flex;
   flex-direction: column;
+  padding: 0 var(--spacing-4);
   gap: var(--spacing-4);
+  padding-bottom: calc(60px + var(--spacing-4)); /* Footer height + padding */
+
 }

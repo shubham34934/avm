@@ -2,9 +2,9 @@ export const HEADER_CONFIG = {
   '/': {
     title: 'Home',
     showMenu: true,
-    showSearch: true,
+    showSearch: false,
     showAdd: false,
-    showMore: true,
+    showMore: false,
   },
   '/brands': {
     title: 'Brands',

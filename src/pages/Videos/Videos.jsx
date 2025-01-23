@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styles from './Videos.module.css';
-import VideoCard from './VideoCard';
+import VideoCard from './../../components/VideoCard/VideoCard';
 import defaultThumbnail from './../../assets/images/default-thumbnail.png';
+import Header from '../../components/Header/Header';
 
 const mockVideos = [
   {
@@ -11,7 +12,6 @@ const mockVideos = [
     userName: '@user_name',
     timestamp: '15Aug 12:21pm',
     status: 'Pending',
-    thumbnail: defaultThumbnail
   },
   {
     id: 2,
@@ -20,7 +20,6 @@ const mockVideos = [
     userName: '@user_name',
     timestamp: '15Aug 12:21pm',
     status: 'Pending',
-    thumbnail: defaultThumbnail
   },
   {
     id: 3,
@@ -29,7 +28,6 @@ const mockVideos = [
     userName: '@user_name',
     timestamp: '15Aug 12:21pm',
     status: 'Pending',
-    thumbnail: defaultThumbnail
   }
 ];
 
@@ -38,6 +36,12 @@ const Videos = () => {
 
   return (
     <div className={styles.container}>
+      <Header
+        title="Campaigns"
+        showSearch
+        showAdd
+        showMore
+      />
       <div className={styles.content}>
         {videos.map((video) => (
           <VideoCard

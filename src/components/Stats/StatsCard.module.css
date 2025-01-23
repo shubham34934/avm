@@ -1,6 +1,6 @@
 .card {
   background-color: var(--white);
-  padding: 1rem;
+  padding: 0.5rem;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   text-align: center;
@@ -14,7 +14,6 @@
 .title {
   color: var(--text-secondary);
   font-size: 0.875rem;
-  margin-bottom: 0.5rem;
   font-weight: 500;
 }
 

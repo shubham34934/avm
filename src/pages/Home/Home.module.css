@@ -1,5 +1,7 @@
 .container {
   padding: 1rem;
+  background-color: var(--bg-color);
+  padding-top: calc(60px + var(--spacing-4));
 }
 
 .welcome {
@@ -25,10 +27,14 @@
 }
 
 .stats {
-  display: grid;
+  display: flex;
+  justify-content: space-between;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
+}
+.statsCard{
+  width: 30%;
 }
 
 .section {
@@ -39,7 +45,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
+}
+.sectionTitle{
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sectionIcon{
+  filter: invert(42%) sepia(13%) saturate(1640%) hue-rotate(229deg) brightness(87%) contrast(88%);
 }
 
 .sectionHeader h2 {

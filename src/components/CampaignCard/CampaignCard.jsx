@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import styles from './CampaignCard.module.css';
 import DateRange from '../DateRange/DateRange';
 import moreIcon from "./../../assets/icons/more.svg"
+import Tag from '../Tag/Tag';
 const CampaignCard = ({
   name,
   startDate,
@@ -9,7 +10,7 @@ const CampaignCard = ({
   brandName,
   brandLogo,
   amount,
-  status,
+  status="",
   onClick
 }) => {
   return (
@@ -17,7 +18,7 @@ const CampaignCard = ({
       <div className={styles.header}>
         <div className={styles.titleWrapper}>
           <h3 className={styles.title}>{name}</h3>
-          <div className={styles.statusTag}>{status}</div>
+          <Tag text={status} variant={status.toLowerCase()} size="small" />
         </div>
         <button className={styles.moreButton} aria-label="More options">
           <img src={moreIcon} alt="More" className={styles.moreIcon} />

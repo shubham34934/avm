@@ -15,6 +15,7 @@ export const UserProvider = ({ children }) => {
         const mockUser = {
           id: '1',
           name: 'Vivek Sharma',
+          firstName:"Vivek",
           role: 'Super Admin',
           avatar: null,
         };

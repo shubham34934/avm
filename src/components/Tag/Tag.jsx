@@ -7,12 +7,12 @@ const TAG_VARIANTS = {
     color: "white",
   },
   pending: {
-    backgroundColor: 'var(--warning-light)',
-    color: 'var(--warning)',
+    backgroundColor: '#C3C9D0',
+    color: 'white',
   },
-  inProgress: {
-    backgroundColor: 'var(--primary-light)',
-    color: 'var(--primary)',
+  ['in progress']: {
+    backgroundColor: '#E3F3EF',
+    color: '#1A875B',
   },
   inactive: {
     backgroundColor: 'var(--error-light)',
@@ -28,13 +28,14 @@ const TAG_VARIANTS = {
   }
 };
 
-const Tag = ({ text, variant = 'default', size = 'medium' }) => {
+const Tag = ({ text, variant = 'default', size = 'medium', style={} }) => {
   const variantStyles = TAG_VARIANTS[variant] || TAG_VARIANTS.default;
-  
+  if(!text)return;
   return (
     <span 
       className={`${styles.tag} ${styles[size]}`}
       style={{
+        ...style,
         backgroundColor: variantStyles.backgroundColor,
         color: variantStyles.color
       }}
@@ -47,7 +48,8 @@ const Tag = ({ text, variant = 'default', size = 'medium' }) => {
 Tag.propTypes = {
   text: PropTypes.string.isRequired,
   variant: PropTypes.oneOf(['pending', 'inProgress', 'inactive', 'superAdmin', 'default',"accent"]),
-  size: PropTypes.oneOf(['small', 'medium', 'large'])
+  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  style: PropTypes.object
 };
 
 export default Tag;

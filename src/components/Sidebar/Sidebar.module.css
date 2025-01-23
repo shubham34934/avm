@@ -15,10 +15,10 @@
 
 .sidebar {
   position: fixed;
-  top: 60px; /* Header height */
+  top: 0px; /* Header height */
   left: 0;
-  width: 250px;
-  height: calc(100vh - 60px);
+  width: 270px;
+  height: calc(100vh);
   background-color: var(--white);
   box-shadow: var(--shadow-md);
   z-index: var(--z-sidebar);
@@ -37,10 +37,11 @@
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid var(--gray-100);
+  background-color: #FEF7FF;
+  padding: var(--spacing-10) var(--spacing-6);
 }
 
 .userInfo {
-  flex: 1;
 }
 
 .userName {
@@ -60,24 +61,29 @@
   font-weight: 500;
 }
 
-.editButton {
+.editIconContainer{
+  width: 50px;
+}
+
+.editIcon {
   background: none;
   border: none;
   padding: 0.5rem;
   cursor: pointer;
   font-size: 1.25rem;
+  width: 40px;
+  height: 40px;
 }
 
 .nav {
-  padding: var(--spacing-4);
+  padding: var(--spacing-6);
 }
 
 .navItem {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: var(--spacing-3) var(--spacing-4);
-  margin-bottom: var(--spacing-2);
+  padding: var(--spacing-4) 0px;
   color: var(--text-secondary);
   background: none;
   border: none;
@@ -89,21 +95,6 @@
 
 .navItem:focus {
   outline: none !important;
-}
-
-.navItem:hover {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-}
-
-.navItem.active {
-  background-color: var(--primary);
-  color: var(--white);
-}
-
-.navItem.active .icon {
-  /* Filter for #735EAB */
-  filter: invert(42%) sepia(13%) saturate(1640%) hue-rotate(229deg) brightness(87%) contrast(88%);
 }
 
 .icon {
@@ -118,8 +109,14 @@
   font-weight: var(--font-medium);
 }
 
+
 .logoutButton {
-  display: flex;
+  padding: var(--spacing-6);
+  border-top: 1px solid var(--gray-100);
+  cursor: pointer;
+  color: var(--error);
+  transition: background-color 0.2s ease; 
+  /* display: flex;
   align-items: center;
   width: 100%;
   padding: 1rem 1.5rem;
@@ -128,7 +125,7 @@
   border-top: 1px solid var(--gray-100);
   cursor: pointer;
   color: var(--error);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease; */
 }
 
 .logoutButton:hover {

@@ -2,6 +2,10 @@ import PropTypes from 'prop-types';
 import styles from './Tag.module.css';
 
 const TAG_VARIANTS = {
+  accent:{
+    backgroundColor: '#A99985',
+    color: "white",
+  },
   pending: {
     backgroundColor: 'var(--warning-light)',
     color: 'var(--warning)',

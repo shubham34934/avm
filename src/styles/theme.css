@@ -42,10 +42,11 @@
   --spacing-4: 1rem;
   --spacing-6: 1.5rem;
   --spacing-8: 2rem;
-  
+  --spacing-10: 3rem;
+
   /* Z-index */
   --z-header: 50;
-  --z-sidebar: 40;
+  --z-sidebar: 100;
   --z-footer: 50;
   --z-modal: 100;
   

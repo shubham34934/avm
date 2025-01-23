@@ -21,12 +21,6 @@ export const USER_ROLES = {
 // Sidebar Navigation Items
 export const SIDEBAR_ITEMS = [
   {
-    label: 'Home',
-    path: '/',
-    icon: HomeIcon,
-    roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN, USER_ROLES.END_USER, USER_ROLES.CREATOR]
-  },
-  {
     label: 'Brands',
     path: '/brands',
     icon: BrandsIcon,

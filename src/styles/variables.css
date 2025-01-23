@@ -57,7 +57,7 @@
   --spacing-6: 1.5rem;
   
   /* Z-index */
-  --z-sidebar: 50;
+  --z-sidebar: 100;
   --z-overlay: 40;
   --z-header: 30;
   --z-footer: 20;

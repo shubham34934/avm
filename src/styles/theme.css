@@ -7,6 +7,7 @@
   /* Background Colors */
   --bg-color: #F8FAFC;
   --white: #FFFFFF;
+  --border-color:#DDD9E2;
   
   /* Text Colors */
   --text-primary: #1E293B;
@@ -92,4 +93,47 @@ input[type="submit"]:focus-visible,
 input[type="reset"]:focus-visible {
   box-shadow: 0 0 0 2px var(--primary-light);
   outline: none;
+}
+
+*:focus {
+  outline: none;
+}
+
+/* Add focus-visible for keyboard users */
+*:focus-visible {
+  outline: 2px solid #6c63ff; /* Customize the color/style */
+  outline-offset: 2px;
+}
+
+button:focus,
+a:focus {
+  outline: none;
+}
+
+/* Optionally, add a custom focus style for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #6c63ff; /* Add your preferred focus style */
+  outline-offset: 2px;
+}
+
+button:focus,
+a:focus,
+input:focus {
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent; /* Specific for mobile devices */
+}
+
+/* Keep keyboard accessibility intact */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #6c63ff; /* Optional custom outline for keyboard focus */
+  outline-offset: 2px;
+}
+
+/* Disable tap highlight completely for the entire app (if needed) */
+body {
+  -webkit-tap-highlight-color: transparent; /* Disables highlight on touch */
 }

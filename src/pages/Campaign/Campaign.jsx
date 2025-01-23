@@ -4,6 +4,7 @@ import styles from './Campaign.module.css';
 import CampaignCard from '../../components/CampaignCard/CampaignCard';
 import brandLogo from "./../../assets/images/brand.png"; 
 import FloatingActionButton from '../../components/FloatingActionButton/FloatingActionButton';
+import { useNavigate } from 'react-router-dom';
 
 const updatedCampaigns = [
   { id: 1, name: 'Campaign 1', status: 'In Progress', startDate: '15Aug', endDate: '20Aug', amount: 40000.00 , brandName:"Brand Name", brandLogo:brandLogo},
@@ -15,6 +16,7 @@ const updatedCampaigns = [
 ];
 
 const Campaign = () => {
+  const navigate = useNavigate()
   const [campaigns] = useState(updatedCampaigns);
 
   const handleSearch = () => {
@@ -51,6 +53,9 @@ const Campaign = () => {
             amount={campaign.amount}
             brandName={campaign.brandName}
             brandLogo={campaign.brandLogo}
+            onClick={() => {
+              navigate("/campaign/randomcampaignid")
+            }}
           />
         ))}
       </div>

@@ -1,0 +1,236 @@
+.container {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  background-color: black;
+  overflow: hidden;
+  /* Remove tap highlight on mobile */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Remove focus outlines */
+* {
+  -webkit-tap-highlight-color: transparent;
+  outline: none !important;
+}
+
+*:focus {
+  outline: none !important;
+}
+
+.topBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-4);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+}
+
+.pageTitle {
+  color: white;
+  font-size: var(--text-lg);
+  font-weight: var(--font-medium);
+}
+
+.backButton,
+.moreButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  /* Remove tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.videoContainer {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  position: relative;
+}
+
+.videoWrapper {
+  position: relative;
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  cursor: pointer;
+  /* Remove tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.playIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  opacity: 0.8;
+  z-index: 2;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  animation: fadeIn 0.2s ease;
+  /* Remove tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-6);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.videoInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid white;
+  /* Remove tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.username {
+  color: white;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+}
+
+.title {
+  margin: 0;
+  color: white;
+  font-size: var(--text-lg);
+  font-weight: var(--font-medium);
+}
+
+.sideActions {
+  position: absolute;
+  right: var(--spacing-6);
+  bottom: var(--spacing-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.actionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  /* Remove tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.actionButton svg {
+  width: 32px;
+  height: 32px;
+}
+
+.actionButton span {
+  font-size: var(--text-sm);
+}
+
+.actionButton.liked {
+  color: var(--primary);
+}
+
+.shortlistButton {
+  position: absolute;
+  bottom: var(--spacing-6);
+  left: var(--spacing-6);
+  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: var(--radius-full);
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  /* Remove tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shortlistButton:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Hide scrollbar */
+.videoContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.videoContainer {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

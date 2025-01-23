@@ -1,0 +1,97 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+.overlay.visible {
+  opacity: 1;
+}
+
+.bottomSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--white);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  padding: var(--spacing-4);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 1001;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.bottomSheet.visible {
+  transform: translateY(0);
+}
+
+.handle {
+  width: 32px;
+  height: 4px;
+  background-color: var(--border-color);
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--spacing-4);
+}
+
+.title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-4) 0;
+  text-align: center;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--spacing-2) 0;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border-color);
+}
+
+.primaryButton,
+.secondaryButton {
+  flex: 1;
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.primaryButton {
+  background-color: var(--primary);
+  color: var(--white);
+  border: none;
+}
+
+.primaryButton:hover {
+  background-color: var(--primary-dark);
+}
+
+.secondaryButton {
+  background-color: var(--white);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.secondaryButton:hover {
+  background-color: var(--bg-color);
+}

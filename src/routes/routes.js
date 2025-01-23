@@ -6,12 +6,12 @@ const Home = lazy(() => import('../pages/Home/Home'));
 const Brands = lazy(() => import('../pages/Brands/Brands'));
 const Campaign = lazy(() => import('../pages/Campaign/Campaign'));
 const CreateCampaign = lazy(() => import('../pages/CreateCampaign/CreateCampaign'));
+const CampaignDetails = lazy(() => import('../pages/CampaignDetails/CampaignDetails'));
+const Submissions = lazy(() => import('../pages/Submissions/Submissions'));
+const VideoPlayer = lazy(() => import('../pages/VideoPlayer/VideoPlayer'));
 const Videos = lazy(() => import('../pages/Videos/Videos'));
 const Users = lazy(() => import('../pages/Users/Users'));
-const AITools = lazy(() => import('../pages/AITools'));
-// import PriceDistributions from '../pages/PriceDistributions';
-// import Settings from '../pages/Settings';
-// import Reports from '../pages/Reports';
+const AITools = lazy(() => import('../pages/AITools/AITools'));
 const Unauthorized = lazy(() => import('../pages/Auth/Unauthorized'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 const Login = lazy(() => import('../pages/Auth/Login'));
@@ -40,6 +40,21 @@ export const routes = [
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
   },
   {
+    path: '/campaign/:id',
+    component: CampaignDetails,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
+  },
+  {
+    path: '/campaign/:id/submissions',
+    component: Submissions,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
+  },
+  {
+    path: '/videos/:id',
+    component: VideoPlayer,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN, USER_ROLES.END_USER, USER_ROLES.CREATOR]
+  },
+  {
     path: '/videos',
     component: Videos,
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN, USER_ROLES.END_USER, USER_ROLES.CREATOR]
@@ -53,22 +68,7 @@ export const routes = [
     path: '/users',
     component: Users,
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
-  },
-  // {
-  //   path: '/price-distributions',
-  //   component: PriceDistributions,
-  //   allowedRoles: [USER_ROLES.SUPER_ADMIN]
-  // },
-  // {
-  //   path: '/settings',
-  //   component: Settings,
-  //   allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
-  // },
-  // {
-  //   path: '/reports',
-  //   component: Reports,
-  //   allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
-  // }
+  }
 ];
 
 // Public routes (accessible without authentication)

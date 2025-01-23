@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './FloatingActionButton.module.css';
-
+import addIcon from "./../../assets/icons/add.svg"
 const FloatingActionButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -47,9 +47,7 @@ const FloatingActionButton = () => {
         className={`${styles.fab} ${isOpen ? styles.open : ''}`}
         aria-label={isOpen ? "Close menu" : "Open menu"}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        <img src={addIcon} alt="add" className={styles.addIcon}/>
       </button>
     </div>
   );

@@ -15,7 +15,7 @@ const VideoCard = ({
     <div className={styles.card}>
       <div className={styles.thumbnail}>
         <img src={thumbnail} alt={title} />
-        <span className={`${styles.status} ${styles[status.toLowerCase()]}`}>
+        <span className={`${styles.status} ${styles[status?.toLowerCase()]}`}>
           {status}
         </span>
       </div>

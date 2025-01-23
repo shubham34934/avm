@@ -46,7 +46,7 @@ const Tag = ({ text, variant = 'default', size = 'medium' }) => {
 
 Tag.propTypes = {
   text: PropTypes.string.isRequired,
-  variant: PropTypes.oneOf(['pending', 'inProgress', 'inactive', 'superAdmin', 'default']),
+  variant: PropTypes.oneOf(['pending', 'inProgress', 'inactive', 'superAdmin', 'default',"accent"]),
   size: PropTypes.oneOf(['small', 'medium', 'large'])
 };
 

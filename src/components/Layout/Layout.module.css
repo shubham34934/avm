@@ -1,28 +1,29 @@
 .layout {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
   background-color: var(--bg-color);
-  padding-top: 60px; /* Same as header height */
+  position: relative;
 }
 
 .main {
-  flex: 1;
-  padding: var(--spacing-4);
-  margin-bottom: 60px; /* Height of the footer */
-  max-width: 100%;
-  overflow-x: hidden;
-  min-height: calc(100vh - 120px); /* viewport height - (header + footer) */
-  transition: margin-left 0.3s ease;
-  margin-left: 0;
+  padding-bottom: 56px; /* Height of bottom navigation */
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  width: 100vw;
 }
 
-.main.shifted {
-  margin-left: 250px; /* Width of sidebar */
+.main.fullscreen {
+  padding: 0;
+  background-color: black;
 }
 
-@media (max-width: 768px) {
-  .main.shifted {
+/* For desktop screens */
+@media (min-width: 1024px) {
+  .main {
+    margin-left: 270px; /* Width of sidebar */
+    padding-bottom: 0;
+  }
+
+  .main.fullscreen {
     margin-left: 0;
   }
 }

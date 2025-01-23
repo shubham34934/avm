@@ -34,7 +34,7 @@ const Campaign = () => {
   return (
     <div className={styles.container}>
       <Header 
-        title="My Campaigns"
+        title="Campaigns"
         showSearch
         showAdd
         showMore

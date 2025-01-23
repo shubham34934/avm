@@ -1,87 +1,73 @@
 import { useUser } from '../../hooks/useUser';
-import StatsCard from '../../components/Stats/StatsCard';
-import CampaignCard from '../../components/CampaignCard/CampaignCard';
 import VideoCard from '../../components/VideoCard/VideoCard';
 import styles from './Home.module.css';
 import brandLogo from './../../assets/images/brand.png';
+import Header from '../../components/Header/Header';
+import { useLayout } from '../../context/LayoutContext';
+
 const Home = () => {
   const { user } = useUser();
-
-  console.log({user})
-  const stats = [
-    { title: 'Live', value: 12 },
-    { title: 'Complete', value: 123 },
-    { title: 'Submission', value: 13689 },
-  ];
-
-  const campaigns = [
-    {
-      name: 'Summer Campaign',
-      startDate: '2025-08-15',
-      endDate: '2025-08-20',
-      brandName:'Brand Name',
-      brandLogo:brandLogo,
-      amount: 40000,
-      status: 'In Progress',
-    },
-    // Add more campaigns as needed
-  ];
+  const { toggleSidebar } = useLayout();
 
   const videos = [
     {
-      title: 'Product Review',
-      campaign: 'Summer Campaign',
-      username: 'user_name',
-      timestamp: '2025-08-15T12:21:00',
-      status: 'Pending',
-      thumbnail: '/video-thumbnail.jpg',
+      id: 1,
+      title: 'Video Title 1',
+      thumbnail: brandLogo,
+      views: 1200,
+      likes: 45,
+      createdAt: '2 days ago'
     },
-    // Add more videos as needed
+    {
+      id: 2,
+      title: 'Video Title 2',
+      thumbnail: brandLogo,
+      views: 800,
+      likes: 32,
+      createdAt: '3 days ago'
+    }
   ];
+
+  const handleSearch = () => {
+    // Handle search
+  };
+
+  const handleAdd = () => {
+    // Handle add
+  };
+
+  const handleMore = () => {
+    // Handle more options
+  };
 
   return (
     <div className={styles.container}>
+      <Header
+        title="Super Admin"
+        showMenu
+        onMenu={toggleSidebar}
+        showSearch
+        onSearch={handleSearch}
+        showAdd
+        onAdd={handleAdd}
+        showMore
+        onMore={handleMore}
+      />
       <div className={styles.welcome}>
         <h1>Welcome Back, {user.name}</h1>
         {user.role === 'Super Admin' && (
-          <span className={styles.badge}>Super Admin</span>
+          <p>You have all access to the platform</p>
         )}
       </div>
 
-      <div className={styles.stats}>
-        {stats.map((stat, index) => (
-          <StatsCard
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            variant={index === 0 ? 'primary' : 'default'}
-          />
-        ))}
-      </div>
-
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2>Campaigns</h2>
-          <button className={styles.viewAll}>View all</button>
+          <h2>Recent Videos</h2>
+          <button className={styles.viewAll}>View All</button>
         </div>
-        <div className={styles.campaigns}>
-          {campaigns.map((campaign) => (
-            <CampaignCard key={campaign.name} {...campaign} />
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2>Videos Uploaded</h2>
-        </div>
-        <div className={styles.videos}>
-          {videos.map((video) => (
-            <VideoCard
-              key={video.title}
-              {...video}
-              onOptionsClick={() => {}}
-            />
+        <div className={styles.videoGrid}>
+          {videos.map(video => (
+            <VideoCard key={video.id} {...video} />
           ))}
         </div>
       </section>

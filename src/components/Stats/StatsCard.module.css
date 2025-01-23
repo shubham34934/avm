@@ -1,0 +1,33 @@
+.card {
+  background-color: var(--white);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.title {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.primary .value {
+  color: var(--primary);
+}
+
+.secondary .value {
+  color: var(--secondary);
+}

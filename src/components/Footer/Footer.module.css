@@ -1,0 +1,52 @@
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--white);
+  box-shadow: var(--shadow-up);
+  z-index: var(--z-footer);
+}
+
+.nav {
+  display: flex;
+  justify-content: space-around;
+  padding: var(--spacing-2);
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: var(--spacing-2);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  outline: none !important;
+}
+
+.navItem:focus {
+  outline: none !important;
+}
+
+.navItem.active {
+  color: var(--primary);
+}
+
+.navItem.active .icon {
+  /* Filter for #735EAB */
+  filter: invert(42%) sepia(13%) saturate(1640%) hue-rotate(229deg) brightness(87%) contrast(88%);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: var(--spacing-1);
+  transition: filter 0.2s ease;
+}
+
+.label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+}

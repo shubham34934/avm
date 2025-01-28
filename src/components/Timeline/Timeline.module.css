@@ -1,8 +1,8 @@
 .timeline {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1);
   padding: var(--spacing-4);
+  gap: 10px;
 }
 
 .timelineItemWrapper {
@@ -12,23 +12,20 @@
   align-items: flex-start;
 }
 
-.connector {
-  position: absolute;
-  left: 20px;
-  top: 40px;
-  bottom: -20px;
-  width: 2px;
-  background-color: var(--border-color);
-}
-
 .timelineItem {
   display: flex;
-  align-items: flex-start;
   gap: var(--spacing-3);
-  padding: var(--spacing-2) 0;
+  position: relative;
 }
 
 .timelineIcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.iconWrapper {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
@@ -36,14 +33,75 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-tertiary);
-  border: 2px solid var(--border-color);
+  margin-bottom: var(--spacing-2);
+}
+
+.iconWrapper.active {
+  background-color: var(--primary);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) saturate(100%) invert(47%) sepia(14%) saturate(1080%) hue-rotate(208deg) brightness(91%) contrast(89%);
+}
+
+.active .icon {
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+}
+
+.line {
+  width: 2px;
+  flex: 1;
+  background-color: var(--border-color);
+  margin-top: -4px;
 }
 
 .timelineContent {
+  flex: 1;
+  padding-bottom: var(--spacing-4);
+}
+
+.timelineHeader {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-1);
+}
+
+.timelineTitle {
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.timestamp {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.reminder {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+  color: var(--primary);
+  font-size: var(--text-sm);
+}
+
+.reminderIcon {
+  font-size: var(--text-sm);
+}
+
+.reminderText {
+  font-weight: var(--font-medium);
 }
 
 .label {

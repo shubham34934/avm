@@ -7,9 +7,11 @@ import addIcon from '../../assets/icons/add.svg';
 import moreIcon from '../../assets/icons/more.svg';
 import backIcon from '../../assets/icons/back.svg';
 import { HEADER_CONFIG } from '../../constants/headerConfig';
+import { useLayout } from '../../context/LayoutContext';
 
 const Header = ({ onMenu, onSearch, onAdd, onMore , showBack,showMenu, title, showSearch, showAdd, showMore }) => {
   const location = useLocation();
+  const { toggleSidebar } = useLayout();
   const navigate = useNavigate();
   const config = HEADER_CONFIG[location.pathname] || {};
 
@@ -32,7 +34,14 @@ const Header = ({ onMenu, onSearch, onAdd, onMore , showBack,showMenu, title, sh
         
         {showMenu || config.showMenu ? (
           <button 
-            onClick={onMenu} 
+            onClick={()=>{
+              console.log(toggleSidebar, onMenu)
+              if(onMenu){
+                onMenu()
+              }else{
+                toggleSidebar();
+              }
+            }} 
             className={styles.iconButton}
             aria-label="Open menu"
           >
@@ -92,7 +101,7 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  onMenu: () => {},
+  onMenu: null,
   onSearch: () => {},
   onAdd: () => {},
   onMore: () => {}

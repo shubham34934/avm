@@ -14,9 +14,12 @@ const Users = lazy(() => import('../pages/Users/Users'));
 const AITools = lazy(() => import('../pages/AITools/AITools'));
 const Unauthorized = lazy(() => import('../pages/Auth/Unauthorized'));
 const NotFound = lazy(() => import('../pages/NotFound'));
-const Login = lazy(() => import('../pages/Auth/Login'));
-const Register = lazy(() => import('../pages/Auth/Register'));
-const ForgotPassword = lazy(() => import('../pages/Auth/ForgotPassword'));
+
+// Authentication pages
+const Login = lazy(() => import('../pages/auth/Login'));
+const Register = lazy(() => import('../pages/auth/Register'));
+const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('../pages/auth/ResetPassword'));
 
 export const routes = [
   {
@@ -84,6 +87,10 @@ export const publicRoutes = [
   {
     path: '/forgot-password',
     component: ForgotPassword
+  },
+  {
+    path: '/reset-password/:token',
+    component: ResetPassword
   }
 ];
 

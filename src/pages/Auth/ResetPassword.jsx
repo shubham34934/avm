@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { AuthService } from '../../services/AuthService';
 import './Auth.css';
 
-const Register = () => {
-  const [email, setEmail] = useState('');
+const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const { token } = useParams();
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
-    const result = await AuthService.register(email, password, confirmPassword);
+    const result = await AuthService.resetPassword(token, password, confirmPassword);
     
     if (result.success) {
-      // Redirect to login or dashboard
+      // Redirect to login after successful password reset
       navigate('/login');
     } else {
       setError(result.message);
@@ -23,38 +23,28 @@ const Register = () => {
   };
 
   return (
-    <div className="register-container">
-      <form onSubmit={handleRegister}>
-        <h2>Register</h2>
+    <div className="reset-password-container">
+      <form onSubmit={handleResetPassword}>
+        <h2>Reset Password</h2>
         {error && <p className="error">{error}</p>}
         <input 
-          type="email" 
-          placeholder="Email" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required 
-        />
-        <input 
           type="password" 
-          placeholder="Password" 
+          placeholder="New Password" 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required 
         />
         <input 
           type="password" 
-          placeholder="Confirm Password" 
+          placeholder="Confirm New Password" 
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required 
         />
-        <button type="submit">Register</button>
-        <div className="auth-links">
-          <Link to="/login">Already have an account? Login</Link>
-        </div>
+        <button type="submit">Reset Password</button>
       </form>
     </div>
   );
 };
 
-export default Register;
+export default ResetPassword;

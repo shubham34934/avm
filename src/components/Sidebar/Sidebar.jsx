@@ -22,9 +22,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const handleNavigation = (path) => {
     navigate(path);
-    if (window.innerWidth <= 768) {
-      onClose();
-    }
+    onClose(); // Close sidebar regardless of screen size
   };
 
   const handleLogout = async () => {

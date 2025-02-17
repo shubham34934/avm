@@ -1,0 +1,46 @@
+.errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 200px);
+  width: 100%;
+}
+
+.errorContent {
+  text-align: center;
+  padding: var(--spacing-6);
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  color: var(--error-color, #dc3545);
+  margin-bottom: var(--spacing-4);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.message {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-4);
+}
+
+.retryButton {
+  padding: var(--spacing-2) var(--spacing-4);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background-color: var(--primary-color-dark);
+}

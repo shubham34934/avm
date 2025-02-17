@@ -1,42 +1,108 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Users.module.css';
 import ListCard from '../../components/ListCard/ListCard';
-import { users } from '../../data/mockData';
+import Header from '../../components/Header/Header';
+import { useAppDispatch, useAppSelector } from '../../config/store';
+import { fetchUsers } from '../../reducers/users';
+import Loader from '../../components/Loader/Loader';
+import Error from '../../components/Error/Error';
+
+// Fallback Loader component in case the import fails
+const FallbackLoader = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh' 
+  }}>
+    Loading...
+  </div>
+);
 
 const Users = () => {
-  const [usersList] = useState(users);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { users, loading, error, totalItems, currentPage } = useAppSelector((state) => state.users);
+  const [searchQuery, setSearchQuery] = useState('');
+  const pageSize = 20;
 
-  const handleSearch = () => {
-    // Implement search functionality
+  useEffect(() => {
+    dispatch(fetchUsers({ page: currentPage, size: pageSize }));
+  }, [dispatch, currentPage]);
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    // TODO: Implement search functionality
   };
 
   const handleAdd = () => {
-    // Implement add functionality
+    // TODO: Implement add functionality
   };
 
   const handleMore = () => {
-    // Implement more options functionality
+    // TODO: Implement more options functionality
   };
 
-  const handleUserClick = (userId) => {
-    // Handle user click
-    console.log('User clicked:', userId);
+  const handleUserClick = (user) => {
+    navigate(`/users/${user.login}`);
+  };
+
+  const getUserSubtitle = (user) => {
+    const items = [
+      user.login,
+      user.email,
+      user.authorities.join(', ')
+    ];
+    return items.join(' • ');
+  };
+
+  // Use fallback loader if Loader import fails
+  const LoaderComponent = Loader || FallbackLoader;
+
+  const renderContent = () => {
+    if (loading) {
+      return <LoaderComponent />;
+    }
+
+    if (error) {
+      return (
+        <Error
+          title="Failed to Load Users"
+          message={error}
+          onRetry={() => dispatch(fetchUsers({ page: currentPage, size: pageSize }))}
+        />
+      );
+    }
+
+    return (
+      <div className={styles.content}>
+        {users.map((user) => (
+          <ListCard
+            key={user.id}
+            image={user.imageUrl || undefined}
+            title={`${user.firstName} ${user.lastName}`}
+            subtitle={getUserSubtitle(user)}
+            status={user.activated ? 'Active' : 'Inactive'}
+            onClick={() => handleUserClick(user)}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.content}>
-        {usersList.map((user) => (
-          <ListCard
-            key={user.id}
-            image={user.avatar}
-            title={user.name}
-            subtitle={user.phone}
-            status={user.status}
-            onClick={() => handleUserClick(user.id)}
-          />
-        ))}
-      </div>
+      <Header 
+        title="Users"
+        showSearch
+        showAdd
+        showMore
+        onSearch={handleSearch}
+        onAdd={handleAdd}
+        onMore={handleMore}
+      />
+      {renderContent()}
     </div>
   );
 };

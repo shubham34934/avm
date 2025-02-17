@@ -3,6 +3,7 @@
   min-height: 100vh;
   background-color: var(--bg-color);
   padding-top: var(--spacing-4);
+  padding-top: calc(60px + var(--spacing-4));
 }
 
 .content {

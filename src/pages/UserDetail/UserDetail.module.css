@@ -1,0 +1,96 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  padding-top: calc(60px + var(--spacing-4));
+}
+
+.content {
+  padding: var(--spacing-6);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profileHeader {
+  text-align: center;
+  margin-bottom: var(--spacing-8);
+}
+
+.profileImage {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--spacing-4);
+  border: 4px solid var(--primary-color);
+  background-color: var(--white);
+}
+
+.userName {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.userRole {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  background-color: var(--primary-color-light);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.detailsContainer {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.section {
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-4);
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.detailItem label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-1);
+}
+
+.detailItem span {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.active {
+  color: var(--success-color) !important;
+  font-weight: 500;
+}
+
+.inactive {
+  color: var(--error-color) !important;
+  font-weight: 500;
+}

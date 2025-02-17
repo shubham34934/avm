@@ -11,6 +11,7 @@ const Submissions = lazy(() => import('../pages/Submissions/Submissions'));
 const VideoPlayer = lazy(() => import('../pages/VideoPlayer/VideoPlayer'));
 const Videos = lazy(() => import('../pages/Videos/Videos'));
 const Users = lazy(() => import('../pages/Users/Users'));
+const UserDetail = lazy(() => import('../pages/UserDetail/UserDetail'));
 const AITools = lazy(() => import('../pages/AITools/AITools'));
 const Unauthorized = lazy(() => import('../pages/Auth/Unauthorized'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -64,13 +65,18 @@ export const routes = [
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN, USER_ROLES.END_USER, USER_ROLES.CREATOR]
   },
   {
-    path: '/ai-tools',
-    component: AITools,
+    path: '/users',
+    component: Users,
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
   },
   {
-    path: '/users',
-    component: Users,
+    path: '/users/:username',
+    component: UserDetail,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
+  },
+  {
+    path: '/ai-tools',
+    component: AITools,
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
   }
 ];

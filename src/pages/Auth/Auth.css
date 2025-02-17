@@ -1,78 +1,80 @@
 /* Authentication Pages Styles */
-.login-container, 
-.register-container, 
-.forgot-password-container, 
+.login-container,
+.register-container,
+.forgot-password-container,
 .reset-password-container {
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f0f2f5;
+  justify-content: center;
+  background-color: #f4f4f4;
 }
 
-.login-container form, 
-.register-container form, 
-.forgot-password-container form, 
-.reset-password-container form {
+.auth-form {
   background-color: white;
-  padding: 30px;
+  padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
 }
 
-.login-container h2, 
-.register-container h2, 
-.forgot-password-container h2, 
-.reset-password-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
+.auth-form h2 {
   color: #333;
+  margin-bottom: 1.5rem;
 }
 
-.login-container input, 
-.register-container input, 
-.forgot-password-container input, 
-.reset-password-container input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.login-container button, 
-.register-container button, 
-.forgot-password-container button, 
-.reset-password-container button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.login-container button:hover, 
-.register-container button:hover, 
-.forgot-password-container button:hover, 
-.reset-password-container button:hover {
-  background-color: #0056b3;
-}
-
-.auth-links {
-  margin-top: 15px;
-  text-align: center;
-}
-
-.auth-links a {
+.auth-form a {
   color: #007bff;
   text-decoration: none;
-  margin: 0 10px;
+}
+
+.auth-form a:hover {
+  text-decoration: underline;
+}
+
+.forgot-password-link {
+  color: #6c757d;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+  display: inline-block;
+}
+
+.forgot-password-link:hover {
+  color: #007bff;
+  background-color: #f8f9fa;
+  border-color: #007bff;
+  text-decoration: none;
+}
+
+.register-link {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.register-link:hover {
+  color: #0056b3;
+}
+
+/* Remember Me Styling */
+.remember-me {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.remember-me input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
+.remember-me label {
+  font-size: 0.9em;
+  color: #666;
+  cursor: pointer;
 }
 
 .error {

@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 // Mock authentication service (replace with actual backend calls)
 export const AuthService = {
@@ -7,38 +9,41 @@ export const AuthService = {
       // Simulate login request
       // In a real app, this would be an API call
       if (email && password) {
-        return { 
-          success: true, 
-          user: { 
-            email, 
-            token: 'mock_authentication_token' 
-          } 
+        return {
+          success: true,
+          user: {
+            email,
+            token: "mock_authentication_token",
+          },
         };
       }
-      return { success: false, message: 'Invalid credentials' };
+      return { success: false, message: "Invalid credentials" };
     } catch (error) {
       return { success: false, message: error.message };
     }
   },
 
-  register: async (email, password, confirmPassword) => {
+  register: async (login, email, password) => {
     try {
-      // Validate passwords match
-      if (password !== confirmPassword) {
-        return { success: false, message: 'Passwords do not match' };
-      }
-
-      // Simulate registration request
-      // In a real app, this would be an API call
+      const response = await axios.post("/register", {
+        login,
+        email,
+        password,
+        langKey: "en", // Default language key
+      });
+      toast.success("Registration successful");
       return { 
         success: true, 
-        user: { 
-          email, 
-          token: 'mock_registration_token' 
-        } 
+        data: response.data, 
+        message: "Registration successful" 
       };
     } catch (error) {
-      return { success: false, message: error.message };
+      console.error("Registration error", error);
+      toast.error(error.response?.data?.message || "Registration failed");
+      throw {
+        success: false,
+        message: error.response?.data?.message || "Registration failed",
+      };
     }
   },
 
@@ -46,11 +51,13 @@ export const AuthService = {
     try {
       // Simulate forgot password request
       // In a real app, this would trigger a password reset email
-      return { 
-        success: true, 
-        message: 'Password reset link sent to your email' 
+      toast.success("Password reset link sent to your email");
+      return {
+        success: true,
+        message: "Password reset link sent to your email",
       };
     } catch (error) {
+      toast.error(error.message);
       return { success: false, message: error.message };
     }
   },
@@ -59,19 +66,21 @@ export const AuthService = {
     try {
       // Validate passwords match
       if (newPassword !== confirmPassword) {
-        return { success: false, message: 'Passwords do not match' };
+        toast.error("Passwords do not match");
+        return { success: false, message: "Passwords do not match" };
       }
 
       // Simulate password reset request
-      // In a real app, this would verify the token and update the password
-      return { 
-        success: true, 
-        message: 'Password reset successfully' 
+      toast.success("Password reset successfully");
+      return {
+        success: true,
+        message: "Password reset successfully",
       };
     } catch (error) {
+      toast.error(error.message);
       return { success: false, message: error.message };
     }
-  }
+  },
 };
 
 // Custom hook for managing authentication state
@@ -84,8 +93,10 @@ export const useAuth = () => {
     if (result.success) {
       setUser(result.user);
       setError(null);
+      toast.success("Login successful");
     } else {
       setError(result.message);
+      toast.error(result.message);
     }
     return result.success;
   };

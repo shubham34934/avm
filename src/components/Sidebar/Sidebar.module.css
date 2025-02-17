@@ -37,7 +37,7 @@
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid var(--gray-100);
-  background-color: #FEF7FF;
+  background-color: #fef7ff;
   padding: var(--spacing-10) var(--spacing-6);
 }
 
@@ -61,7 +61,7 @@
   font-weight: 500;
 }
 
-.editIconContainer{
+.editIconContainer {
   width: 50px;
 }
 
@@ -109,13 +109,12 @@
   font-weight: var(--font-medium);
 }
 
-
 .logoutButton {
   padding: var(--spacing-6);
   border-top: 1px solid var(--gray-100);
   cursor: pointer;
   color: var(--error);
-  transition: background-color 0.2s ease; 
+  transition: background-color 0.2s ease;
   /* display: flex;
   align-items: center;
   width: 100%;

@@ -5,6 +5,7 @@ const LayoutContext = createContext();
 
 export const LayoutProvider = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  console.log('Initial sidebar state:', isSidebarOpen);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(prev => !prev);

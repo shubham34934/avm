@@ -61,6 +61,14 @@ export const SIDEBAR_ITEMS = [
     path: '/settings',
     icon: SettingsIcon,
     roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN]
+  },
+  {
+    id: 'logout',
+    label: 'Logout',
+    path: '/logout',
+    icon: LogoutIcon,
+    roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN, USER_ROLES.END_USER, USER_ROLES.CREATOR],
+    position: 'bottom'
   }
 ];
 

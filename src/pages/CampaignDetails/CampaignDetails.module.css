@@ -6,13 +6,15 @@
 }
 
 .countdown {
-  background-color: #F5F1ED;
+  background-color: #f5f1ed;
   padding: var(--spacing-3);
-  color: #48464C;
+  color: #48464c;
   font-size: var(--text-sm);
   text-align: center;
 }
-
+.content {
+  padding: 0 10px;
+}
 .info {
   display: flex;
   align-items: center;
@@ -25,7 +27,7 @@
   font-weight: var(--font-semibold);
   color: var(--primary);
 }
-.title{
+.title {
   padding: 0px var(--spacing-4);
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);

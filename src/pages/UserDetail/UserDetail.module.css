@@ -95,3 +95,39 @@
   color: var(--error-color) !important;
   font-weight: 500;
 }
+
+.editInput {
+  font-size: 1rem;
+  padding: var(--spacing-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: var(--white);
+  color: var(--text-primary);
+  width: 100%;
+  transition: border-color 0.2s ease;
+}
+
+.editInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.editInput:hover {
+  border-color: var(--primary-light);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-4);
+  padding: 0 var(--spacing-6);
+}
+
+.errorMessage {
+  color: var(--error);
+  background-color: var(--error-light);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-sm);
+  margin: var(--spacing-4) var(--spacing-6);
+  text-align: center;
+}

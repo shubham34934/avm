@@ -4,10 +4,12 @@ import styles from "./Users.module.css";
 import ListCard from "../../components/ListCard/ListCard";
 import Header from "../../components/Header/Header";
 import { useAppDispatch, useAppSelector } from "../../config/store";
-import { fetchUsers } from "../../reducers/users";
+import { fetchUsers, deleteUser } from "../../reducers/users";
 import Loader from "../../components/Loader/Loader";
 import Error from "../../components/Error/Error";
 import dummyAvatar from "./../../assets/images/default-avatar.png";
+import Popover from "../../components/Popover/Popover";
+import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationModal";
 import {
   getUserTypeDisplay,
   combineAuthorities,
@@ -35,6 +37,9 @@ const Users = () => {
     (state) => state.users
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const pageSize = 20;
 
   useEffect(() => {
@@ -55,7 +60,57 @@ const Users = () => {
   };
 
   const handleUserClick = (user) => {
+    // navigate(`/users/${user.login}`);
+  };
+
+  const handleViewUser = (user) => {
     navigate(`/users/${user.login}`);
+  };
+
+  const handleEditUser = (user) => {
+    navigate(`/users/${user.login}?edit=true`);
+  };
+
+  const handleDeleteUser = async () => {
+    if (userToDelete) {
+      try {
+        await dispatch(deleteUser(userToDelete.login)).unwrap();
+        setUserToDelete(null);
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+      }
+    }
+  };
+
+  const handleMenuClick = (e, user) => {
+    e.stopPropagation();
+    setMenuOpen(true);
+    setSelectedUser(user);
+  };
+
+  const handleCloseMenu = () => {
+    setMenuOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleMenuOptionClick = (e, option, user) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    setSelectedUser(null);
+
+    switch (option) {
+      case "view":
+        handleViewUser(user);
+        break;
+      case "edit":
+        handleEditUser(user);
+        break;
+      case "delete":
+        setUserToDelete(user);
+        break;
+      default:
+        break;
+    }
   };
 
   const getUserSubtitle = (user) => {
@@ -99,6 +154,32 @@ const Users = () => {
             subtitle={getUserSubtitle(user)}
             status={user.activated ? "Active" : "Inactive"}
             onClick={() => handleUserClick(user)}
+            menuIcon="more_vert"
+            onMenuClick={(e) => handleMenuClick(e, user)}
+            menuContent={
+              menuOpen && selectedUser === user ? (
+                <Popover onClose={handleCloseMenu}>
+                  <div className={styles.menuOptions}>
+                    <button
+                      onClick={(e) => handleMenuOptionClick(e, "view", user)}
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={(e) => handleMenuOptionClick(e, "edit", user)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={(e) => handleMenuOptionClick(e, "delete", user)}
+                      className={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </Popover>
+              ) : null
+            }
           />
         ))}
       </div>
@@ -117,6 +198,17 @@ const Users = () => {
         onMore={handleMore}
       />
       {renderContent()}
+      
+      {userToDelete && (
+        <ConfirmationModal
+          title="Delete User"
+          message={`Are you sure you want to delete the user ${getUserTitle(userToDelete)}?`}
+          onConfirm={handleDeleteUser}
+          onCancel={() => setUserToDelete(null)}
+          confirmText="Delete"
+          cancelText="Cancel"
+        />
+      )}
     </div>
   );
 };

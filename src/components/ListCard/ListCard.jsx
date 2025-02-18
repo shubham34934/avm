@@ -55,6 +55,7 @@ const ListCard = ({
             className={styles.moreButton}
             onClick={onMenuClick}
             aria-label="More options"
+            data-menu-button
           >
             <img src={moreIcon} alt="More" className={styles.moreIcon} />
           </button>

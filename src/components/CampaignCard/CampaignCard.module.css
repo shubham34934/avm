@@ -2,14 +2,15 @@
   background: var(--white);
   border-radius: var(--radius-lg);
   padding: var(--spacing-4);
-  box-shadow: var(--shadow-sm);
   cursor: pointer;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  /* box-shadow: var(--shadow-md);
+  transform: translateY(-1px); */
 }
 
 .header {
@@ -25,13 +26,15 @@
   gap: var(--spacing-3);
   flex: 1;
   min-width: 0;
+  margin-right: var(--spacing-4);
 }
 
 .title {
   font-size: var(--text-lg);
-  font-weight: 400;
+  font-weight: var(--font-semibold);
   color: var(--text-primary);
   margin: 0;
+  margin-bottom: var(--spacing-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -46,23 +49,30 @@
   font-weight: var(--font-medium);
 }
 
+.menuContainer {
+  position: relative;
+}
+
 .moreButton {
+  background: none;
+  border: none;
+  padding: var(--spacing-2);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: none;
   border-radius: var(--radius-full);
-  cursor: pointer;
   color: var(--text-secondary);
   transition: background-color 0.2s ease;
-  padding: 0;
 }
 
 .moreButton:hover {
-  background-color: var(--bg-color);
+  background-color: var(--hover-bg);
+}
+
+.moreIcon {
+  width: 20px;
+  height: 20px;
 }
 
 .dateRange {
@@ -84,7 +94,7 @@
 .brandLogo {
   width: 24px;
   height: 24px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   object-fit: cover;
 }
 
@@ -94,7 +104,7 @@
 }
 
 .amount {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
 }

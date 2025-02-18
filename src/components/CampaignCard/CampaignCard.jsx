@@ -3,6 +3,7 @@ import styles from './CampaignCard.module.css';
 import DateRange from '../DateRange/DateRange';
 import moreIcon from "./../../assets/icons/more.svg"
 import Tag from '../Tag/Tag';
+
 const CampaignCard = ({
   name,
   startDate,
@@ -10,19 +11,43 @@ const CampaignCard = ({
   brandName,
   brandLogo,
   amount,
-  status="",
-  onClick
+  status = "",
+  onClick,
+  onMenuClick,
+  menuContent
 }) => {
+  const handleMenuClick = (e) => {
+    e.stopPropagation();
+    if (onMenuClick) {
+      onMenuClick(e);
+    }
+  };
+
+  const handleCardClick = (e) => {
+    // Only trigger onClick if the click wasn't on the menu button or menu content
+    if (!e.target.closest(`.${styles.menuContainer}`)) {
+      onClick?.(e);
+    }
+  };
+
   return (
-    <div className={styles.card} onClick={onClick} role="button" tabIndex={0}>
+    <div className={styles.card} onClick={handleCardClick} role="button" tabIndex={0}>
       <div className={styles.header}>
         <div className={styles.titleWrapper}>
           <h3 className={styles.title}>{name}</h3>
           <Tag text={status} variant={status.toLowerCase()} size="small" />
         </div>
-        <button className={styles.moreButton} aria-label="More options">
-          <img src={moreIcon} alt="More" className={styles.moreIcon} />
-        </button>
+        <div className={styles.menuContainer}>
+          <button 
+            className={styles.moreButton} 
+            aria-label="More options"
+            onClick={handleMenuClick}
+            data-menu-button
+          >
+            <img src={moreIcon} alt="More" className={styles.moreIcon} />
+          </button>
+          {menuContent}
+        </div>
       </div>
       <div className={styles.dateRange}>
         <DateRange startDate={startDate} endDate={endDate} />
@@ -46,7 +71,9 @@ CampaignCard.propTypes = {
   brandLogo: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired,
   status: PropTypes.string.isRequired,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
+  onMenuClick: PropTypes.func,
+  menuContent: PropTypes.node
 };
 
 export default CampaignCard;

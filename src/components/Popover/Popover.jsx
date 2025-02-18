@@ -6,11 +6,17 @@ const Popover = ({ children, onClose }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
-        onClose?.();
+      // If the click is inside the popover or on the menu button (which has data-menu-button), ignore it
+      if (
+        popoverRef.current?.contains(event.target) ||
+        event.target.closest('[data-menu-button]')
+      ) {
+        return;
       }
+      onClose?.();
     };
 
+    // Use mousedown to handle the event before the button click
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);

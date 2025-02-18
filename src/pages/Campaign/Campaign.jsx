@@ -9,9 +9,12 @@ import { useAppDispatch, useAppSelector } from "../../config/store";
 import {
   fetchCompetitions,
   searchCompetitions,
+  deleteCompetition,
 } from "../../reducers/competitions";
 import Loader from "../../components/Loader/Loader";
 import Error from "../../components/Error/Error";
+import Popover from "../../components/Popover/Popover";
+import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationModal";
 
 const Campaign = () => {
   const navigate = useNavigate();
@@ -24,16 +27,21 @@ const Campaign = () => {
     currentPage,
   } = useAppSelector((state) => state.competitions || []);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [campaignToDelete, setCampaignToDelete] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const pageSize = 20;
 
-  console.log({ competitions });
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await dispatch(fetchCompetitions({ page: currentPage, size: pageSize })).unwrap();
-        console.log('API Response:', result);
+        const result = await dispatch(
+          fetchCompetitions({ page: currentPage, size: pageSize })
+        ).unwrap();
+        console.log("API Response:", result);
       } catch (error) {
-        console.error('Error fetching competitions:', error);
+        console.error("Error fetching competitions:", error);
       }
     };
     fetchData();
@@ -44,10 +52,6 @@ const Campaign = () => {
     dispatch(
       searchCompetitions({
         title: query,
-        // Add other search params as needed
-        // status: selectedStatus,
-        // startDateFrom: startDate,
-        // startDateTo: endDate
       })
     );
   };
@@ -64,6 +68,59 @@ const Campaign = () => {
         sort: ["startDate,desc"],
       })
     );
+  };
+
+  const handleMenuClick = (e, campaign) => {
+    e.stopPropagation();
+    if (selectedCampaign === campaign && menuOpen) {
+      handleCloseMenu();
+    } else {
+      setMenuOpen(true);
+      setSelectedCampaign(campaign);
+    }
+  };
+
+  const handleCloseMenu = () => {
+    setMenuOpen(false);
+    setSelectedCampaign(null);
+  };
+
+  const handleViewCampaign = (campaign) => {
+    navigate(`/campaign/${campaign.id}`);
+  };
+
+  const handleEditCampaign = (campaign) => {
+    navigate(`/campaign/${campaign.id}/edit`);
+  };
+
+  const handleDeleteCampaign = async () => {
+    if (campaignToDelete) {
+      try {
+        await dispatch(deleteCompetition(campaignToDelete.id)).unwrap();
+        setCampaignToDelete(null);
+      } catch (error) {
+        console.error("Failed to delete campaign:", error);
+      }
+    }
+  };
+
+  const handleMenuOptionClick = (e, option, campaign) => {
+    e.stopPropagation();
+    handleCloseMenu();
+
+    switch (option) {
+      case "view":
+        handleViewCampaign(campaign);
+        break;
+      case "edit":
+        handleEditCampaign(campaign);
+        break;
+      case "delete":
+        setCampaignToDelete(campaign);
+        break;
+      default:
+        break;
+    }
   };
 
   const renderContent = () => {
@@ -91,7 +148,10 @@ const Campaign = () => {
             name={campaign.title}
             startDate={new Date(campaign.startDate).toLocaleDateString(
               "en-US",
-              { day: "2-digit", month: "short" }
+              {
+                day: "2-digit",
+                month: "short",
+              }
             )}
             endDate={new Date(campaign.endDate).toLocaleDateString("en-US", {
               day: "2-digit",
@@ -104,6 +164,38 @@ const Campaign = () => {
             onClick={() => {
               navigate(`/campaign/${campaign.id}`);
             }}
+            menuIcon="more_vert"
+            onMenuClick={(e) => handleMenuClick(e, campaign)}
+            menuContent={
+              menuOpen && selectedCampaign === campaign ? (
+                <Popover onClose={handleCloseMenu}>
+                  <div className={styles.menuOptions}>
+                    <button
+                      onClick={(e) =>
+                        handleMenuOptionClick(e, "view", campaign)
+                      }
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={(e) =>
+                        handleMenuOptionClick(e, "edit", campaign)
+                      }
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={(e) =>
+                        handleMenuOptionClick(e, "delete", campaign)
+                      }
+                      className={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </Popover>
+              ) : null
+            }
           />
         ))}
       </div>
@@ -122,6 +214,16 @@ const Campaign = () => {
         onMore={handleMore}
       />
       {renderContent()}
+      {campaignToDelete && (
+        <ConfirmationModal
+          title="Delete Campaign"
+          message={`Are you sure you want to delete the campaign "${campaignToDelete.title}"?`}
+          onConfirm={handleDeleteCampaign}
+          onCancel={() => setCampaignToDelete(null)}
+          confirmText="Delete"
+          cancelText="Cancel"
+        />
+      )}
       <FloatingActionButton />
     </div>
   );

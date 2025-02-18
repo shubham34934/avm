@@ -19,7 +19,6 @@
 /* For desktop screens */
 @media (min-width: 1024px) {
   .main {
-    margin-left: 270px; /* Width of sidebar */
     padding-bottom: 0;
   }
 

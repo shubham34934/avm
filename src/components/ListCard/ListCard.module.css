@@ -38,7 +38,6 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  margin-bottom: var(--spacing-1);
 }
 
 .title {
@@ -54,6 +53,23 @@
 .subtitle {
   font-size: var(--text-sm);
   color: var(--text-secondary);
+}
+
+.subtitleMultiline {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.subtitleMultiline > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtitleMultiline > div:last-child {
+  margin-top: var(--spacing-1);
 }
 
 .moreButton {

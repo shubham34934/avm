@@ -1,21 +1,29 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styles from './Users.module.css';
-import ListCard from '../../components/ListCard/ListCard';
-import Header from '../../components/Header/Header';
-import { useAppDispatch, useAppSelector } from '../../config/store';
-import { fetchUsers } from '../../reducers/users';
-import Loader from '../../components/Loader/Loader';
-import Error from '../../components/Error/Error';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./Users.module.css";
+import ListCard from "../../components/ListCard/ListCard";
+import Header from "../../components/Header/Header";
+import { useAppDispatch, useAppSelector } from "../../config/store";
+import { fetchUsers } from "../../reducers/users";
+import Loader from "../../components/Loader/Loader";
+import Error from "../../components/Error/Error";
+import dummyAvatar from "./../../assets/images/default-avatar.png";
+import {
+  getUserTypeDisplay,
+  combineAuthorities,
+  getUserTitle,
+} from "../../utils/constants";
 
 // Fallback Loader component in case the import fails
 const FallbackLoader = () => (
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: '100vh' 
-  }}>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+    }}
+  >
     Loading...
   </div>
 );
@@ -23,8 +31,10 @@ const FallbackLoader = () => (
 const Users = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { users, loading, error, totalItems, currentPage } = useAppSelector((state) => state.users);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { users, loading, error, totalItems, currentPage } = useAppSelector(
+    (state) => state.users
+  );
+  const [searchQuery, setSearchQuery] = useState("");
   const pageSize = 20;
 
   useEffect(() => {
@@ -41,7 +51,7 @@ const Users = () => {
   };
 
   const handleMore = () => {
-    // TODO: Implement more options functionality
+    // Implement pagination or load more logic
   };
 
   const handleUserClick = (user) => {
@@ -49,12 +59,14 @@ const Users = () => {
   };
 
   const getUserSubtitle = (user) => {
-    const items = [
-      user.login,
-      user.email,
-      user.authorities.join(', ')
-    ];
-    return items.join(' • ');
+    const authorities = combineAuthorities(user.authorities);
+    return (
+      <>
+        <div>{user.login}</div>
+        <div>{user.email}</div>
+        <div>{authorities}</div>
+      </>
+    );
   };
 
   // Use fallback loader if Loader import fails
@@ -70,7 +82,9 @@ const Users = () => {
         <Error
           title="Failed to Load Users"
           message={error}
-          onRetry={() => dispatch(fetchUsers({ page: currentPage, size: pageSize }))}
+          onRetry={() =>
+            dispatch(fetchUsers({ page: currentPage, size: pageSize }))
+          }
         />
       );
     }
@@ -80,10 +94,10 @@ const Users = () => {
         {users.map((user) => (
           <ListCard
             key={user.id}
-            image={user.imageUrl || undefined}
-            title={`${user.firstName} ${user.lastName}`}
+            image={user.imageUrl || dummyAvatar}
+            title={getUserTitle(user)}
             subtitle={getUserSubtitle(user)}
-            status={user.activated ? 'Active' : 'Inactive'}
+            status={user.activated ? "Active" : "Inactive"}
             onClick={() => handleUserClick(user)}
           />
         ))}
@@ -93,11 +107,11 @@ const Users = () => {
 
   return (
     <div className={styles.container}>
-      <Header 
+      <Header
         title="Users"
         showSearch
         showAdd
-        showMore
+        searchQuery={searchQuery}
         onSearch={handleSearch}
         onAdd={handleAdd}
         onMore={handleMore}

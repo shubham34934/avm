@@ -1,43 +1,47 @@
-import PropTypes from 'prop-types';
-import styles from './Tag.module.css';
+import PropTypes from "prop-types";
+import styles from "./Tag.module.css";
 
 const TAG_VARIANTS = {
-  accent:{
-    backgroundColor: '#A99985',
+  accent: {
+    backgroundColor: "#A99985",
     color: "white",
   },
   pending: {
-    backgroundColor: '#C3C9D0',
-    color: 'white',
+    backgroundColor: "#C3C9D0",
+    color: "white",
   },
-  ['in progress']: {
-    backgroundColor: '#E3F3EF',
-    color: '#1A875B',
+  ["in progress"]: {
+    backgroundColor: "#E3F3EF",
+    color: "#1A875B",
+  },
+  active: {
+    backgroundColor: "#E3F3EF",
+    color: "#1A875B",
   },
   inactive: {
-    backgroundColor: 'var(--error-light)',
-    color: 'var(--error)',
+    backgroundColor: "var(--error-light)",
+    color: "var(--error)",
   },
   superAdmin: {
-    backgroundColor: 'var(--success-light)',
-    color: 'var(--success)',
+    backgroundColor: "var(--success-light)",
+    color: "var(--success)",
   },
   default: {
-    backgroundColor: 'var(--gray-100)',
-    color: 'var(--text-secondary)',
-  }
+    backgroundColor: "var(--gray-100)",
+    color: "var(--text-secondary)",
+  },
 };
 
-const Tag = ({ text, variant = 'default', size = 'medium', style={} }) => {
+const Tag = ({ text, variant = "default", size = "medium", style = {} }) => {
   const variantStyles = TAG_VARIANTS[variant] || TAG_VARIANTS.default;
-  if(!text)return;
+  if (!text) return;
   return (
-    <span 
+    <span
       className={`${styles.tag} ${styles[size]}`}
       style={{
         ...style,
         backgroundColor: variantStyles.backgroundColor,
-        color: variantStyles.color
+        color: variantStyles.color,
       }}
     >
       {text}
@@ -47,9 +51,16 @@ const Tag = ({ text, variant = 'default', size = 'medium', style={} }) => {
 
 Tag.propTypes = {
   text: PropTypes.string.isRequired,
-  variant: PropTypes.oneOf(['pending', 'inProgress', 'inactive', 'superAdmin', 'default',"accent"]),
-  size: PropTypes.oneOf(['small', 'medium', 'large']),
-  style: PropTypes.object
+  variant: PropTypes.oneOf([
+    "pending",
+    "inProgress",
+    "inactive",
+    "superAdmin",
+    "default",
+    "accent",
+  ]),
+  size: PropTypes.oneOf(["small", "medium", "large"]),
+  style: PropTypes.object,
 };
 
 export default Tag;

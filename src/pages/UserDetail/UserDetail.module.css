@@ -5,7 +5,7 @@
 }
 
 .content {
-  padding: var(--spacing-6);
+  padding: var(--spacing-4);
   max-width: 800px;
   margin: 0 auto;
 }
@@ -26,7 +26,7 @@
 }
 
 .userName {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: var(--spacing-2);
@@ -45,6 +45,7 @@
   background-color: var(--white);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
+  gap: var(--spacing-2);
 }
 
 .section {

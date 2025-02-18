@@ -1,18 +1,23 @@
-import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../config/store';
-import { fetchUserByUsername } from '../../reducers/users';
-import styles from './UserDetail.module.css';
-import Header from '../../components/Header/Header';
-import Loader from '../../components/Loader/Loader';
-import Error from '../../components/Error/Error';
-import defaultAvatar from '../../assets/images/default-avatar.png';
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../config/store";
+import { fetchUserByUsername } from "../../reducers/users";
+import styles from "./UserDetail.module.css";
+import Header from "../../components/Header/Header";
+import Loader from "../../components/Loader/Loader";
+import Error from "../../components/Error/Error";
+import defaultAvatar from "../../assets/images/default-avatar.png";
+import { getUserTypeDisplay, getUserTitle } from "../../utils/constants";
 
 const UserDetail = () => {
   const { username } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { selectedUser: user, loading, error } = useAppSelector((state) => state.users);
+  const {
+    selectedUser: user,
+    loading,
+    error,
+  } = useAppSelector((state) => state.users);
 
   useEffect(() => {
     if (username) {
@@ -23,6 +28,8 @@ const UserDetail = () => {
   const handleBack = () => {
     navigate(-1);
   };
+
+  const userTypeDisplay = getUserTypeDisplay(user?.authorities);
 
   const renderContent = () => {
     if (loading) {
@@ -54,13 +61,11 @@ const UserDetail = () => {
         <div className={styles.profileHeader}>
           <img
             src={user.imageUrl || defaultAvatar}
-            alt={`${user.firstName} ${user.lastName}`}
+            alt={getUserTitle(user)}
             className={styles.profileImage}
           />
-          <h1 className={styles.userName}>{user.firstName} {user.lastName}</h1>
-          <div className={styles.userRole}>
-            {user.authorities.join(', ')}
-          </div>
+          <h2 className={styles.userName}>{getUserTitle(user)}</h2>
+          <div className={styles.userRole}>{userTypeDisplay}</div>
         </div>
 
         <div className={styles.detailsContainer}>
@@ -77,8 +82,10 @@ const UserDetail = () => {
               </div>
               <div className={styles.detailItem}>
                 <label>Status</label>
-                <span className={user.activated ? styles.active : styles.inactive}>
-                  {user.activated ? 'Active' : 'Inactive'}
+                <span
+                  className={user.activated ? styles.active : styles.inactive}
+                >
+                  {user.activated ? "Active" : "Inactive"}
                 </span>
               </div>
               <div className={styles.detailItem}>
@@ -97,7 +104,11 @@ const UserDetail = () => {
               </div>
               <div className={styles.detailItem}>
                 <label>Created Date</label>
-                <span>{user.createdDate ? new Date(user.createdDate).toLocaleString() : 'N/A'}</span>
+                <span>
+                  {user.createdDate
+                    ? new Date(user.createdDate).toLocaleString()
+                    : "N/A"}
+                </span>
               </div>
               <div className={styles.detailItem}>
                 <label>Last Modified By</label>
@@ -105,7 +116,11 @@ const UserDetail = () => {
               </div>
               <div className={styles.detailItem}>
                 <label>Last Modified Date</label>
-                <span>{user.lastModifiedDate ? new Date(user.lastModifiedDate).toLocaleString() : 'N/A'}</span>
+                <span>
+                  {user.lastModifiedDate
+                    ? new Date(user.lastModifiedDate).toLocaleString()
+                    : "N/A"}
+                </span>
               </div>
             </div>
           </div>
@@ -116,11 +131,7 @@ const UserDetail = () => {
 
   return (
     <div className={styles.container}>
-      <Header
-        title="User Details"
-        showBack
-        onBack={handleBack}
-      />
+      <Header title="User Details" showBack onBack={handleBack} />
       {renderContent()}
     </div>
   );

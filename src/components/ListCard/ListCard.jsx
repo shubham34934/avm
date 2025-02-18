@@ -10,6 +10,20 @@ const ListCard = ({
   status,
   onClick
 }) => {
+  const renderSubtitle = () => {
+    // If subtitle is a string, render as before
+    if (typeof subtitle === 'string') {
+      return <span className={styles.subtitle}>{subtitle}</span>;
+    }
+    
+    // If subtitle is an array or React fragment, render multiple lines
+    return (
+      <div className={styles.subtitleMultiline}>
+        {subtitle}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.card} onClick={onClick} role="button" tabIndex={0}>
       <div className={styles.content}>
@@ -19,7 +33,7 @@ const ListCard = ({
             <h3 className={styles.title}>{title}</h3>
             {status && <Tag text={status} variant={status.toLowerCase()} size="small" />}
           </div>
-          <span className={styles.subtitle}>{subtitle}</span>
+          {renderSubtitle()}
         </div>
       </div>
       <button className={styles.moreButton} aria-label="More options">
@@ -32,7 +46,11 @@ const ListCard = ({
 ListCard.propTypes = {
   image: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  subtitle: PropTypes.string.isRequired,
+  subtitle: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node
+  ]).isRequired,
   status: PropTypes.string,
   onClick: PropTypes.func
 };

@@ -34,7 +34,6 @@
   font-weight: var(--font-semibold);
   color: var(--text-primary);
   margin: 0;
-  margin-bottom: var(--spacing-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

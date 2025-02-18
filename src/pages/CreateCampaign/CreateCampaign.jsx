@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from "../../config/store";
+import { createCompetition } from "../../reducers/competitions";
+import { toast } from 'react-toastify';
 import styles from './CreateCampaign.module.css';
 import calendarIcon from '../../assets/icons/calendar.svg';
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     topic: '',
@@ -22,10 +27,39 @@ const CreateCampaign = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+
+    try {
+      // Get current date for createdOn
+      const currentDate = new Date().toISOString().split('T')[0];
+
+      // Map form data to API payload
+      const payload = {
+        title: formData.name,
+        description: formData.topic,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        totalPrizeValue: parseFloat(formData.prizeAmount),
+        rules: formData.rules,
+        status: 'Draft',
+        paymentStatus: 'PaymentPendingFromSponsor',
+        isActive: true,
+        isBlocked: false,
+        isPaused: false,
+        createdBy: 'admin',
+        createdOn: currentDate
+      };
+
+      await dispatch(createCompetition(payload)).unwrap();
+      toast.success('Campaign created successfully');
+      navigate('/campaign');
+    } catch (error) {
+      toast.error(error.message || 'Failed to create campaign');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
@@ -84,7 +118,7 @@ const CreateCampaign = () => {
         <div className={styles.formGroup}>
           <div className={styles.dateInput}>
             <input
-              type="text"
+              type="date"
               id="startDate"
               name="startDate"
               value={formData.startDate}
@@ -99,7 +133,7 @@ const CreateCampaign = () => {
         <div className={styles.formGroup}>
           <div className={styles.dateInput}>
             <input
-              type="text"
+              type="date"
               id="endDate"
               name="endDate"
               value={formData.endDate}
@@ -138,8 +172,12 @@ const CreateCampaign = () => {
           <span className={styles.required}>*</span>
         </div>
 
-        <button type="submit" className={styles.submitButton}>
-          Publish Campaign
+        <button 
+          type="submit" 
+          className={styles.submitButton} 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Publishing...' : 'Publish Campaign'}
         </button>
       </form>
     </div>

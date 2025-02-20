@@ -1,14 +1,13 @@
-import { createContext, useContext, useState } from 'react';
-import PropTypes from 'prop-types';
+import { createContext, useContext, useState } from "react";
+import PropTypes from "prop-types";
 
 const LayoutContext = createContext();
 
 export const LayoutProvider = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  console.log('Initial sidebar state:', isSidebarOpen);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(prev => !prev);
+    setIsSidebarOpen((prev) => !prev);
   };
 
   const closeSidebar = () => {
@@ -16,7 +15,9 @@ export const LayoutProvider = ({ children }) => {
   };
 
   return (
-    <LayoutContext.Provider value={{ isSidebarOpen, toggleSidebar, closeSidebar }}>
+    <LayoutContext.Provider
+      value={{ isSidebarOpen, toggleSidebar, closeSidebar }}
+    >
       {children}
     </LayoutContext.Provider>
   );
@@ -29,7 +30,7 @@ LayoutProvider.propTypes = {
 export const useLayout = () => {
   const context = useContext(LayoutContext);
   if (!context) {
-    throw new Error('useLayout must be used within a LayoutProvider');
+    throw new Error("useLayout must be used within a LayoutProvider");
   }
   return context;
 };

@@ -31,14 +31,7 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
-    console.log('Authentication state changed:', {
-      isAuthenticated,
-      username,
-      rememberMe
-    });
-
     if (isAuthenticated) {
-      console.log('Attempting to navigate to home page');
       // Save or clear remembered username based on rememberMe checkbox
       if (rememberMe) {
         localStorage.setItem("rememberedUsername", username);

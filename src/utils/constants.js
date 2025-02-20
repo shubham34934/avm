@@ -39,7 +39,6 @@ export const getUserTitle = (user = {}) => {
 };
 
 export const checkAllowedRole = (allowedRole, userRole) => {
-  console.log({ allowedRole, userRole });
   for (const item of userRole) {
     if (allowedRole.includes(item)) return true;
   }

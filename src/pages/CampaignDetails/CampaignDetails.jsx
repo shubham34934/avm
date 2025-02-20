@@ -135,8 +135,6 @@ const CampaignDetails = () => {
     month: "short",
   });
 
-  // console.log({ selectedCompetition });
-
   return (
     <div className={styles.container}>
       <Header

@@ -127,6 +127,7 @@
   font-weight: var(--font-medium);
   cursor: pointer;
   transition: background-color 0.2s ease;
+  margin-bottom: 20px;
 }
 
 .submitButton:hover {

@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import styles from './Brands.module.css';
-import ListCard from '../../components/ListCard/ListCard';
-import { brands } from '../../data/mockData';
+import { useState } from "react";
+import styles from "./Brands.module.css";
+import ListCard from "../../components/ListCard/ListCard";
+import { brands } from "../../data/mockData";
 
 const Brands = () => {
   const [brandsList] = useState(brands);
@@ -20,7 +20,6 @@ const Brands = () => {
 
   const handleBrandClick = (brandId) => {
     // Handle brand click
-    console.log('Brand clicked:', brandId);
   };
 
   return (

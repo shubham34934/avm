@@ -1,11 +1,10 @@
-import PropTypes from 'prop-types';
-import BottomSheet from '../BottomSheet/BottomSheet';
-import styles from './ShortlistReminder.module.css';
+import PropTypes from "prop-types";
+import BottomSheet from "../BottomSheet/BottomSheet";
+import styles from "./ShortlistReminder.module.css";
 
 const ShortlistReminder = ({ isOpen, onClose, campaignName, endDate }) => {
   const handleSendReminder = () => {
     // Handle sending reminder
-    console.log('Sending reminder...');
   };
 
   return (
@@ -20,8 +19,8 @@ const ShortlistReminder = ({ isOpen, onClose, campaignName, endDate }) => {
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Reminder Message</h3>
           <p className={styles.message}>
-            This is a reminder to shortlist winners for your campaign,
-            "{campaignName}", which ended on {endDate}.
+            This is a reminder to shortlist winners for your campaign, "
+            {campaignName}", which ended on {endDate}.
           </p>
         </div>
 
@@ -46,7 +45,7 @@ ShortlistReminder.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   campaignName: PropTypes.string.isRequired,
-  endDate: PropTypes.string.isRequired
+  endDate: PropTypes.string.isRequired,
 };
 
 export default ShortlistReminder;

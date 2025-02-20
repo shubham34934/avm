@@ -21,7 +21,6 @@ const CreateCampaign = () => {
     rules: "",
   });
 
-  console.log({ user });
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -37,7 +36,6 @@ const CreateCampaign = () => {
     try {
       // Get current date for createdOn
       const currentDate = new Date().toISOString().split("T")[0];
-      console.log({ user });
       // Map form data to API payload
       const payload = {
         title: formData.name,

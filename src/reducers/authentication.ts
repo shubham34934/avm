@@ -65,7 +65,6 @@ export const getAccount = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.get<any>("/account");
-      console.log("Account Details Fetched:", response.data);
       return response.data;
     } catch (error) {
       // Clear authentication state on 401
@@ -113,8 +112,7 @@ export const authenticate = createAsyncThunk(
 
         // Fetch user account details
         const accountResponse: any = await axios.get<any>("/account");
-        console.log("Login - Account Details:", accountResponse.data);
-        accountResponse.role = accountResponse?.authorities?.[0];
+        accountResponse.role = accountResponse?.data?.authorities?.[0];
         return {
           account: accountResponse.data,
           token: jwt,
@@ -186,7 +184,6 @@ export const AuthenticationSlice = createSlice({
         state.isAuthenticated = true;
         state.account = action.payload.account; // Store full account details
         state.errorMessage = null;
-        console.log("Authentication State Updated:", state.account);
       })
       .addCase(authenticate.rejected, (state, action) => {
         state.loading = false;
@@ -204,7 +201,6 @@ export const AuthenticationSlice = createSlice({
         state.isAuthenticated = true;
         state.account = action.payload; // Store full account details
         state.account.role = action.payload?.authorities?.[0];
-        console.log("Account State Updated:", state.account);
       })
       .addCase(getAccount.rejected, (state, action) => {
         state.loading = false;

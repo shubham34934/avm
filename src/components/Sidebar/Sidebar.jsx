@@ -9,7 +9,7 @@ import Tag from "../Tag/Tag";
 import { useAppDispatch } from "../../config/store";
 import { logout } from "../../reducers/authentication";
 import { toast } from "react-toastify";
-import { checkAllowedRole } from "../../utils/constants";
+import { checkAllowedRole, getUserTitle } from "../../utils/constants";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       <aside className={`${styles.sidebar} ${isOpen ? styles.open : ""}`}>
         <div className={styles.header}>
           <div className={styles.userInfo}>
-            <h2 className={styles.userName}>{user?.name}</h2>
+            <h2 className={styles.userName}>{getUserTitle(user)}</h2>
             <Tag text={user?.role} variant={"accent"} size="small" />
           </div>
           <div className={styles.editIconContainer}>

@@ -33,27 +33,32 @@ const Campaign = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const pageSize = 20;
 
+  const fetchData = async () => {
+    try {
+      const result = await dispatch(
+        fetchCompetitions({ page: currentPage, size: pageSize })
+      ).unwrap();
+      console.log("API Response:", result);
+    } catch (error) {
+      console.error("Error fetching competitions:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await dispatch(
-          fetchCompetitions({ page: currentPage, size: pageSize })
-        ).unwrap();
-        console.log("API Response:", result);
-      } catch (error) {
-        console.error("Error fetching competitions:", error);
-      }
-    };
     fetchData();
   }, [dispatch, currentPage, pageSize]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    dispatch(
-      searchCompetitions({
-        title: query,
-      })
-    );
+    if (query) {
+      dispatch(
+        searchCompetitions({
+          title: query,
+        })
+      );
+    } else {
+      fetchData();
+    }
   };
 
   const handleAdd = () => {

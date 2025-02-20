@@ -30,6 +30,82 @@
   gap: var(--spacing-2);
 }
 
+.searchContainer {
+  position: relative;
+  transition: width 0.3s ease;
+}
+
+.searchContainer.expanded {
+  flex: 1;
+  margin-right: var(--spacing-2);
+}
+
+.searchInputContainer {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background-color: var(--bg-color);
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  background-color: var(--white);
+}
+
+.searchInputIconLeft {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  color: var(--text-secondary);
+}
+
+.clearButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.clearButton:hover {
+  background-color: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.clearIcon {
+  width: 20px;
+  height: 20px;
+  color: currentColor;
+}
+
 .menuButton {
   background: none;
   border: none;
@@ -190,5 +266,10 @@
   .actionIcon {
     width: 24px;
     height: 24px;
+  }
+
+  .searchContainer.expanded {
+    min-width: 300px;
+    max-width: 500px;
   }
 }

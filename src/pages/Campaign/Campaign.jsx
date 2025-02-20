@@ -90,7 +90,7 @@ const Campaign = () => {
   };
 
   const handleEditCampaign = (campaign) => {
-    navigate(`/campaign/${campaign.id}/edit`);
+    navigate(`/campaign/create?edit=true&id=${campaign.id}`);
   };
 
   const handleDeleteCampaign = async () => {

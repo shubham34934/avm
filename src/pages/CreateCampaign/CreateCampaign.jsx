@@ -1,7 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch } from "../../config/store";
-import { createCompetition } from "../../reducers/competitions";
+import {
+  createCompetition,
+  fetchCompetitionById,
+  updateCompetition,
+} from "../../reducers/competitions";
 import { toast } from "react-toastify";
 import styles from "./CreateCampaign.module.css";
 import calendarIcon from "../../assets/icons/calendar.svg";
@@ -11,6 +15,10 @@ const CreateCampaign = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useUser();
+  const [searchParams] = useSearchParams();
+  const isEdit = searchParams.get("edit") === "true";
+  const campaignId = searchParams.get("id");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -20,6 +28,30 @@ const CreateCampaign = () => {
     prizeAmount: "",
     rules: "",
   });
+
+  useEffect(() => {
+    const fetchCampaignData = async () => {
+      if (isEdit && campaignId) {
+        try {
+          const campaign = await dispatch(
+            fetchCompetitionById(parseInt(campaignId))
+          ).unwrap();
+          setFormData({
+            name: campaign.title,
+            startDate: campaign.startDate,
+            endDate: campaign.endDate,
+            prizeAmount: campaign.totalPrizeValue.toString(),
+            rules: campaign.description,
+          });
+        } catch (error) {
+          toast.error("Failed to fetch campaign details");
+          navigate("/campaign");
+        }
+      }
+    };
+
+    fetchCampaignData();
+  }, [isEdit, campaignId, dispatch, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,9 +66,7 @@ const CreateCampaign = () => {
     setIsSubmitting(true);
 
     try {
-      // Get current date for createdOn
       const currentDate = new Date().toISOString().split("T")[0];
-      // Map form data to API payload
       const payload = {
         title: formData.name,
         description: formData.rules,
@@ -54,11 +84,20 @@ const CreateCampaign = () => {
         createdOn: currentDate,
       };
 
-      await dispatch(createCompetition(payload)).unwrap();
-      toast.success("Campaign created successfully");
+      if (isEdit && campaignId) {
+        await dispatch(
+          updateCompetition({ id: parseInt(campaignId), data: payload })
+        ).unwrap();
+        toast.success("Campaign updated successfully");
+      } else {
+        await dispatch(createCompetition(payload)).unwrap();
+        toast.success("Campaign created successfully");
+      }
       navigate("/campaign");
     } catch (error) {
-      toast.error(error.message || "Failed to create campaign");
+      toast.error(
+        error.message || `Failed to ${isEdit ? "update" : "create"} campaign`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -95,12 +134,15 @@ const CreateCampaign = () => {
             />
           </svg>
         </button>
-        <h1 className={styles.title}>Create Campaign</h1>
+        <h1 className={styles.title}>
+          {isEdit ? "Edit Campaign" : "Create Campaign"}
+        </h1>
       </div>
 
       <p className={styles.description}>
-        Start a campaign by sharing your goals, content needs, and rewards to
-        get creators involved.
+        {isEdit
+          ? "Update your campaign details below."
+          : "Start a campaign by sharing your goals, content needs, and rewards to get creators involved."}
       </p>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -208,7 +250,11 @@ const CreateCampaign = () => {
           className={styles.submitButton}
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Publishing..." : "Publish Campaign"}
+          {isSubmitting
+            ? "Please wait..."
+            : isEdit
+            ? "Update Campaign"
+            : "Create Campaign"}
         </button>
       </form>
     </div>

@@ -1,6 +1,7 @@
-import { Navigate } from 'react-router-dom';
-import { useUser } from '../../hooks/useUser';
-import PropTypes from 'prop-types';
+import { Navigate } from "react-router-dom";
+import { useUser } from "../../hooks/useUser";
+import PropTypes from "prop-types";
+import { checkAllowedRole } from "../../utils/constants";
 
 const RouteGuard = ({ children, allowedRoles }) => {
   const { user, isLoading } = useUser();
@@ -13,7 +14,7 @@ const RouteGuard = ({ children, allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  if (checkAllowedRole(allowedRoles, user.authorities)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

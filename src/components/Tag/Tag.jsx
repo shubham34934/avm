@@ -22,6 +22,10 @@ const TAG_VARIANTS = {
     backgroundColor: "var(--error-light)",
     color: "var(--error)",
   },
+  blocked: {
+    backgroundColor: "var(--error-light)",
+    color: "var(--error)",
+  },
   superAdmin: {
     backgroundColor: "var(--success-light)",
     color: "var(--success)",
@@ -51,14 +55,7 @@ const Tag = ({ text, variant = "default", size = "medium", style = {} }) => {
 
 Tag.propTypes = {
   text: PropTypes.string.isRequired,
-  variant: PropTypes.oneOf([
-    "pending",
-    "inProgress",
-    "inactive",
-    "superAdmin",
-    "default",
-    "accent",
-  ]),
+  variant: PropTypes.string,
   size: PropTypes.oneOf(["small", "medium", "large"]),
   style: PropTypes.object,
 };

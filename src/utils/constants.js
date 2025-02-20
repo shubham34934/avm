@@ -37,3 +37,11 @@ export const getUserTitle = (user = {}) => {
   }
   return `${user.firstName} ${user.lastName}`;
 };
+
+export const checkAllowedRole = (allowedRole, userRole) => {
+  console.log({ allowedRole, userRole });
+  for (const item of userRole) {
+    if (allowedRole.includes(item)) return true;
+  }
+  return false;
+};

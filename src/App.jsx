@@ -8,6 +8,7 @@ import { routes, publicRoutes } from './routes/routes';
 import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
 import Layout from './components/Layout/Layout';
 import { LayoutProvider } from './context/LayoutContext';
+import AppInitializer from './components/AppInitializer/AppInitializer';
 import './styles/theme.css';
 
 function App() {
@@ -16,33 +17,35 @@ function App() {
       <UserProvider>
         <LayoutProvider>
           <Router>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                {/* Public Routes */}
-                {publicRoutes.map(({ path, component: Component }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    element={<Component />}
-                  />
-                ))}
-
-                {/* Protected Routes with Layout */}
-                <Route element={<Layout />}>
-                  {routes.map(({ path, component: Component, allowedRoles }) => (
+            <AppInitializer>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  {/* Public Routes */}
+                  {publicRoutes.map(({ path, component: Component }) => (
                     <Route
                       key={path}
                       path={path}
-                      element={
-                        <RouteGuard allowedRoles={allowedRoles}>
-                          <Component />
-                        </RouteGuard>
-                      }
+                      element={<Component />}
                     />
                   ))}
-                </Route>
-              </Routes>
-            </Suspense>
+
+                  {/* Protected Routes with Layout */}
+                  <Route element={<Layout />}>
+                    {routes.map(({ path, component: Component, allowedRoles }) => (
+                      <Route
+                        key={path}
+                        path={path}
+                        element={
+                          <RouteGuard allowedRoles={allowedRoles}>
+                            <Component />
+                          </RouteGuard>
+                        }
+                      />
+                    ))}
+                  </Route>
+                </Routes>
+              </Suspense>
+            </AppInitializer>
           </Router>
         </LayoutProvider>
       </UserProvider>

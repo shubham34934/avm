@@ -9,6 +9,7 @@ import Tag from "../Tag/Tag";
 import { useAppDispatch } from "../../config/store";
 import { logout } from "../../reducers/authentication";
 import { toast } from "react-toastify";
+import { checkAllowedRole } from "../../utils/constants";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const dispatch = useAppDispatch();
 
   const filteredNavItems = SIDEBAR_ITEMS.filter((item) =>
-    item.roles.includes(user?.role)
+    checkAllowedRole(item.roles, user?.authorities)
   );
 
   const handleNavigation = (path) => {

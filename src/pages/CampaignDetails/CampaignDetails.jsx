@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../config/store";
+import { fetchCompetitionById } from "../../reducers/competitions";
 import styles from "./CampaignDetails.module.css";
 import Timeline from "../../components/Timeline/Timeline";
 import SubmissionCard from "../../components/Submission/SubmissionCard";
@@ -11,50 +13,70 @@ import thumbnail1 from "./../../assets/images/thumbnails/1.png";
 import thumbnail2 from "./../../assets/images/thumbnails/2.png";
 import thumbnail3 from "./../../assets/images/thumbnails/3.png";
 import rightArrow from "./../../assets/icons/rightArrow.svg";
+import { toast } from "react-toastify";
 
 const CampaignDetails = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { id } = useParams();
+  const { selectedCompetition, loading, error } = useAppSelector(
+    (state) => state.competitions
+  );
   const [timeLeft] = useState("1h 20m 34s");
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        await dispatch(fetchCompetitionById(parseInt(id))).unwrap();
+      } catch (error) {
+        toast.error(error || "Failed to fetch campaign details");
+        navigate("/campaign");
+      }
+    };
+
+    if (id) {
+      fetchDetails();
+    }
+  }, [id, dispatch, navigate]);
 
   const timelineSteps = [
     {
       type: "campaign_created",
       title: "Campaign Created",
-      timestamp: "12:21 July 12",
+      timestamp: selectedCompetition?.createdDate || "",
       isActive: true,
     },
     {
       type: "campaign_started",
       title: "Campaign Started",
-      timestamp: "12:21 July 12",
-      isActive: true,
+      timestamp: selectedCompetition?.startDate || "",
+      isActive: selectedCompetition?.status === "ACTIVE",
     },
     {
       type: "completed",
-      title: "Completed (12,498 submissions)",
-      timestamp: "12:21 July 16",
-      isActive: true,
-      reminder: "Shortlist Reminder",
+      title: "Completed",
+      timestamp: selectedCompetition?.endDate || "",
+      isActive: selectedCompetition?.status === "COMPLETED",
     },
     {
       type: "select_winners",
       title: "Select Winners",
-      timestamp: "12:21 July 16",
-      isActive: true,
-      description: "12 Video shortlisted",
+      isActive: selectedCompetition?.status === "WINNER_SELECTION",
     },
     {
       type: "winner_announced",
       title: "Winner Announced",
-      reminder: "Payout Reminder",
+      isActive: selectedCompetition?.status === "WINNER_ANNOUNCED",
     },
     {
       type: "payment_sent",
       title: "Payment Sent",
+      isActive: selectedCompetition?.paymentStatus === "PAID",
     },
     {
       type: "done",
       title: "Remittance done",
+      isActive: selectedCompetition?.paymentStatus === "REMITTANCE_DONE",
     },
   ];
 
@@ -87,23 +109,38 @@ const CampaignDetails = () => {
     // Handle more options
   };
 
-  const campaignDetailsDescription =
-    "Create compelling videos showcasing the product in everyday use. Top-performing videos will be rewarded and featured on our official channels.";
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  const campaignDetailsPoints = [
-    "Highlight the product benefits clearly.",
-    "Keep the video length between 30 seconds and 1 minute.",
-    "Use natural lighting and a clean background.",
-    "Ensure the brand logo is visible in the video.",
-    "Add captions or text overlays for clarity.",
-    "Avoid offensive or inappropriate content.",
-    "Submit videos in HD quality for best results.",
-  ];
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!selectedCompetition) {
+    return <div>No campaign found</div>;
+  }
+
+  const startDateFormatted = new Date(
+    selectedCompetition.startDate
+  ).toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+  });
+
+  const endDateFormatted = new Date(
+    selectedCompetition.endDate
+  ).toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+  });
+
+  // console.log({ selectedCompetition });
 
   return (
     <div className={styles.container}>
       <Header
-        title="Summer Vibes Campaign"
+        title={selectedCompetition.title}
         showBack
         onBack={handleBack}
         showSearch={false}
@@ -118,25 +155,32 @@ const CampaignDetails = () => {
 
       <div className={styles.content}>
         <div className={styles.info}>
-          <DateRange startDate="15Aug" endDate="20Aug" />
-          <div className={styles.amount}>Rs 1,50,000.00</div>
+          <DateRange
+            startDate={startDateFormatted}
+            endDate={endDateFormatted}
+          />
+          <div className={styles.amount}>
+            Rs {selectedCompetition.totalPrizeValue.toLocaleString()}
+          </div>
         </div>
 
         <h2 className={styles.title}>About Campaign</h2>
         <div className={styles.points}>
-          <p>{campaignDetailsDescription}</p>
-          <ul>
-            {campaignDetailsPoints.map((point, i) => (
-              <li key={i}>{point}</li>
-            ))}
-          </ul>
+          <p>{selectedCompetition.description}</p>
+          {selectedCompetition.rules && (
+            <ul>
+              {selectedCompetition.rules.split("\n").map((rule, i) => (
+                <li key={i}>{rule}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className={styles.admin}>
           <img src={userAvatar} alt="Admin" className={styles.adminAvatar} />
           <div className={styles.adminInfo}>
-            <h3>Admin_Name</h3>
-            <p>Brand Admin</p>
+            <h3>{selectedCompetition.createdBy || "Admin"}</h3>
+            <p>{selectedCompetition.createdBy || "Admin"}</p>
           </div>
           <button onClick={handleMore} className={styles.moreButton}>
             <img src={MoreIcon} alt="More" />

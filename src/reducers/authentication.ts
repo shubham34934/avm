@@ -61,12 +61,17 @@ const clearAuthToken = () => {
 
 // Async Thunks
 export const getAccount = createAsyncThunk(
-  "authentication/get_account",
-  async () => {
+  "authentication/account",
+  async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.get<any>("/account");
+      console.log("Account Details Fetched:", response.data);
       return response.data;
     } catch (error) {
+      // Clear authentication state on 401
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        dispatch(clearAuth());
+      }
       throw error;
     }
   }
@@ -90,7 +95,7 @@ export const authenticate = createAsyncThunk(
       password: string;
       rememberMe?: boolean;
     },
-    { rejectWithValue }
+    { dispatch, rejectWithValue }
   ) => {
     try {
       const response = await axios.post<any>("/authenticate", {
@@ -107,8 +112,9 @@ export const authenticate = createAsyncThunk(
         storage.setItem("jhi-authenticationToken", jwt);
 
         // Fetch user account details
-        const accountResponse = await axios.get<any>("/account");
-
+        const accountResponse: any = await axios.get<any>("/account");
+        console.log("Login - Account Details:", accountResponse.data);
+        accountResponse.role = accountResponse?.authorities?.[0];
         return {
           account: accountResponse.data,
           token: jwt,
@@ -173,36 +179,37 @@ export const AuthenticationSlice = createSlice({
         state.loginError = false;
         state.errorMessage = null;
       })
-      .addCase(authenticate.fulfilled, (state) => {
+      .addCase(authenticate.fulfilled, (state, action) => {
         state.loading = false;
         state.loginSuccess = true;
         state.loginError = false;
-        state.isAuthenticated = true; // Explicitly set isAuthenticated to true
+        state.isAuthenticated = true;
+        state.account = action.payload.account; // Store full account details
         state.errorMessage = null;
+        console.log("Authentication State Updated:", state.account);
       })
       .addCase(authenticate.rejected, (state, action) => {
         state.loading = false;
         state.loginError = true;
         state.errorMessage = action.error.message || "Login failed";
+        state.isAuthenticated = false;
+        state.account = {};
       })
       // Account fetch cases
       .addCase(getAccount.pending, (state) => {
         state.loading = true;
       })
       .addCase(getAccount.fulfilled, (state, action) => {
-        const account = action.payload;
-        const isAuthenticated = account && account.activated;
-
-        state.isAuthenticated = isAuthenticated;
         state.loading = false;
-        state.sessionHasBeenFetched = true;
-        state.account = account;
-        state.errorMessage = null;
+        state.isAuthenticated = true;
+        state.account = action.payload; // Store full account details
+        state.account.role = action.payload?.authorities?.[0];
+        console.log("Account State Updated:", state.account);
       })
       .addCase(getAccount.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
-        state.sessionHasBeenFetched = true;
+        state.account = {};
         state.errorMessage = action.error.message || "Failed to fetch account";
       })
       // Logout cases

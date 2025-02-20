@@ -1,50 +1,23 @@
-import { createContext, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { createContext, useEffect } from "react";
+import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
+import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
 
 export const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulating user fetch
-    const fetchUser = async () => {
-      try {
-        // Replace with actual API call
-        const mockUser = {
-          id: '1',
-          name: 'Vivek Sharma',
-          firstName:"Vivek",
-          role: 'Super Admin',
-          avatar: null,
-        };
-        setUser(mockUser);
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  const { account, loading } = useSelector((state) => state.authentication);
 
   const value = {
-    user,
-    setUser,
+    user: account,
     loading,
   };
 
   if (loading) {
-    return <div>Loading...</div>; // Replace with proper loading component
+    return <LoadingSpinner />;
   }
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
 UserProvider.propTypes = {

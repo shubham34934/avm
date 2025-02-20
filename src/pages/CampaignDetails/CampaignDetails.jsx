@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchCompetitionById } from "../../reducers/competitions";
+import { fetchUserByUsername } from "../../reducers/users";
 import styles from "./CampaignDetails.module.css";
 import Timeline from "../../components/Timeline/Timeline";
 import SubmissionCard from "../../components/Submission/SubmissionCard";
@@ -19,15 +20,23 @@ const CampaignDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id } = useParams();
-  const { selectedCompetition, loading, error } = useAppSelector(
+  const { selectedCompetition, loading: competitionLoading, error } = useAppSelector(
     (state) => state.competitions
+  );
+  const { selectedUser, loading: userLoading } = useAppSelector(
+    (state) => state.users
   );
   const [timeLeft] = useState("1h 20m 34s");
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        await dispatch(fetchCompetitionById(parseInt(id))).unwrap();
+        const competitionResult = await dispatch(fetchCompetitionById(parseInt(id))).unwrap();
+        
+        // Fetch user details if createdBy is available
+        if (competitionResult.createdBy) {
+          await dispatch(fetchUserByUsername(competitionResult.createdBy));
+        }
       } catch (error) {
         toast.error(error || "Failed to fetch campaign details");
         navigate("/campaign");
@@ -109,7 +118,7 @@ const CampaignDetails = () => {
     // Handle more options
   };
 
-  if (loading) {
+  if (competitionLoading || userLoading) {
     return <div>Loading...</div>;
   }
 
@@ -175,10 +184,20 @@ const CampaignDetails = () => {
         </div>
 
         <div className={styles.admin}>
-          <img src={userAvatar} alt="Admin" className={styles.adminAvatar} />
+          <img 
+            src={selectedUser?.imageUrl || userAvatar} 
+            alt="Admin" 
+            className={styles.adminAvatar} 
+          />
           <div className={styles.adminInfo}>
-            <h3>{selectedCompetition.createdBy || "Admin"}</h3>
-            <p>{selectedCompetition.createdBy || "Admin"}</p>
+            <h3>
+              {selectedUser 
+                ? `${selectedUser.firstName} ${selectedUser.lastName}` 
+                : selectedCompetition.createdBy || "Admin"}
+            </h3>
+            <p>
+              {selectedUser?.email || selectedCompetition.createdBy || "Admin"}
+            </p>
           </div>
           <button onClick={handleMore} className={styles.moreButton}>
             <img src={MoreIcon} alt="More" />

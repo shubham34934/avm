@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch } from "../../config/store";
 import {
@@ -29,6 +29,12 @@ const CreateCampaign = () => {
     rules: "",
   });
 
+  // Get today's date in YYYY-MM-DD format
+  const today = useMemo(() => {
+    const date = new Date();
+    return date.toISOString().split('T')[0];
+  }, []);
+
   useEffect(() => {
     const fetchCampaignData = async () => {
       if (isEdit && campaignId) {
@@ -55,10 +61,21 @@ const CreateCampaign = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    // Special handling for dates
+    if (name === 'startDate') {
+      // Reset end date if start date changes
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        endDate: '', // Reset end date when start date changes
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -67,6 +84,20 @@ const CreateCampaign = () => {
 
     try {
       const currentDate = new Date().toISOString().split("T")[0];
+      
+      // Validate dates
+      if (new Date(formData.startDate) < new Date(currentDate)) {
+        toast.error("Start date cannot be in the past");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      if (new Date(formData.endDate) <= new Date(formData.startDate)) {
+        toast.error("End date must be after start date");
+        setIsSubmitting(false);
+        return;
+      }
+
       const payload = {
         title: formData.name,
         description: formData.rules,
@@ -190,6 +221,8 @@ const CreateCampaign = () => {
               onChange={handleChange}
               placeholder="Start Date"
               className={styles.input}
+              min={today}
+              required
             />
             <img
               src={calendarIcon}
@@ -209,6 +242,9 @@ const CreateCampaign = () => {
               onChange={handleChange}
               placeholder="End Date"
               className={styles.input}
+              min={formData.startDate || today}
+              required
+              disabled={!formData.startDate}
             />
             <img
               src={calendarIcon}
@@ -227,6 +263,7 @@ const CreateCampaign = () => {
             onChange={handleChange}
             placeholder="Prize Amount"
             className={styles.input}
+            min="0"
             required
           />
           <span className={styles.required}>*</span>
@@ -238,23 +275,20 @@ const CreateCampaign = () => {
             name="rules"
             value={formData.rules}
             onChange={handleChange}
-            placeholder="Rules & Guardrails"
+            placeholder="Campaign Rules"
             className={styles.textarea}
+            rows="4"
             required
           />
           <span className={styles.required}>*</span>
         </div>
 
-        <button
-          type="submit"
-          className={styles.submitButton}
+        <button 
+          type="submit" 
+          className={styles.submitButton} 
           disabled={isSubmitting}
         >
-          {isSubmitting
-            ? "Please wait..."
-            : isEdit
-            ? "Update Campaign"
-            : "Create Campaign"}
+          {isEdit ? "Update Campaign" : "Create Campaign"}
         </button>
       </form>
     </div>

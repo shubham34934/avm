@@ -212,7 +212,9 @@ const CampaignDetails = () => {
           <div
             className={styles.sectionHeader}
             onClick={() => {
-              navigate("submissions");
+              navigate(
+                `/videos?campaignId=${id}isSubmission=true?isDetailed=true`
+              );
             }}
           >
             <h2>Submissions</h2>

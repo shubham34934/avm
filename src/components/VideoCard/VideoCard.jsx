@@ -9,10 +9,11 @@ const VideoCard = ({
   userName, 
   timestamp, 
   status, 
-  thumbnail 
+  thumbnail,
+  onClick
 }) => {
   return (
-    <div className={styles.card}>
+    <div className={styles.card} onClick={onClick}>
       <div className={styles.thumbnailContainer}>
         <img 
           src={thumbnail || defaultThumbnail} 
@@ -51,7 +52,8 @@ VideoCard.propTypes = {
   userName: PropTypes.string.isRequired,
   timestamp: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired,
-  thumbnail: PropTypes.string.isRequired,
+  thumbnail: PropTypes.string,
+  onClick: PropTypes.func
 };
 
 export default VideoCard;

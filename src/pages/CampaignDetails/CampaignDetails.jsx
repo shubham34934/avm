@@ -20,9 +20,11 @@ const CampaignDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id } = useParams();
-  const { selectedCompetition, loading: competitionLoading, error } = useAppSelector(
-    (state) => state.competitions
-  );
+  const {
+    selectedCompetition,
+    loading: competitionLoading,
+    error,
+  } = useAppSelector((state) => state.competitions);
   const { selectedUser, loading: userLoading } = useAppSelector(
     (state) => state.users
   );
@@ -31,8 +33,10 @@ const CampaignDetails = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const competitionResult = await dispatch(fetchCompetitionById(parseInt(id))).unwrap();
-        
+        const competitionResult = await dispatch(
+          fetchCompetitionById(parseInt(id))
+        ).unwrap();
+
         // Fetch user details if createdBy is available
         if (competitionResult.createdBy) {
           await dispatch(fetchUserByUsername(competitionResult.createdBy));
@@ -184,15 +188,15 @@ const CampaignDetails = () => {
         </div>
 
         <div className={styles.admin}>
-          <img 
-            src={selectedUser?.imageUrl || userAvatar} 
-            alt="Admin" 
-            className={styles.adminAvatar} 
+          <img
+            src={selectedUser?.imageUrl || userAvatar}
+            alt="Admin"
+            className={styles.adminAvatar}
           />
           <div className={styles.adminInfo}>
             <h3>
-              {selectedUser 
-                ? `${selectedUser.firstName} ${selectedUser.lastName}` 
+              {selectedUser
+                ? `${selectedUser.firstName} ${selectedUser.lastName}`
                 : selectedCompetition.createdBy || "Admin"}
             </h3>
             <p>
@@ -205,7 +209,12 @@ const CampaignDetails = () => {
         </div>
 
         <div className={styles.section}>
-          <div className={styles.sectionHeader}>
+          <div
+            className={styles.sectionHeader}
+            onClick={() => {
+              navigate("submissions");
+            }}
+          >
             <h2>Submissions</h2>
             <button className={styles.viewAll}>
               <img src={rightArrow} alt="view all" />

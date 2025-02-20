@@ -1,25 +1,37 @@
 .container {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  background-color: var(--white);
+  background-color: var(--bg-color);
+  padding-top: 60px;
 }
 
 .tabs {
   display: flex;
   padding: 0 var(--spacing-4);
   border-bottom: 1px solid var(--border-color);
-  background-color: var(--bg-color);
+  background-color: var(--white);
+  position: sticky;
+  top: 60px;
+  z-index: var(--z-tabs);
 }
 
 .tab {
-  padding: var(--spacing-3) var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--text-secondary);
-  font-size: var(--text-base);
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.tab:hover {
+  color: var(--text-primary);
 }
 
 .tab.active {
@@ -35,15 +47,23 @@
 }
 
 .videoCard {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.videoCard:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .userInfo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  gap: var(--spacing-3);
 }
 
 .avatar {
@@ -57,13 +77,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1);
+  gap: 2px;
 }
 
 .username {
   font-size: var(--text-sm);
-  color: var(--text-primary);
   font-weight: var(--font-medium);
+  color: var(--text-primary);
 }
 
 .timeAgo {
@@ -71,25 +91,50 @@
   color: var(--text-secondary);
 }
 
+.moreButton {
+  background: none;
+  border: none;
+  padding: var(--spacing-2);
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.moreButton:hover {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+}
+
 .videoTitle {
   font-size: var(--text-base);
   font-weight: var(--font-medium);
   color: var(--text-primary);
   margin: 0;
+  padding: 0 var(--spacing-4) var(--spacing-3);
 }
 
 .thumbnail {
   position: relative;
   width: 100%;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  aspect-ratio: 16/9;
+  background-color: var(--bg-color);
   cursor: pointer;
+  overflow: hidden;
 }
 
 .thumbnail img {
   width: 100%;
-  aspect-ratio: 16/9;
+  height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.thumbnail:hover img {
+  transform: scale(1.05);
 }
 
 .playButton {
@@ -97,13 +142,28 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--white);
+  transition: all 0.2s ease;
+}
+
+.thumbnail:hover .playButton {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 .actions {
+  padding: var(--spacing-3) var(--spacing-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-top: 1px solid var(--border-color);
 }
 
 .likes {
@@ -115,13 +175,14 @@
 .actionButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-1);
-  padding: var(--spacing-2);
-  border: none;
+  gap: var(--spacing-2);
   background: none;
+  border: none;
+  padding: var(--spacing-2);
   color: var(--text-secondary);
+  font-size: var(--text-sm);
   cursor: pointer;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
   transition: all 0.2s ease;
 }
 
@@ -130,25 +191,30 @@
   color: var(--text-primary);
 }
 
+.actionButton.active {
+  color: var(--primary);
+}
+
 .actionButton span {
-  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
 }
 
-.moreButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: none;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  color: var(--text-secondary);
-  padding: 0;
-}
+@media (min-width: 640px) {
+  .videoList {
+    padding: var(--spacing-6);
+    gap: var(--spacing-8);
+  }
 
-.moreButton:hover {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
+  .videoCard {
+    border-radius: var(--radius-xl);
+  }
+
+  .thumbnail {
+    aspect-ratio: 16/9;
+  }
+
+  .playButton {
+    width: 64px;
+    height: 64px;
+  }
 }

@@ -1,67 +1,107 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../config/store';
+import { 
+  fetchSubmissions, 
+  fetchShortlistedSubmissions,
+  toggleLike,
+  toggleShortlist 
+} from '../../reducers/submissions';
 import styles from './Submissions.module.css';
 import { LikeIcon, DislikeIcon, PlayIcon, MoreIcon } from '../../components/Icons/Icons';
 import Header from '../../components/Header/Header';
-
-const videos = [
-  {
-    id: 1,
-    title: 'Exploring the Mountains',
-    thumbnail: '/images/mountains.jpg',
-    username: '@username',
-    timeAgo: '2 hours ago',
-    likes: 950
-  },
-  {
-    id: 2,
-    title: 'City Life Vlog',
-    thumbnail: '/images/city.jpg',
-    username: '@username',
-    timeAgo: '1 day ago',
-    likes: 950
-  },
-  {
-    id: 3,
-    title: 'Cooking Masterclass',
-    thumbnail: '/images/cooking.jpg',
-    username: '@username',
-    timeAgo: '3 days ago',
-    likes: 950
-  }
-];
+import { toast } from 'react-toastify';
 
 const Submissions = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { id: campaignId } = useParams();
   const [activeTab, setActiveTab] = useState('submissions');
+  const { submissions, shortlistedSubmissions, loading, error } = useAppSelector(
+    (state) => state.submissions
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (activeTab === 'submissions') {
+          await dispatch(fetchSubmissions({ campaignId: parseInt(campaignId) })).unwrap();
+        } else {
+          await dispatch(fetchShortlistedSubmissions({ campaignId: parseInt(campaignId) })).unwrap();
+        }
+      } catch (error) {
+        toast.error(error.message || 'Failed to fetch submissions');
+      }
+    };
+
+    fetchData();
+  }, [dispatch, campaignId, activeTab]);
 
   const handleBack = () => {
     navigate(-1);
   };
 
-  const handleSearch = () => {
+  const handleSearch = (query) => {
     // Handle search
+    console.log('Search:', query);
   };
 
   const handleAdd = () => {
     // Handle add
+    console.log('Add clicked');
   };
 
   const handleMore = () => {
     // Handle more options
+    console.log('More clicked');
   };
 
-  const handleLike = (videoId) => {
-    // Handle like
+  const handleLike = async (submissionId, isCurrentlyLiked) => {
+    try {
+      await dispatch(toggleLike({ 
+        submissionId, 
+        isLike: !isCurrentlyLiked 
+      })).unwrap();
+    } catch (error) {
+      toast.error('Failed to update like status');
+    }
   };
 
-  const handleDislike = (videoId) => {
-    // Handle dislike
+  const handleDislike = async (submissionId, isCurrentlyDisliked) => {
+    try {
+      await dispatch(toggleLike({ 
+        submissionId, 
+        isLike: false 
+      })).unwrap();
+    } catch (error) {
+      toast.error('Failed to update dislike status');
+    }
   };
 
-  const handleVideoClick = (videoId) => {
-    // Handle video click
+  const handleVideoClick = (submissionId) => {
+    navigate(`/videos/${submissionId}`);
   };
+
+  const handleShortlist = async (submissionId) => {
+    try {
+      await dispatch(toggleShortlist(submissionId)).unwrap();
+      toast.success('Submission shortlist status updated');
+    } catch (error) {
+      toast.error('Failed to update shortlist status');
+    }
+  };
+
+  const displayedSubmissions = activeTab === 'submissions' 
+    ? submissions 
+    : shortlistedSubmissions;
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className={styles.container}>
@@ -93,26 +133,34 @@ const Submissions = () => {
       </div>
 
       <div className={styles.videoList}>
-        {videos.map(video => (
+        {displayedSubmissions.map(video => (
           <div key={video.id} className={styles.videoCard}>
             <div className={styles.userInfo}>
               <img 
-                src="/images/avatar.jpg" 
+                src={video.userAvatar || "/images/avatar.jpg"} 
                 alt={video.username} 
                 className={styles.avatar}
               />
               <div className={styles.userMeta}>
                 <span className={styles.username}>{video.username}</span>
-                <span className={styles.timeAgo}>{video.timeAgo}</span>
+                <span className={styles.timeAgo}>
+                  {new Date(video.createdAt).toLocaleDateString()}
+                </span>
               </div>
-              <button onClick={handleMore} className={styles.moreButton}>
+              <button 
+                onClick={() => handleShortlist(video.id)} 
+                className={styles.moreButton}
+              >
                 <MoreIcon />
               </button>
             </div>
 
             <h2 className={styles.videoTitle}>{video.title}</h2>
 
-            <div className={styles.thumbnail} onClick={() => handleVideoClick(video.id)}>
+            <div 
+              className={styles.thumbnail} 
+              onClick={() => handleVideoClick(video.id)}
+            >
               <img src={video.thumbnail} alt={video.title} />
               <div className={styles.playButton}>
                 <PlayIcon />
@@ -122,15 +170,15 @@ const Submissions = () => {
             <div className={styles.actions}>
               <div className={styles.likes}>
                 <button 
-                  onClick={() => handleLike(video.id)}
-                  className={styles.actionButton}
+                  onClick={() => handleLike(video.id, video.isLiked)}
+                  className={`${styles.actionButton} ${video.isLiked ? styles.active : ''}`}
                 >
                   <LikeIcon />
                   <span>{video.likes}</span>
                 </button>
                 <button 
-                  onClick={() => handleDislike(video.id)}
-                  className={styles.actionButton}
+                  onClick={() => handleDislike(video.id, video.isDisliked)}
+                  className={`${styles.actionButton} ${video.isDisliked ? styles.active : ''}`}
                 >
                   <DislikeIcon />
                 </button>

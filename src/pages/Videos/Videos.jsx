@@ -1,13 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
-import {
-  fetchSubmissions,
-  fetchShortlistedSubmissions,
-  toggleLike,
-  toggleShortlist,
-} from "../../reducers/submissions";
+import { toggleLike, toggleShortlist } from "../../reducers/submissions";
 import { fetchVideoPosts } from "../../reducers/videoPosts";
+import InfiniteLoader from "../../components/InfiniteLoader/InfiniteLoader";
 import styles from "./Videos.module.css";
 import { toast } from "react-toastify";
 import Header from "../../components/Header/Header";
@@ -19,10 +15,10 @@ const dummySubmissions = [
   {
     id: 1,
     title: "Mountain Adventure Shorts",
-    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg", // Thumbnail from a YouTube video
+    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
     videoUrl: "https://youtube.com/shorts/dQw4w9WgXcQ",
     username: "@adventurer",
-    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
     likes: 42,
     isLiked: false,
     isDisliked: false,
@@ -32,10 +28,10 @@ const dummySubmissions = [
   {
     id: 2,
     title: "City Lights Vlog Shorts",
-    thumbnail: "https://i.ytimg.com/vi/3JZ_D3ELwOQ/hqdefault.jpg", // Thumbnail from another YouTube video
+    thumbnail: "https://i.ytimg.com/vi/3JZ_D3ELwOQ/hqdefault.jpg",
     videoUrl: "https://youtube.com/shorts/3JZ_D3ELwOQ",
     username: "@urbanexplorer",
-    createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
     likes: 78,
     isLiked: false,
     isDisliked: false,
@@ -45,10 +41,10 @@ const dummySubmissions = [
   {
     id: 3,
     title: "Cooking Masterclass Shorts",
-    thumbnail: "https://i.ytimg.com/vi/tJfDBSWYqU8/hqdefault.jpg", // Thumbnail from another YouTube video
+    thumbnail: "https://i.ytimg.com/vi/tJfDBSWYqU8/hqdefault.jpg",
     videoUrl: "https://youtube.com/shorts/tJfDBSWYqU8",
     username: "@cheflife",
-    createdAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+    createdAt: new Date(Date.now() - 259200000).toISOString(),
     likes: 105,
     isLiked: false,
     isDisliked: false,
@@ -72,52 +68,91 @@ const Submissions = () => {
     new URLSearchParams(location.search).get("isDetailed") === "true";
 
   const [activeTab, setActiveTab] = useState("submissions");
-  const {
-    submissions,
-    shortlistedSubmissions,
-    loading: submissionsLoading,
-    error: submissionsError,
-  } = useAppSelector((state) => state.submissions);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
 
-  // New state for video posts
+  // Use video posts state for both submissions and video posts
   const {
     videoPosts,
     loading: videoPostsLoading,
     error: videoPostsError,
+    totalItems,
   } = useAppSelector((state) => state.videoPosts);
+
+  // Ref to track if initial load has happened
+  const isInitialLoadRef = useRef(true);
+
+  const handleLoadMore = useCallback(() => {
+    console.log("handleLoadMore called", {
+      currentPage,
+      totalItems,
+      isSubmission,
+      campaignId,
+      searchQuery,
+    });
+
+    // Determine filters based on submission or video posts
+    const filters = {
+      page: currentPage + 1,
+      size: 10,
+      sort: "createdOn,desc",
+      ...(isSubmission && campaignId
+        ? { competition: { id: parseInt(campaignId) } }
+        : {}),
+      ...(searchQuery ? { searchQuery } : {}),
+    };
+
+    console.log("Fetching next page with filters:", filters);
+
+    dispatch(fetchVideoPosts(filters))
+      .then(() => {
+        setCurrentPage((prev) => {
+          console.log("Page updated from", prev, "to", prev + 1);
+          return prev + 1;
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching next page:", error);
+        toast.error("Failed to load more items");
+      });
+  }, [dispatch, isSubmission, campaignId, searchQuery, currentPage]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (isSubmission) {
-          if (activeTab === "submissions") {
-            await dispatch(
-              fetchSubmissions({ campaignId: parseInt(campaignId) })
-            ).unwrap();
-          } else {
-            await dispatch(
-              fetchShortlistedSubmissions({ campaignId: parseInt(campaignId) })
-            ).unwrap();
-          }
-        } else {
-          // Fetch video posts when it's not a submission page
-          await dispatch(fetchVideoPosts()).unwrap();
-        }
+        // Determine filters based on submission or video posts
+        const filters = {
+          page: 0,
+          size: 10,
+          sort: "createdOn,desc",
+          ...(isSubmission && campaignId
+            ? { competition: { id: parseInt(campaignId) } }
+            : {}),
+          ...(searchQuery ? { searchQuery } : {}),
+        };
+
+        console.log("Initial fetch with filters:", filters);
+
+        await dispatch(fetchVideoPosts(filters)).unwrap();
+
+        // Reset initial load ref
+        isInitialLoadRef.current = false;
       } catch (error) {
-        // toast.error(error.message || 'Failed to fetch data');
+        console.error("Initial fetch error:", error);
+        toast.error(error.message || "Failed to fetch data");
       }
     };
 
     fetchData();
-  }, [dispatch, campaignId, activeTab, isSubmission]);
+  }, [dispatch, campaignId, activeTab, isSubmission, searchQuery]);
 
   const handleBack = () => {
     navigate(-1);
   };
 
   const handleSearch = (query) => {
-    // Handle search
-    console.log("Search:", query);
+    setSearchQuery(query);
+    setCurrentPage(0); // Reset to first page when searching
   };
 
   const handleAdd = () => {
@@ -136,7 +171,7 @@ const Submissions = () => {
         toggleLike({ submissionId, isLike: !isCurrentlyLiked })
       ).unwrap();
     } catch (error) {
-      // toast.error("Failed to update like status");
+      toast.error("Failed to update like status");
     }
   };
 
@@ -144,7 +179,7 @@ const Submissions = () => {
     try {
       await dispatch(toggleLike({ submissionId, isLike: false })).unwrap();
     } catch (error) {
-      // toast.error("Failed to update dislike status");
+      toast.error("Failed to update dislike status");
     }
   };
 
@@ -162,17 +197,13 @@ const Submissions = () => {
       await dispatch(toggleShortlist(submissionId)).unwrap();
       toast.success("Submission shortlist status updated");
     } catch (error) {
-      // toast.error("Failed to update shortlist status");
+      toast.error("Failed to update shortlist status");
     }
   };
 
   // Determine which submissions to display
-  const displayedSubmissions = isSubmission
-    ? submissionsError
-      ? dummySubmissions
-      : activeTab === "submissions"
-      ? submissions
-      : shortlistedSubmissions
+  const displayedSubmissions = videoPostsError
+    ? dummySubmissions
     : videoPosts.map((videoPost) => ({
         id: videoPost.id,
         title: videoPost.title,
@@ -187,7 +218,7 @@ const Submissions = () => {
         userAvatar: null,
       }));
 
-  if (isSubmission ? submissionsLoading : videoPostsLoading) {
+  if (videoPostsLoading) {
     return <div>Loading...</div>;
   }
 
@@ -226,31 +257,50 @@ const Submissions = () => {
         </div>
       )}
 
-      <div className={styles.videoList}>
-        {displayedSubmissions.map((video) =>
-          isDetailed ? (
-            <VideoCardDetailed
-              key={video.id}
-              video={video}
-              onVideoClick={handleVideoClick}
-              onLike={handleLike}
-              onDislike={handleDislike}
-              onShortlist={handleShortlist}
-            />
-          ) : (
-            <VideoCard
-              key={video.id}
-              title={video.title}
-              campaignName="Campaign Name" // You might want to pass the actual campaign name
-              userName={video.username}
-              timestamp={new Date(video.createdAt).toLocaleDateString()}
-              status={video.isShortlisted ? "Shortlisted" : "Pending"}
-              thumbnail={video.thumbnail}
-              onClick={() => handleVideoClick(video.id)}
-            />
-          )
-        )}
-      </div>
+      <InfiniteLoader
+        onLoadMore={handleLoadMore}
+        hasMore={currentPage * 10 < totalItems}
+        isLoading={videoPostsLoading}
+        threshold={0.1}
+        loader={
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "10px",
+            }}
+          >
+            Loading more {isSubmission ? "submissions" : "videos"}...
+          </div>
+        }
+      >
+        <div className={styles.videoList}>
+          {displayedSubmissions.map((video) =>
+            isDetailed ? (
+              <VideoCardDetailed
+                key={video.id}
+                video={video}
+                onVideoClick={handleVideoClick}
+                onLike={handleLike}
+                onDislike={handleDislike}
+                onShortlist={handleShortlist}
+              />
+            ) : (
+              <VideoCard
+                key={video.id}
+                title={video.title}
+                campaignName="Campaign Name"
+                userName={video.username}
+                timestamp={new Date(video.createdAt).toLocaleDateString()}
+                status={video.isShortlisted ? "Shortlisted" : "Pending"}
+                thumbnail={video.thumbnail}
+                onClick={() => handleVideoClick(video.id)}
+              />
+            )
+          )}
+        </div>
+      </InfiniteLoader>
     </div>
   );
 };

@@ -5,7 +5,7 @@
 }
 
 .main {
-  padding-bottom: 56px; /* Height of bottom navigation */
+  padding-bottom: 90px; /* Height of bottom navigation */
   min-height: 100vh;
   background-color: var(--bg-color);
   width: 100vw;

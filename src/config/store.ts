@@ -1,9 +1,10 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import authReducer from '../reducers/authentication';
-import usersReducer from '../reducers/users';
-import competitionsReducer from '../reducers/competitions';
-import submissionsReducer from '../reducers/submissions';
+import { configureStore } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import authReducer from "../reducers/authentication";
+import usersReducer from "../reducers/users";
+import competitionsReducer from "../reducers/competitions";
+import submissionsReducer from "../reducers/submissions";
+import videoPosts from "../reducers/videoPosts";
 
 export const store = configureStore({
   reducer: {
@@ -11,11 +12,12 @@ export const store = configureStore({
     users: usersReducer,
     competitions: competitionsReducer,
     submissions: submissionsReducer,
+    videoPosts: videoPosts,
   },
-  middleware: (getDefaultMiddleware) => 
+  middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false, // Disable serializable check for complex actions
-    })
+    }),
 });
 
 export type AppDispatch = typeof store.dispatch;

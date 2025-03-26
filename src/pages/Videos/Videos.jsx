@@ -7,6 +7,7 @@ import {
   toggleLike,
   toggleShortlist,
 } from "../../reducers/submissions";
+import { fetchVideoPosts } from "../../reducers/videoPosts";
 import styles from "./Videos.module.css";
 import { toast } from "react-toastify";
 import Header from "../../components/Header/Header";
@@ -71,28 +72,44 @@ const Submissions = () => {
     new URLSearchParams(location.search).get("isDetailed") === "true";
 
   const [activeTab, setActiveTab] = useState("submissions");
-  const { submissions, shortlistedSubmissions, loading, error } =
-    useAppSelector((state) => state.submissions);
+  const {
+    submissions,
+    shortlistedSubmissions,
+    loading: submissionsLoading,
+    error: submissionsError,
+  } = useAppSelector((state) => state.submissions);
+
+  // New state for video posts
+  const {
+    videoPosts,
+    loading: videoPostsLoading,
+    error: videoPostsError,
+  } = useAppSelector((state) => state.videoPosts);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (activeTab === "submissions") {
-          await dispatch(
-            fetchSubmissions({ campaignId: parseInt(campaignId) })
-          ).unwrap();
+        if (isSubmission) {
+          if (activeTab === "submissions") {
+            await dispatch(
+              fetchSubmissions({ campaignId: parseInt(campaignId) })
+            ).unwrap();
+          } else {
+            await dispatch(
+              fetchShortlistedSubmissions({ campaignId: parseInt(campaignId) })
+            ).unwrap();
+          }
         } else {
-          await dispatch(
-            fetchShortlistedSubmissions({ campaignId: parseInt(campaignId) })
-          ).unwrap();
+          // Fetch video posts when it's not a submission page
+          await dispatch(fetchVideoPosts()).unwrap();
         }
       } catch (error) {
-        // toast.error(error.message || 'Failed to fetch submissions');
+        // toast.error(error.message || 'Failed to fetch data');
       }
     };
 
     fetchData();
-  }, [dispatch, campaignId, activeTab]);
+  }, [dispatch, campaignId, activeTab, isSubmission]);
 
   const handleBack = () => {
     navigate(-1);
@@ -150,13 +167,27 @@ const Submissions = () => {
   };
 
   // Determine which submissions to display
-  const displayedSubmissions = error
-    ? dummySubmissions
-    : activeTab === "submissions"
-    ? submissions
-    : shortlistedSubmissions;
+  const displayedSubmissions = isSubmission
+    ? submissionsError
+      ? dummySubmissions
+      : activeTab === "submissions"
+      ? submissions
+      : shortlistedSubmissions
+    : videoPosts.map((videoPost) => ({
+        id: videoPost.id,
+        title: videoPost.title,
+        thumbnail: videoPost.url, // Assuming url can be used as thumbnail
+        videoUrl: videoPost.url,
+        username: videoPost.createdBy,
+        createdAt: videoPost.createdOn,
+        likes: 0, // No likes information in the API
+        isLiked: false,
+        isDisliked: false,
+        isShortlisted: false,
+        userAvatar: null,
+      }));
 
-  if (loading) {
+  if (isSubmission ? submissionsLoading : videoPostsLoading) {
     return <div>Loading...</div>;
   }
 

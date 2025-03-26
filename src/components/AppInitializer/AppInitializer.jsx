@@ -8,31 +8,29 @@ const AppInitializer = ({ children }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [initialized, setInitialized] = useState(false);
-  const { account } = useSelector((state) => state.authentication);
 
   useEffect(() => {
     const initializeApp = async () => {
       // Skip if we already have account data or have initialized
-      if (initialized || account?.login) {
+      if (initialized) {
         return;
       }
+      setInitialized(true);
       try {
-        await dispatch(getAccount()).unwrap();
+        // await dispatch(getAccount()).unwrap();
       } catch (error) {
         // If we get a 401 or any error, redirect to login
         if (!window.location.pathname.startsWith("/login")) {
           navigate("/login");
         }
-      } finally {
-        setInitialized(true);
       }
     };
 
     initializeApp();
-  }, [dispatch, navigate, initialized, account]);
+  }, [initialized]);
 
   // Show loading only during initial load
-  if (!initialized && !account?.login) {
+  if (!initialized) {
     return <LoadingSpinner />;
   }
 

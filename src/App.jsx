@@ -9,6 +9,7 @@ import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner";
 import Layout from "./components/Layout/Layout";
 import { LayoutProvider } from "./context/LayoutContext";
 import "./styles/theme.css";
+import AppIntializer from "./components/AppInitializer/AppInitializer";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <UserProvider>
         <LayoutProvider>
           <Router>
+            <AppIntializer />
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 {/* Public Routes */}

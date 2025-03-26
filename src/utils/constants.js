@@ -39,8 +39,12 @@ export const getUserTitle = (user = {}) => {
 };
 
 export const checkAllowedRole = (allowedRole, userRole) => {
-  for (const item of userRole) {
-    if (allowedRole.includes(item)) return true;
-  }
-  return false;
+  // If userRole is a string, convert it to an array
+  const roles = Array.isArray(userRole) ? userRole : [userRole];
+  
+  // If roles is empty, return false
+  if (roles.length === 0) return false;
+  
+  // Check if any role is in the allowed roles
+  return roles.some(role => allowedRole.includes(role));
 };

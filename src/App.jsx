@@ -1,15 +1,14 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Suspense } from 'react';
-import { Provider } from 'react-redux';
-import { store } from './config/store';
-import { UserProvider } from './contexts/UserContext';
-import RouteGuard from './components/guards/RouteGuard';
-import { routes, publicRoutes } from './routes/routes';
-import LoadingSpinner from './components/LoadingSpinner/LoadingSpinner';
-import Layout from './components/Layout/Layout';
-import { LayoutProvider } from './context/LayoutContext';
-import AppInitializer from './components/AppInitializer/AppInitializer';
-import './styles/theme.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Suspense } from "react";
+import { Provider } from "react-redux";
+import { store } from "./config/store";
+import { UserProvider } from "./contexts/UserContext";
+import RouteGuard from "./components/guards/RouteGuard";
+import { routes, publicRoutes, specialRoutes } from "./routes/routes";
+import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner";
+import Layout from "./components/Layout/Layout";
+import { LayoutProvider } from "./context/LayoutContext";
+import "./styles/theme.css";
 
 function App() {
   return (
@@ -17,21 +16,17 @@ function App() {
       <UserProvider>
         <LayoutProvider>
           <Router>
-            <AppInitializer>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Routes>
-                  {/* Public Routes */}
-                  {publicRoutes.map(({ path, component: Component }) => (
-                    <Route
-                      key={path}
-                      path={path}
-                      element={<Component />}
-                    />
-                  ))}
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                {/* Public Routes */}
+                {publicRoutes.map(({ path, component: Component }) => (
+                  <Route key={path} path={path} element={<Component />} />
+                ))}
 
-                  {/* Protected Routes with Layout */}
-                  <Route element={<Layout />}>
-                    {routes.map(({ path, component: Component, allowedRoles }) => (
+                {/* Protected Routes with Layout */}
+                <Route element={<Layout />}>
+                  {routes.map(
+                    ({ path, component: Component, allowedRoles }) => (
                       <Route
                         key={path}
                         path={path}
@@ -41,11 +36,16 @@ function App() {
                           </RouteGuard>
                         }
                       />
-                    ))}
-                  </Route>
-                </Routes>
-              </Suspense>
-            </AppInitializer>
+                    )
+                  )}
+                  {specialRoutes.map(
+                    ({ path, component: Component, allowedRoles }) => (
+                      <Route key={path} path={path} element={<Component />} />
+                    )
+                  )}
+                </Route>
+              </Routes>
+            </Suspense>
           </Router>
         </LayoutProvider>
       </UserProvider>

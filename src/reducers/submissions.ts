@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { ENV } from "../config/env";
+import handleApiError from "../utils/errorHandler";
 
 // Types
 export interface Submission {
@@ -37,7 +38,15 @@ const initialState: SubmissionsState = {
 // Async thunks
 export const fetchSubmissions = createAsyncThunk(
   "submissions/fetchSubmissions",
-  async ({ campaignId, page = 0, size = 20 }: { campaignId: number; page?: number; size?: number }) => {
+  async ({
+    campaignId,
+    page = 0,
+    size = 20,
+  }: {
+    campaignId: number;
+    page?: number;
+    size?: number;
+  }) => {
     try {
       const response = await axios.get(
         `${ENV.VITE_APP_API_URL}/competitions/${campaignId}/submissions?page=${page}&size=${size}`
@@ -48,6 +57,7 @@ export const fetchSubmissions = createAsyncThunk(
         currentPage: page,
       };
     } catch (error) {
+      handleApiError(error);
       throw error;
     }
   }
@@ -55,13 +65,22 @@ export const fetchSubmissions = createAsyncThunk(
 
 export const fetchShortlistedSubmissions = createAsyncThunk(
   "submissions/fetchShortlistedSubmissions",
-  async ({ campaignId, page = 0, size = 20 }: { campaignId: number; page?: number; size?: number }) => {
+  async ({
+    campaignId,
+    page = 0,
+    size = 20,
+  }: {
+    campaignId: number;
+    page?: number;
+    size?: number;
+  }) => {
     try {
       const response = await axios.get(
         `${ENV.VITE_APP_API_URL}/competitions/${campaignId}/submissions/shortlisted?page=${page}&size=${size}`
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       throw error;
     }
   }
@@ -69,13 +88,22 @@ export const fetchShortlistedSubmissions = createAsyncThunk(
 
 export const toggleLike = createAsyncThunk(
   "submissions/toggleLike",
-  async ({ submissionId, isLike }: { submissionId: number; isLike: boolean }) => {
+  async ({
+    submissionId,
+    isLike,
+  }: {
+    submissionId: number;
+    isLike: boolean;
+  }) => {
     try {
       const response = await axios.post(
-        `${ENV.VITE_APP_API_URL}/submissions/${submissionId}/${isLike ? 'like' : 'dislike'}`
+        `${ENV.VITE_APP_API_URL}/submissions/${submissionId}/${
+          isLike ? "like" : "dislike"
+        }`
       );
       return { submissionId, ...response.data };
     } catch (error) {
+      handleApiError(error);
       throw error;
     }
   }
@@ -90,6 +118,7 @@ export const toggleShortlist = createAsyncThunk(
       );
       return { submissionId, ...response.data };
     } catch (error) {
+      handleApiError(error);
       throw error;
     }
   }
@@ -127,12 +156,13 @@ const submissionsSlice = createSlice({
       })
       .addCase(fetchShortlistedSubmissions.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Failed to fetch shortlisted submissions";
+        state.error =
+          action.error.message || "Failed to fetch shortlisted submissions";
       })
       // Toggle Like
       .addCase(toggleLike.fulfilled, (state, action) => {
         const { submissionId, isLiked, likes } = action.payload;
-        const submission = state.submissions.find(s => s.id === submissionId);
+        const submission = state.submissions.find((s) => s.id === submissionId);
         if (submission) {
           submission.isLiked = isLiked;
           submission.likes = likes;
@@ -141,7 +171,7 @@ const submissionsSlice = createSlice({
       // Toggle Shortlist
       .addCase(toggleShortlist.fulfilled, (state, action) => {
         const { submissionId, isShortlisted } = action.payload;
-        const submission = state.submissions.find(s => s.id === submissionId);
+        const submission = state.submissions.find((s) => s.id === submissionId);
         if (submission) {
           submission.isShortlisted = isShortlisted;
         }

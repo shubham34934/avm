@@ -10,48 +10,18 @@ import Header from "../../components/Header/Header";
 import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetailed";
 import VideoCard from "../../components/VideoCard/VideoCard";
 
-// Dummy data for fallback
-const dummySubmissions = [
-  {
-    id: 1,
-    title: "Mountain Adventure Shorts",
-    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
-    videoUrl: "https://youtube.com/shorts/dQw4w9WgXcQ",
-    username: "@adventurer",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    likes: 42,
-    isLiked: false,
-    isDisliked: false,
-    isShortlisted: false,
-    userAvatar: "https://randomuser.me/api/portraits/men/1.jpg",
-  },
-  {
-    id: 2,
-    title: "City Lights Vlog Shorts",
-    thumbnail: "https://i.ytimg.com/vi/3JZ_D3ELwOQ/hqdefault.jpg",
-    videoUrl: "https://youtube.com/shorts/3JZ_D3ELwOQ",
-    username: "@urbanexplorer",
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    likes: 78,
-    isLiked: false,
-    isDisliked: false,
-    isShortlisted: false,
-    userAvatar: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: 3,
-    title: "Cooking Masterclass Shorts",
-    thumbnail: "https://i.ytimg.com/vi/tJfDBSWYqU8/hqdefault.jpg",
-    videoUrl: "https://youtube.com/shorts/tJfDBSWYqU8",
-    username: "@cheflife",
-    createdAt: new Date(Date.now() - 259200000).toISOString(),
-    likes: 105,
-    isLiked: false,
-    isDisliked: false,
-    isShortlisted: false,
-    userAvatar: "https://randomuser.me/api/portraits/men/3.jpg",
-  },
-];
+// Debounce utility function
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
 
 const Submissions = () => {
   const navigate = useNavigate();
@@ -70,6 +40,7 @@ const Submissions = () => {
   const [activeTab, setActiveTab] = useState("submissions");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Use video posts state for both submissions and video posts
   const {
@@ -82,15 +53,52 @@ const Submissions = () => {
   // Ref to track if initial load has happened
   const isInitialLoadRef = useRef(true);
 
-  const handleLoadMore = useCallback(() => {
-    console.log("handleLoadMore called", {
-      currentPage,
-      totalItems,
-      isSubmission,
-      campaignId,
-      searchQuery,
-    });
+  // Debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((query) => {
+      // Ensure the search query is preserved
+      setSearchQuery(query);
+      setIsSearching(true);
 
+      // Reset page to 0 when searching
+      setCurrentPage(0);
+
+      // Determine filters based on submission or video posts
+      const filters = {
+        page: 0,
+        size: 10,
+        sort: "createdOn,desc",
+        ...(isSubmission && campaignId
+          ? { competition: { id: parseInt(campaignId) } }
+          : {}),
+        ...(query ? { searchQuery: query } : {}),
+      };
+
+      console.log("Searching with filters:", filters);
+
+      dispatch(fetchVideoPosts(filters))
+        .then((response) => {
+          console.log("Search response:", response);
+          setIsSearching(false);
+        })
+        .catch((error) => {
+          console.error("Search error:", error);
+          toast.error("Failed to perform search");
+          setIsSearching(false);
+        });
+    }, 500), // 500ms debounce delay
+    [dispatch, isSubmission, campaignId]
+  );
+
+  // Handler for search from Header
+  const handleSearch = useCallback(
+    (query) => {
+      debouncedSearch(query);
+    },
+    [debouncedSearch]
+  );
+
+  const handleLoadMore = useCallback(() => {
     // Determine filters based on submission or video posts
     const filters = {
       page: currentPage + 1,
@@ -105,11 +113,15 @@ const Submissions = () => {
     console.log("Fetching next page with filters:", filters);
 
     dispatch(fetchVideoPosts(filters))
-      .then(() => {
+      .then((response) => {
+        // Always increment page, regardless of response
         setCurrentPage((prev) => {
           console.log("Page updated from", prev, "to", prev + 1);
           return prev + 1;
         });
+
+        // Log the response for debugging
+        console.log("Fetch video posts response:", response);
       })
       .catch((error) => {
         console.error("Error fetching next page:", error);
@@ -148,11 +160,6 @@ const Submissions = () => {
 
   const handleBack = () => {
     navigate(-1);
-  };
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    setCurrentPage(0); // Reset to first page when searching
   };
 
   const handleAdd = () => {
@@ -230,26 +237,29 @@ const Submissions = () => {
         onBack={handleBack}
         showSearch
         onSearch={handleSearch}
+        searchQuery={searchQuery}
         showAdd={false}
         onAdd={handleAdd}
         showMore
         onMore={handleMore}
       />
 
+      {isSearching && (
+        <div className={styles.searchingOverlay}>
+          <div className={styles.searchingSpinner}>Searching...</div>
+        </div>
+      )}
+
       {isSubmission && (
         <div className={styles.tabs}>
           <button
-            className={`${styles.tab} ${
-              activeTab === "submissions" ? styles.active : ""
-            }`}
+            className={activeTab === "submissions" ? styles.activeTab : ""}
             onClick={() => setActiveTab("submissions")}
           >
             Submissions
           </button>
           <button
-            className={`${styles.tab} ${
-              activeTab === "shortlisted" ? styles.active : ""
-            }`}
+            className={activeTab === "shortlisted" ? styles.activeTab : ""}
             onClick={() => setActiveTab("shortlisted")}
           >
             Shortlisted
@@ -259,20 +269,11 @@ const Submissions = () => {
 
       <InfiniteLoader
         onLoadMore={handleLoadMore}
-        hasMore={currentPage * 10 < totalItems}
+        hasMore={true}
         isLoading={videoPostsLoading}
         threshold={0.1}
         loader={
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: "10px",
-            }}
-          >
-            Loading more {isSubmission ? "submissions" : "videos"}...
-          </div>
+          <div>Loading more {isSubmission ? "submissions" : "videos"}...</div>
         }
       >
         <div className={styles.videoList}>

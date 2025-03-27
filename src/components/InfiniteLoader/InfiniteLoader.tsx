@@ -4,10 +4,11 @@ import PropTypes from "prop-types";
 const InfiniteLoader = ({
   children,
   onLoadMore,
-  hasMore,
+  hasMore = true,
   isLoading,
   threshold = 0.1,
   loader = null,
+  disabled = true, // New prop to disable infinite loading
 }) => {
   const loaderRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -15,6 +16,9 @@ const InfiniteLoader = ({
 
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
+      // If disabled, do not proceed with loading
+      if (disabled) return;
+
       console.log("Intersection Observer entries:", entries);
 
       entries.forEach((entry) => {
@@ -23,20 +27,20 @@ const InfiniteLoader = ({
           intersectionRatio: entry.intersectionRatio,
           hasMore,
           isLoading,
+          disabled,
         });
 
         if (
           entry.isIntersecting &&
           entry.intersectionRatio >= threshold &&
-          hasMore &&
-          !isLoading
+          !isLoading // Only trigger if not currently loading
         ) {
           console.log("Triggering onLoadMore");
           onLoadMore();
         }
       });
     },
-    [hasMore, isLoading, onLoadMore, threshold]
+    [hasMore, isLoading, onLoadMore, threshold, disabled]
   );
 
   useEffect(() => {
@@ -45,17 +49,20 @@ const InfiniteLoader = ({
       observerRef.current.disconnect();
     }
 
-    // Create new observer with detailed options
-    observerRef.current = new IntersectionObserver(handleObserver, {
-      root: null, // viewport
-      rootMargin: "0px", // no margin
-      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1], // multiple thresholds for better tracking
-    });
+    // Only create observer if not disabled
+    if (!disabled) {
+      // Create new observer with detailed options
+      observerRef.current = new IntersectionObserver(handleObserver, {
+        root: null, // viewport
+        rootMargin: "0px", // no margin
+        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1], // multiple thresholds for better tracking
+      });
 
-    // Observe the loader element if it exists
-    if (loaderRef.current) {
-      console.log("Starting to observe loader element");
-      observerRef.current.observe(loaderRef.current);
+      // Observe the loader element if it exists
+      if (loaderRef.current) {
+        console.log("Starting to observe loader element");
+        observerRef.current.observe(loaderRef.current);
+      }
     }
 
     // Cleanup function
@@ -64,7 +71,7 @@ const InfiniteLoader = ({
         observerRef.current.disconnect();
       }
     };
-  }, [handleObserver]);
+  }, [handleObserver, disabled]);
 
   // Debug render to ensure loader is present
   useEffect(() => {
@@ -119,13 +126,26 @@ const InfiniteLoader = ({
             width: "100%",
             position: "relative",
             bottom: 0,
-            backgroundColor: isVisible ? "lightgreen" : "lightcoral", // Visual debug
+            opacity: disabled ? 0.5 : 1, // Visual indication of disabled state
           }}
         >
           {isLoading ? (
             loader || "Loading more..."
           ) : (
-            <div>{hasMore ? "Scroll to load more" : "No more items"}</div>
+            <div>
+              {disabled ? (
+                <div
+                  style={{
+                    color: "#6c757d", // Muted text color
+                    fontStyle: "italic",
+                  }}
+                >
+                  Infinite loading is disabled
+                </div>
+              ) : (
+                <div>{hasMore ? "Scroll to load more" : "No more items"}</div>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -136,10 +156,11 @@ const InfiniteLoader = ({
 InfiniteLoader.propTypes = {
   children: PropTypes.node.isRequired,
   onLoadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool.isRequired,
+  hasMore: PropTypes.bool,
   isLoading: PropTypes.bool.isRequired,
   threshold: PropTypes.number,
   loader: PropTypes.node,
+  disabled: PropTypes.bool, // New prop type
 };
 
 export default InfiniteLoader;

@@ -9,6 +9,7 @@ import {
   CompetitionState,
   CompetitionStatus,
 } from "../types/competition";
+import handleApiError from "../utils/errorHandler";
 
 const initialState: CompetitionState = {
   competitions: [],
@@ -30,6 +31,7 @@ export const createCompetition = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to create competition"
       );
@@ -56,6 +58,7 @@ export const updateCompetition = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to update competition"
       );
@@ -77,6 +80,7 @@ export const partialUpdateCompetition = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to update competition"
       );
@@ -105,6 +109,7 @@ export const fetchCompetitions = createAsyncThunk(
         currentPage: page,
       };
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch competitions"
       );
@@ -122,6 +127,7 @@ export const fetchCompetitionById = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch competition"
       );
@@ -137,6 +143,7 @@ export const deleteCompetition = createAsyncThunk(
       await axios.delete(`${ENV.VITE_APP_API_URL}/competitions/${id}`);
       return id;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete competition"
       );
@@ -155,6 +162,7 @@ export const searchCompetitions = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to search competitions"
       );
@@ -176,6 +184,7 @@ export const assignSponsor = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to assign sponsor"
       );
@@ -200,6 +209,7 @@ export const updateCompetitionStatus = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to update status"
       );
@@ -224,6 +234,7 @@ export const addPrize = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to add prize"
       );

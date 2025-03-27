@@ -1,6 +1,8 @@
 import axios from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ENV } from "../config/env";
+import { store } from "../config/store";
+import { toast } from "react-toastify";
 
 // Configure axios defaults
 axios.defaults.baseURL = ENV.VITE_APP_API_URL;
@@ -23,6 +25,23 @@ axios.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // Dispatch logout action
+      store.dispatch(logout());
+
+      // Show toast notification
+      toast.error("Your session has expired. Please log in again.");
+
+      // Redirect to login page
+      window.location.href = "/login";
+    }
     return Promise.reject(error);
   }
 );

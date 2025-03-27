@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { ENV } from "../config/env";
+import handleApiError from "../utils/errorHandler";
 
 // Types
 export interface User {
@@ -48,7 +49,10 @@ export const updateUser = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to update user");
+      handleApiError(error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update user"
+      );
     }
   }
 );
@@ -56,7 +60,15 @@ export const updateUser = createAsyncThunk(
 // Async thunk for fetching users
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
-  async ({ page = 0, size = 20, sort = "id,asc" }: { page?: number; size?: number; sort?: string }) => {
+  async ({
+    page = 0,
+    size = 20,
+    sort = "id,asc",
+  }: {
+    page?: number;
+    size?: number;
+    sort?: string;
+  }) => {
     try {
       const response = await axios.get(
         `${ENV.VITE_APP_API_URL}/admin/users?page=${page}&size=${size}&sort=${sort}`
@@ -67,6 +79,7 @@ export const fetchUsers = createAsyncThunk(
         currentPage: page,
       };
     } catch (error) {
+      handleApiError(error);
       throw error;
     }
   }
@@ -82,6 +95,7 @@ export const fetchUserByUsername = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      handleApiError(error);
       throw error;
     }
   }
@@ -95,7 +109,10 @@ export const deleteUser = createAsyncThunk(
       await axios.delete(`${ENV.VITE_APP_API_URL}/admin/users/${username}`);
       return username;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to delete user");
+      handleApiError(error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete user"
+      );
     }
   }
 );
@@ -106,7 +123,7 @@ const usersSlice = createSlice({
   reducers: {
     clearSelectedUser: (state) => {
       state.selectedUser = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -144,7 +161,9 @@ const usersSlice = createSlice({
         state.loading = false;
         state.selectedUser = action.payload;
         // Update user in the list if present
-        const index = state.users.findIndex(u => u.login === action.payload.login);
+        const index = state.users.findIndex(
+          (u) => u.login === action.payload.login
+        );
         if (index !== -1) {
           state.users[index] = action.payload;
         }
@@ -159,7 +178,9 @@ const usersSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = state.users.filter(user => user.login !== action.payload);
+        state.users = state.users.filter(
+          (user) => user.login !== action.payload
+        );
         if (state.selectedUser?.login === action.payload) {
           state.selectedUser = null;
         }

@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import handleApiError from "../utils/errorHandler";
 
 // Define the VideoPost interface
 export interface VideoPost {
@@ -117,6 +118,7 @@ export const fetchVideoPosts = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
+      handleApiError(error);
       return rejectWithValue("Failed to fetch video posts");
     }
   }

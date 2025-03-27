@@ -198,11 +198,13 @@ const Users = () => {
         onMore={handleMore}
       />
       {renderContent()}
-      
+
       {userToDelete && (
         <ConfirmationModal
           title="Delete User"
-          message={`Are you sure you want to delete the user ${getUserTitle(userToDelete)}?`}
+          message={`Are you sure you want to delete the user ${getUserTitle(
+            userToDelete
+          )}?`}
           onConfirm={handleDeleteUser}
           onCancel={() => setUserToDelete(null)}
           confirmText="Delete"

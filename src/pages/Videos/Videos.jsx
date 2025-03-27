@@ -27,17 +27,18 @@ const debounce = (func, delay) => {
 const Submissions = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { id: campaignId } = useParams();
   const location = useLocation();
 
   // Check if it's a submissions page or a videos page
   const isSubmission =
     new URLSearchParams(location.search).get("isSubmission") === "true";
+  const campaignId = new URLSearchParams(location.search).get("campaignId");
 
   // Check if the video cards should be detailed or simple
   const isDetailed =
     new URLSearchParams(location.search).get("isDetailed") === "true";
 
+  console.log({ isDetailed, isSubmission, campaignId });
   const [activeTab, setActiveTab] = useState("submissions");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
@@ -157,7 +158,7 @@ const Submissions = () => {
     };
 
     fetchData();
-  }, [dispatch, campaignId, activeTab, isSubmission, searchQuery]);
+  }, [campaignId, activeTab, isSubmission, searchQuery]);
 
   const handleBack = () => {
     navigate(-1);
@@ -226,9 +227,7 @@ const Submissions = () => {
         userAvatar: null,
       }));
 
-  if (videoPostsLoading) {
-    return <div>Loading...</div>;
-  }
+  console.log({ activeTab });
 
   return (
     <div className={styles.container}>
@@ -254,56 +253,63 @@ const Submissions = () => {
       {isSubmission && (
         <div className={styles.tabs}>
           <button
-            className={activeTab === "submissions" ? styles.activeTab : ""}
+            className={
+              activeTab === "submissions" ? styles.activeTab : styles.tab
+            }
             onClick={() => setActiveTab("submissions")}
           >
             Submissions
           </button>
           <button
-            className={activeTab === "shortlisted" ? styles.activeTab : ""}
+            className={
+              activeTab === "shortlisted" ? styles.activeTab : styles.tab
+            }
             onClick={() => setActiveTab("shortlisted")}
           >
             Shortlisted
           </button>
         </div>
       )}
-
-      <InfiniteLoader
-        onLoadMore={handleLoadMore}
-        hasMore={true}
-        isLoading={videoPostsLoading}
-        threshold={0.1}
-        loader={
-          <div>Loading more {isSubmission ? "submissions" : "videos"}...</div>
-        }
-      >
-        <div className={styles.videoList}>
-          {displayedSubmissions.map((video) =>
-            isDetailed ? (
-              <VideoCardDetailed
-                key={video.id}
-                video={video}
-                onVideoClick={handleVideoClick}
-                onLike={handleLike}
-                onDislike={handleDislike}
-                onShortlist={handleShortlist}
-              />
-            ) : (
-              <VideoCard
-                key={video.id}
-                title={video.title}
-                campaignName="Campaign Name"
-                userName={video.username}
-                timestamp={new Date(video.createdAt).toLocaleDateString()}
-                status={video.isShortlisted ? "Shortlisted" : "Pending"}
-                thumbnail={video.thumbnail}
-                onClick={() => handleVideoClick(video.id)}
-              />
-            )
-          )}
-        </div>
-        <FloatingActionButton />
-      </InfiniteLoader>
+      {videoPostsLoading ? (
+        <div className={styles.loading}>Loading...</div>
+      ) : (
+        <InfiniteLoader
+          onLoadMore={handleLoadMore}
+          hasMore={true}
+          isLoading={videoPostsLoading}
+          threshold={0.1}
+          loader={
+            <div>Loading more {isSubmission ? "submissions" : "videos"}...</div>
+          }
+        >
+          <div className={styles.videoList}>
+            {displayedSubmissions.map((video) =>
+              isDetailed ? (
+                <VideoCardDetailed
+                  key={video.id}
+                  video={video}
+                  onVideoClick={handleVideoClick}
+                  onLike={handleLike}
+                  onDislike={handleDislike}
+                  onShortlist={handleShortlist}
+                />
+              ) : (
+                <VideoCard
+                  key={video.id}
+                  title={video.title}
+                  campaignName="Campaign Name"
+                  userName={video.username}
+                  timestamp={new Date(video.createdAt).toLocaleDateString()}
+                  status={video.isShortlisted ? "Shortlisted" : "Pending"}
+                  thumbnail={video.thumbnail}
+                  onClick={() => handleVideoClick(video.id)}
+                />
+              )
+            )}
+          </div>
+          <FloatingActionButton />
+        </InfiniteLoader>
+      )}
     </div>
   );
 };

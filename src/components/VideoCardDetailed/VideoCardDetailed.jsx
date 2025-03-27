@@ -1,30 +1,33 @@
-import React from 'react';
-import styles from './VideoCardDetailed.module.css';
-import { LikeIcon, DislikeIcon, PlayIcon, MoreIcon } from '../Icons/Icons';
+import React from "react";
+import styles from "./VideoCardDetailed.module.css";
+import { LikeIcon, DislikeIcon, PlayIcon, MoreIcon } from "../Icons/Icons";
+import defaultAvatar from "./../../assets/images/default-avatar.png";
+import defaultThumbnail from "./../../assets/images/default-thumbnail.png";
 
-const VideoCardDetailed = ({ 
-  video, 
-  onVideoClick, 
-  onLike, 
-  onDislike, 
-  onShortlist 
+const VideoCardDetailed = ({
+  video,
+  onVideoClick,
+  onLike,
+  onDislike,
+  onShortlist,
 }) => {
+  console.log({ video });
   return (
     <div className={styles.videoCard}>
       <div className={styles.userInfo}>
-        <img 
-          src={video.userAvatar || "/images/avatar.jpg"} 
-          alt={video.username} 
+        <img
+          src={video.userAvatar || defaultAvatar}
+          alt={video.username}
           className={styles.avatar}
         />
         <div className={styles.userMeta}>
-          <span className={styles.username}>{video.username}</span>
+          <span className={styles.username}>@{video.username}</span>
           <span className={styles.timeAgo}>
             {new Date(video.createdAt).toLocaleDateString()}
           </span>
         </div>
-        <button 
-          onClick={() => onShortlist(video.id)} 
+        <button
+          onClick={() => onShortlist(video.id)}
           className={styles.moreButton}
         >
           <MoreIcon />
@@ -32,12 +35,8 @@ const VideoCardDetailed = ({
       </div>
 
       <h2 className={styles.videoTitle}>{video.title}</h2>
-
-      <div 
-        className={styles.thumbnail} 
-        onClick={() => onVideoClick(video.id)}
-      >
-        <img src={video.thumbnail} alt={video.title} />
+      <div className={styles.thumbnail} onClick={() => onVideoClick(video.id)}>
+        <img src={video.thumbnail || defaultThumbnail} alt={video.title} />
         <div className={styles.playButton}>
           <PlayIcon />
         </div>
@@ -45,16 +44,20 @@ const VideoCardDetailed = ({
 
       <div className={styles.actions}>
         <div className={styles.likes}>
-          <button 
+          <button
             onClick={() => onLike(video.id, video.isLiked)}
-            className={`${styles.actionButton} ${video.isLiked ? styles.active : ''}`}
+            className={`${styles.actionButton} ${
+              video.isLiked ? styles.active : ""
+            }`}
           >
             <LikeIcon />
             <span>{video.likes}</span>
           </button>
-          <button 
+          <button
             onClick={() => onDislike(video.id, video.isDisliked)}
-            className={`${styles.actionButton} ${video.isDisliked ? styles.active : ''}`}
+            className={`${styles.actionButton} ${
+              video.isDisliked ? styles.active : ""
+            }`}
           >
             <DislikeIcon />
           </button>

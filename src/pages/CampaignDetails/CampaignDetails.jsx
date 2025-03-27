@@ -36,7 +36,6 @@ const CampaignDetails = () => {
         const competitionResult = await dispatch(
           fetchCompetitionById(parseInt(id))
         ).unwrap();
-
         // Fetch user details if createdBy is available
         if (competitionResult.createdBy) {
           await dispatch(fetchUserByUsername(competitionResult.createdBy));
@@ -213,7 +212,7 @@ const CampaignDetails = () => {
             className={styles.sectionHeader}
             onClick={() => {
               navigate(
-                `/videos?campaignId=${id}isSubmission=true?isDetailed=true`
+                `/videos?campaignId=${id}&isSubmission=true&isDetailed=true`
               );
             }}
           >

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import handleApiError from "../utils/errorHandler";
+import { ENV } from "../config/env";
 
 // Define the VideoPost interface
 export interface VideoPost {
@@ -113,7 +114,7 @@ export const fetchVideoPosts = createAsyncThunk(
       }
 
       // Fetch video posts with applied filters
-      const response = await axios.get<VideoPost[]>("/video-posts", {
+      const response = await axios.get<VideoPost[]>(`${ENV.VITE_APP_API_URL}/video-posts`, {
         params,
       });
       return response.data;
@@ -171,7 +172,7 @@ export const uploadVideoPost = createAsyncThunk(
         formData.append("createdBy", JSON.stringify(createdBy));
 
         const response = await axios.post<VideoPost>(
-          "/video-posts/upload",
+          `${ENV.VITE_APP_API_URL}/video-posts/upload`,
           formData,
           {
             headers: {
@@ -183,7 +184,7 @@ export const uploadVideoPost = createAsyncThunk(
       }
 
       // For external URLs
-      const response = await axios.post<VideoPost>("/video-posts", {
+      const response = await axios.post<VideoPost>(`${ENV.VITE_APP_API_URL}/video-posts`, {
         title,
         description,
         url: videoUrl,
@@ -199,6 +200,21 @@ export const uploadVideoPost = createAsyncThunk(
     } catch (error) {
       handleApiError(error);
       return rejectWithValue("Failed to upload video post");
+    }
+  }
+);
+
+// Async thunk to delete a video post
+export const deleteVideoPost = createAsyncThunk(
+  "videoPosts/deleteVideoPost",
+  async (videoId: number, { rejectWithValue }) => {
+    try {
+      // Delete the video post
+      await axios.delete(`${ENV.VITE_APP_API_URL}/video-posts/${videoId}`);
+      return videoId; // Return the ID of the deleted video
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue("Failed to delete video post");
     }
   }
 );
@@ -243,6 +259,21 @@ export const videoPostsSlice = createSlice({
         state.videoPosts.push(action.payload);
       })
       .addCase(uploadVideoPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteVideoPost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteVideoPost.fulfilled, (state, action) => {
+        state.loading = false;
+        // Remove the deleted video from the state
+        state.videoPosts = state.videoPosts.filter(
+          (video) => video.id !== action.payload
+        );
+      })
+      .addCase(deleteVideoPost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

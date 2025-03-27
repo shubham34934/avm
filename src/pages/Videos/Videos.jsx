@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { toggleLike, toggleShortlist } from "../../reducers/submissions";
-import { fetchVideoPosts } from "../../reducers/videoPosts";
+import { fetchVideoPosts, deleteVideoPost } from "../../reducers/videoPosts";
 import InfiniteLoader from "../../components/InfiniteLoader/InfiniteLoader";
 import styles from "./Videos.module.css";
 import { toast } from "react-toastify";
@@ -11,6 +11,7 @@ import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetai
 import VideoCard from "../../components/VideoCard/VideoCard";
 import FloatingActionButton from "../../components/FloatingActionButton/FloatingActionButton";
 import Footer from "../../components/Footer/Footer";
+import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationModal";
 import { setVideoList } from "../../reducers/videoNavigation";
 
 // Debounce utility function
@@ -47,6 +48,7 @@ const Submissions = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
+  const [videoToDelete, setVideoToDelete] = useState(null);
 
   // Use video posts state for both submissions and video posts
   const {
@@ -229,22 +231,43 @@ const Submissions = () => {
   };
 
   const handleEdit = (videoId) => {
-    console.log('Edit video', videoId);
+    console.log("Edit video", videoId);
     // Navigate to edit page or open edit modal
     navigate(`/videos/${videoId}/edit`);
   };
 
   const handleDelete = (videoId) => {
-    console.log('Delete video', videoId);
-    // Show confirmation dialog and delete if confirmed
-    if (window.confirm('Are you sure you want to delete this video?')) {
-      // Implement delete logic here
-      toast.success('Video deleted successfully');
+    // Find the video to delete
+    const videoToDelete = videoPosts.find((video) => video.id === videoId);
+    if (videoToDelete) {
+      setVideoToDelete(videoToDelete);
     }
   };
 
+  const confirmDelete = async () => {
+    if (!videoToDelete) return;
+    try {
+      // Call the delete API through the reducer
+      await dispatch(deleteVideoPost(videoToDelete.id)).unwrap();
+      toast.success(`Video "${videoToDelete.title}" deleted successfully`);
+    } catch (error) {
+      console.error("Error deleting video:", error);
+      toast.error(
+        `Failed to delete video: ${error?.message || "Unknown error"}`
+      );
+      // If API call fails, refresh the video list to ensure UI is in sync with backend
+      dispatch(fetchVideoPosts());
+    } finally {
+      setVideoToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setVideoToDelete(null);
+  };
+
   const handleView = (videoId) => {
-    console.log('View video', videoId);
+    console.log("View video", videoId);
     // Navigate to video player
     handleVideoClick(videoId);
   };
@@ -267,7 +290,7 @@ const Submissions = () => {
 
   // Determine which submissions to display
   const displayedSubmissions = videoPostsError
-    ? dummySubmissions
+    ? []
     : videoPosts.map((videoPost) => ({
         id: videoPost.id,
         title: videoPost.title,
@@ -372,13 +395,16 @@ const Submissions = () => {
         </InfiniteLoader>
       )}
       {activeMenuId && (
-        <div 
+        <div
           className={styles.globalPopover}
-          style={{ top: `${popoverPosition.top}px`, left: `${popoverPosition.left}px` }}
+          style={{
+            top: `${popoverPosition.top}px`,
+            left: `${popoverPosition.left}px`,
+          }}
         >
           <div className={styles.menuOptions}>
-            <button 
-              className={styles.menuOption} 
+            <button
+              className={styles.menuOption}
               onClick={() => {
                 const videoId = activeMenuId;
                 setActiveMenuId(null);
@@ -387,8 +413,8 @@ const Submissions = () => {
             >
               View
             </button>
-            <button 
-              className={styles.menuOption} 
+            <button
+              className={styles.menuOption}
               onClick={() => {
                 const videoId = activeMenuId;
                 setActiveMenuId(null);
@@ -397,7 +423,7 @@ const Submissions = () => {
             >
               Edit
             </button>
-            <button 
+            <button
               className={`${styles.menuOption} ${styles.deleteOption}`}
               onClick={() => {
                 const videoId = activeMenuId;
@@ -409,6 +435,16 @@ const Submissions = () => {
             </button>
           </div>
         </div>
+      )}
+      {videoToDelete && (
+        <ConfirmationModal
+          title="Delete Video"
+          message={`Are you sure you want to delete the video "${videoToDelete.title}"?`}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+          confirmText="Delete"
+          cancelText="Cancel"
+        />
       )}
       <Footer />
     </div>

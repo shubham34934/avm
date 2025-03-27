@@ -60,7 +60,7 @@ const Users = () => {
   };
 
   const handleUserClick = (user) => {
-    // navigate(`/users/${user.login}`);
+    navigate(`/users/${user.login}`);
   };
 
   const handleViewUser = (user) => {

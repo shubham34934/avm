@@ -36,6 +36,12 @@ const Sidebar = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleEditProfile = () => {
+    // Navigate to the user details page using login/username
+    navigate(`/users/${user?.login}`);
+    onClose();
+  };
+
   return (
     <>
       <div
@@ -48,7 +54,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <h2 className={styles.userName}>{getUserTitle(user)}</h2>
             <Tag text={user?.role} variant={"accent"} size="small" />
           </div>
-          <div className={styles.editIconContainer}>
+          <div className={styles.editIconContainer} onClick={handleEditProfile}>
             <img src={editIcon} alt="Edit" className={styles.editIcon} />
           </div>
         </div>

@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAppDispatch } from "../../config/store";
+import React, { useState, useCallback, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../config/store";
 import { toast } from "react-toastify";
 import styles from "./UploadVideo.module.css";
 import Button from "../../components/Button/Button";
 import backIcon from "../../assets/icons/back.svg";
-import { uploadVideoPost } from "../../reducers/videoPosts";
+import { uploadVideoPost, fetchVideoPostById, updateVideoPost, clearSelectedVideoPost } from "../../reducers/videoPosts";
 import { useUser } from "../../hooks/useUser";
 
 // Topics for video posts
@@ -28,14 +28,22 @@ const URL_TYPES = [
   { value: "LocalVideoUpload", label: "Local Video Upload" },
 ];
 
-const CreateVideoPost = () => {
+const UploadVideo = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const params = useParams();
   const { user }: any = useUser();
 
-  // Extract campaign ID from query params
+  // Check if we're in edit mode
   const searchParams = new URLSearchParams(location.search);
+  const isEditMode = searchParams.get("edit") === "true";
+  const videoId = params.id ? parseInt(params.id) : null;
+
+  // Get the selected video post from Redux store
+  const { selectedVideoPost, loading } = useAppSelector((state) => state.videoPosts);
+
+  // Extract campaign ID from query params
   const campaignId = searchParams.get("campaignId");
 
   const [formData, setFormData] = useState({
@@ -48,6 +56,32 @@ const CreateVideoPost = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch video data if in edit mode
+  useEffect(() => {
+    if (isEditMode && videoId) {
+      dispatch(fetchVideoPostById(videoId));
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      dispatch(clearSelectedVideoPost());
+    };
+  }, [dispatch, isEditMode, videoId]);
+
+  // Populate form with video data when available
+  useEffect(() => {
+    if (selectedVideoPost && isEditMode) {
+      setFormData({
+        title: selectedVideoPost.title || "",
+        description: selectedVideoPost.description || "",
+        videoUrl: selectedVideoPost.url || "",
+        urlType: selectedVideoPost.urlType || "YouTube",
+        topic: "", 
+        localFile: null,
+      });
+    }
+  }, [selectedVideoPost, isEditMode]);
 
   const handleChange = useCallback(
     (
@@ -119,7 +153,7 @@ const CreateVideoPost = () => {
       }
 
       // URL validation for non-local upload
-      if (formData.urlType !== "localUpload") {
+      if (formData.urlType !== "LocalVideoUpload") {
         if (!formData.videoUrl.trim()) {
           toast.error("Please provide a video URL");
           setIsSubmitting(false);
@@ -138,7 +172,7 @@ const CreateVideoPost = () => {
       }
 
       // Local file validation
-      if (formData.urlType === "localUpload") {
+      if (formData.urlType === "LocalVideoUpload" && !isEditMode) {
         if (!formData.localFile) {
           toast.error("Please upload a local video file");
           setIsSubmitting(false);
@@ -185,13 +219,28 @@ const CreateVideoPost = () => {
         payload.createdOn = new Date().toISOString();
       }
 
-      // Upload video post
-      await dispatch(uploadVideoPost(payload)).unwrap();
-
-      toast.success("Video post created successfully");
+      if (isEditMode && videoId) {
+        // Update existing video
+        const updateData = {
+          title: formData.title,
+          description: formData.description,
+          url: formData.videoUrl,
+          urlType: formData.urlType,
+          updatedBy: user.login,
+          updatedOn: new Date().toISOString(),
+        };
+        
+        await dispatch(updateVideoPost({ videoId, updateData })).unwrap();
+        toast.success("Video post updated successfully");
+      } else {
+        // Upload new video post
+        await dispatch(uploadVideoPost(payload)).unwrap();
+        toast.success("Video post created successfully");
+      }
+      
       navigate("/videos");
     } catch (error: any) {
-      toast.error(error.message || "Failed to create video post");
+      toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'create'} video post`);
     } finally {
       setIsSubmitting(false);
     }
@@ -207,117 +256,125 @@ const CreateVideoPost = () => {
         <Button onClick={handleBack} className={styles.backButton}>
           <img src={backIcon} alt="Back" />
         </Button>
-        <h1 className={styles.title}>Create Video Post</h1>
+        <h1 className={styles.title}>{isEditMode ? "Edit" : "Create"} Video Post</h1>
       </div>
 
       <p className={styles.description}>
-        Share your video with our community. Fill in the details below.
+        {isEditMode 
+          ? "Update your video details below." 
+          : "Share your video with our community. Fill in the details below."}
       </p>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Video Title"
-            className={styles.input}
-            required
-          />
-          <span className={styles.required}>*</span>
-        </div>
-
-        <div className={styles.formGroup}>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Video Description (Optional)"
-            className={styles.textarea}
-            rows={4}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <select
-            id="topic"
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-            className={styles.select}
-            required
-          >
-            <option value="">Select Topic</option>
-            {VIDEO_TOPICS.map((topic) => (
-              <option key={topic} value={topic}>
-                {topic}
-              </option>
-            ))}
-          </select>
-          <span className={styles.required}>*</span>
-        </div>
-
-        <div className={styles.formGroup}>
-          <select
-            id="urlType"
-            name="urlType"
-            value={formData.urlType}
-            onChange={handleChange}
-            className={styles.select}
-            required
-          >
-            {URL_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {formData.urlType !== "localUpload" && (
+      {isEditMode && loading ? (
+        <div className={styles.loading}>Loading video data...</div>
+      ) : (
+        <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <input
-              type="url"
-              id="videoUrl"
-              name="videoUrl"
-              value={formData.videoUrl}
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleChange}
-              placeholder="Video URL"
+              placeholder="Video Title"
               className={styles.input}
               required
             />
             <span className={styles.required}>*</span>
           </div>
-        )}
 
-        {formData.urlType === "localUpload" && (
           <div className={styles.formGroup}>
-            <input
-              type="file"
-              id="localFile"
-              name="localFile"
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              accept="video/*"
-              className={styles.fileInput}
-              required
+              placeholder="Video Description (Optional)"
+              className={styles.textarea}
+              rows={4}
             />
+          </div>
+
+          <div className={styles.formGroup}>
+            <select
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleChange}
+              className={styles.select}
+              required
+            >
+              <option value="">Select Topic</option>
+              {VIDEO_TOPICS.map((topic) => (
+                <option key={topic} value={topic}>
+                  {topic}
+                </option>
+              ))}
+            </select>
             <span className={styles.required}>*</span>
           </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={styles.submitButton}
-        >
-          {isSubmitting ? "Creating..." : "Create Video Post"}
-        </button>
-      </form>
+          <div className={styles.formGroup}>
+            <select
+              id="urlType"
+              name="urlType"
+              value={formData.urlType}
+              onChange={handleChange}
+              className={styles.select}
+              required
+            >
+              {URL_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {formData.urlType !== "LocalVideoUpload" && (
+            <div className={styles.formGroup}>
+              <input
+                type="url"
+                id="videoUrl"
+                name="videoUrl"
+                value={formData.videoUrl}
+                onChange={handleChange}
+                placeholder="Video URL"
+                className={styles.input}
+                required
+              />
+              <span className={styles.required}>*</span>
+            </div>
+          )}
+
+          {formData.urlType === "LocalVideoUpload" && (
+            <div className={styles.formGroup}>
+              <input
+                type="file"
+                id="localFile"
+                name="localFile"
+                onChange={handleChange}
+                accept="video/*"
+                className={styles.fileInput}
+                required
+              />
+              <span className={styles.required}>*</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting || loading}
+            className={styles.submitButton}
+          >
+            {isSubmitting 
+              ? (isEditMode ? "Updating..." : "Creating...") 
+              : (isEditMode ? "Update Video Post" : "Create Video Post")}
+          </button>
+        </form>
+      )}
     </div>
   );
 };
 
-export default CreateVideoPost;
+export default UploadVideo;

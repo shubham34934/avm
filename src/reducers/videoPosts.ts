@@ -48,6 +48,8 @@ interface VideoPostState {
   videoPosts: VideoPost[];
   loading: boolean;
   error: string | null;
+  filters: VideoPostFilters;
+  selectedVideoPost: VideoPost | null;
 }
 
 // Initial state
@@ -55,6 +57,8 @@ const initialState: VideoPostState = {
   videoPosts: [],
   loading: false,
   error: null,
+  filters: {},
+  selectedVideoPost: null,
 };
 
 // Async thunk to fetch video posts
@@ -219,13 +223,53 @@ export const deleteVideoPost = createAsyncThunk(
   }
 );
 
+// Async thunk to update a video post
+export const updateVideoPost = createAsyncThunk(
+  "videoPosts/updateVideoPost",
+  async (
+    {
+      videoId,
+      updateData,
+    }: {
+      videoId: number;
+      updateData: Partial<VideoPost>;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      // Update the video post
+      const response = await axios.put<VideoPost>(
+        `${ENV.VITE_APP_API_URL}/video-posts/${videoId}`,
+        updateData
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue("Failed to update video post");
+    }
+  }
+);
+
+// Async thunk to fetch a single video post by ID
+export const fetchVideoPostById = createAsyncThunk(
+  "videoPosts/fetchVideoPostById",
+  async (videoId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.get<VideoPost>(
+        `${ENV.VITE_APP_API_URL}/video-posts/${videoId}`
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue("Failed to fetch video post");
+    }
+  }
+);
+
 // Updated slice with additional state for filters
 export const videoPostsSlice = createSlice({
   name: "videoPosts",
-  initialState: {
-    ...initialState,
-    filters: {} as VideoPostFilters,
-  },
+  initialState,
   reducers: {
     // Add a reducer to update filters
     setVideoPostFilters: (state, action: PayloadAction<VideoPostFilters>) => {
@@ -234,6 +278,10 @@ export const videoPostsSlice = createSlice({
     // Clear all filters
     clearVideoPostFilters: (state) => {
       state.filters = {};
+    },
+    // Clear selected video post
+    clearSelectedVideoPost: (state) => {
+      state.selectedVideoPost = null;
     },
   },
   extraReducers: (builder) => {
@@ -276,12 +324,42 @@ export const videoPostsSlice = createSlice({
       .addCase(deleteVideoPost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(updateVideoPost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateVideoPost.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update the video in the state
+        const index = state.videoPosts.findIndex(
+          (video) => video.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.videoPosts[index] = action.payload;
+        }
+      })
+      .addCase(updateVideoPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchVideoPostById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchVideoPostById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedVideoPost = action.payload;
+      })
+      .addCase(fetchVideoPostById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
 // Export actions for filters
-export const { setVideoPostFilters, clearVideoPostFilters } =
+export const { setVideoPostFilters, clearVideoPostFilters, clearSelectedVideoPost } =
   videoPostsSlice.actions;
 
 export default videoPostsSlice.reducer;

@@ -232,8 +232,8 @@ const Submissions = () => {
 
   const handleEdit = (videoId) => {
     console.log("Edit video", videoId);
-    // Navigate to edit page or open edit modal
-    navigate(`/videos/${videoId}/edit`);
+    // Navigate to edit page with edit flag
+    navigate(`/uploadVideo/${videoId}?edit=true`);
   };
 
   const handleDelete = (videoId) => {

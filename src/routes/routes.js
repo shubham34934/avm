@@ -61,6 +61,9 @@ export const routes = [
   {
     path: "/videos/:id",
     component: VideoPlayer,
+    config: {
+      hideFooter: true,
+    },
     allowedRoles: [
       USER_ROLES.SUPER_ADMIN,
       USER_ROLES.BRAND_ADMIN,

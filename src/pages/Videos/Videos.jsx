@@ -194,11 +194,11 @@ const Submissions = () => {
 
   const handleVideoClick = (submissionId) => {
     const submission = displayedSubmissions.find((s) => s.id === submissionId);
-    if (submission && submission.videoUrl) {
-      window.open(submission.videoUrl, "_blank", "noopener,noreferrer");
-    } else {
-      navigate(`/videos/${submissionId}`);
-    }
+    // if (submission && submission.videoUrl) {
+    //   window.open(submission.videoUrl, "_blank", "noopener,noreferrer");
+    // } else {
+    navigate(`/videos/${submissionId}`);
+    // }
   };
 
   const handleShortlist = async (submissionId) => {

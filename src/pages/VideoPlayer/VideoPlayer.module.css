@@ -171,7 +171,7 @@
 .sideActions {
   position: absolute;
   right: var(--spacing-6);
-  bottom: var(--spacing-24);
+  bottom: var(--spacing-8);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-6);
@@ -192,8 +192,8 @@
 }
 
 .actionButton svg {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
 }
 
 .actionButton span {

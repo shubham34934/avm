@@ -3,6 +3,31 @@ import styles from "./VideoCard.module.css";
 import Tag from "../../components/Tag/Tag";
 import defaultThumbnail from "./../../assets/images/default-thumbnail.png";
 
+// Function to extract YouTube thumbnail
+const getYouTubeThumbnail = (videoUrl) => {
+  try {
+    // Regular expressions to match different YouTube URL formats
+    const youtubeRegex =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = videoUrl.match(youtubeRegex);
+
+    if (match && match[1]) {
+      const videoId = match[1];
+      // Return different quality thumbnails in order of preference
+      const thumbnailSizes = [
+        `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        `https://img.youtube.com/vi/${videoId}/sddefault.jpg`,
+        `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+        `https://img.youtube.com/vi/${videoId}/default.jpg`,
+      ];
+      return thumbnailSizes;
+    }
+  } catch (error) {
+    console.error("Error extracting YouTube thumbnail:", error);
+  }
+  return null;
+};
+
 const VideoCard = ({
   title,
   campaignName,
@@ -12,15 +37,24 @@ const VideoCard = ({
   thumbnail,
   onClick,
 }) => {
+  // Try to get YouTube thumbnails if the thumbnail is a YouTube URL
+  const youtubeThumbnails = thumbnail && getYouTubeThumbnail(thumbnail);
+
+  // Fallback logic for thumbnail
+  const thumbnailSrc = youtubeThumbnails
+    ? youtubeThumbnails[0]
+    : thumbnail || defaultThumbnail;
+
   return (
     <div className={styles.card} onClick={onClick}>
       <div className={styles.thumbnailContainer}>
         <img
-          src={thumbnail || defaultThumbnail}
+          src={thumbnailSrc}
           alt={title}
           className={styles.thumbnail}
           onError={(e) => {
-            e.target.src = "https://placehold.co/600x400/png";
+            // Fallback to default thumbnail if YouTube thumbnail fails
+            e.target.src = defaultThumbnail;
           }}
         />
       </div>

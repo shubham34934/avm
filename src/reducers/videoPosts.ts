@@ -135,6 +135,11 @@ export const uploadVideoPost = createAsyncThunk(
       urlType,
       topic,
       localFile,
+      creator,
+      competition,
+      tags = [], // Default to empty array if not provided
+      createdOn = new Date().toISOString(), // Default to current timestamp
+      createdBy = creator, // Default to creator if not specified
     }: {
       title: string;
       description: string;
@@ -142,6 +147,11 @@ export const uploadVideoPost = createAsyncThunk(
       urlType: string;
       topic: string;
       localFile?: File | null;
+      creator: { id: number };
+      competition: { id: number };
+      tags?: any[];
+      createdOn?: string;
+      createdBy?: { id: number };
     },
     { rejectWithValue }
   ) => {
@@ -154,6 +164,11 @@ export const uploadVideoPost = createAsyncThunk(
         formData.append("urlType", urlType);
         formData.append("topic", topic);
         formData.append("videoFile", localFile);
+        formData.append("creator", JSON.stringify(creator));
+        formData.append("competition", JSON.stringify(competition));
+        formData.append("tags", JSON.stringify(tags));
+        formData.append("createdOn", createdOn);
+        formData.append("createdBy", JSON.stringify(createdBy));
 
         const response = await axios.post<VideoPost>(
           "/video-posts/upload",
@@ -174,6 +189,11 @@ export const uploadVideoPost = createAsyncThunk(
         url: videoUrl,
         urlType,
         topic,
+        creator,
+        competition,
+        tags, // Always send tags, even if empty
+        createdOn,
+        createdBy,
       });
       return response.data;
     } catch (error) {

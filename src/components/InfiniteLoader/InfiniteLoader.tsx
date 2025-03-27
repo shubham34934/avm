@@ -18,24 +18,12 @@ const InfiniteLoader = ({
     (entries: IntersectionObserverEntry[]) => {
       // If disabled, do not proceed with loading
       if (disabled) return;
-
-      console.log("Intersection Observer entries:", entries);
-
       entries.forEach((entry) => {
-        console.log("Entry details:", {
-          isIntersecting: entry.isIntersecting,
-          intersectionRatio: entry.intersectionRatio,
-          hasMore,
-          isLoading,
-          disabled,
-        });
-
         if (
           entry.isIntersecting &&
           entry.intersectionRatio >= threshold &&
           !isLoading // Only trigger if not currently loading
         ) {
-          console.log("Triggering onLoadMore");
           onLoadMore();
         }
       });
@@ -60,7 +48,6 @@ const InfiniteLoader = ({
 
       // Observe the loader element if it exists
       if (loaderRef.current) {
-        console.log("Starting to observe loader element");
         observerRef.current.observe(loaderRef.current);
       }
     }
@@ -76,8 +63,6 @@ const InfiniteLoader = ({
   // Debug render to ensure loader is present
   useEffect(() => {
     if (loaderRef.current) {
-      console.log("Loader element exists:", loaderRef.current);
-
       // Additional visibility check
       const checkVisibility = () => {
         if (loaderRef.current) {
@@ -89,17 +74,6 @@ const InfiniteLoader = ({
               (window.innerHeight || document.documentElement.clientHeight) &&
             rect.right <=
               (window.innerWidth || document.documentElement.clientWidth);
-
-          console.log("Loader visibility check:", {
-            top: rect.top,
-            bottom: rect.bottom,
-            left: rect.left,
-            right: rect.right,
-            windowHeight: window.innerHeight,
-            windowWidth: window.innerWidth,
-            isVisible,
-          });
-
           setIsVisible(isVisible);
         }
       };

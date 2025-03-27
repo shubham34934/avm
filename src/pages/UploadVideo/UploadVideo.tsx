@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch } from "../../config/store";
 import { toast } from "react-toastify";
 import styles from "./UploadVideo.module.css";
 import Button from "../../components/Button/Button";
 import backIcon from "../../assets/icons/back.svg";
 import { uploadVideoPost } from "../../reducers/videoPosts";
+import { useUser } from "../../hooks/useUser";
 
 // Topics for video posts
 const VIDEO_TOPICS = [
@@ -22,20 +23,26 @@ const VIDEO_TOPICS = [
 
 // URL types
 const URL_TYPES = [
-  { value: "youtube", label: "YouTube" },
-  { value: "instagram", label: "Instagram" },
-  { value: "localUpload", label: "Local Video Upload" },
+  { value: "YouTube", label: "YouTube" },
+  { value: "Instagram", label: "Instagram" },
+  { value: "LocalVideoUpload", label: "Local Video Upload" },
 ];
 
 const CreateVideoPost = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const { user }: any = useUser();
+
+  // Extract campaign ID from query params
+  const searchParams = new URLSearchParams(location.search);
+  const campaignId = searchParams.get("campaignId");
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     videoUrl: "",
-    urlType: "youtube",
+    urlType: "YouTube",
     topic: "",
     localFile: null as File | null,
   });
@@ -83,9 +90,9 @@ const CreateVideoPost = () => {
       /^(https?\:\/\/)?(www\.)?instagram\.com\/(?:p|reel)\/([a-zA-Z0-9_-]+)/;
 
     switch (urlType) {
-      case "youtube":
+      case "YouTube":
         return youtubeRegex.test(url);
-      case "instagram":
+      case "Instagram":
         return instagramRegex.test(url);
       default:
         return true; // For local upload, no URL validation needed
@@ -104,6 +111,13 @@ const CreateVideoPost = () => {
         return;
       }
 
+      // Validate user
+      if (!user || !user.id) {
+        toast.error("Please log in to upload a video");
+        setIsSubmitting(false);
+        return;
+      }
+
       // URL validation for non-local upload
       if (formData.urlType !== "localUpload") {
         if (!formData.videoUrl.trim()) {
@@ -115,7 +129,7 @@ const CreateVideoPost = () => {
         if (!validateVideoUrl(formData.videoUrl, formData.urlType)) {
           toast.error(
             `Please enter a valid ${
-              formData.urlType === "youtube" ? "YouTube" : "Instagram"
+              formData.urlType === "YouTube" ? "YouTube" : "Instagram"
             } video URL`
           );
           setIsSubmitting(false);
@@ -151,14 +165,25 @@ const CreateVideoPost = () => {
       }
 
       // Prepare payload
-      const payload = {
+      const payload: any = {
         title: formData.title,
         description: formData.description,
         videoUrl: formData.videoUrl,
         urlType: formData.urlType,
-        topic: formData.topic,
         localFile: formData.localFile,
+        tags: [],
+        // topic: formData.topic,
       };
+
+      if (campaignId) {
+        payload.competition = { id: parseInt(campaignId) };
+      }
+
+      if (user.id) {
+        payload.creator = user;
+        payload.createdBy = user.login;
+        payload.createdOn = new Date().toISOString();
+      }
 
       // Upload video post
       await dispatch(uploadVideoPost(payload)).unwrap();

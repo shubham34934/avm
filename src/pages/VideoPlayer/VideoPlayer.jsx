@@ -1,9 +1,15 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./VideoPlayer.module.css";
-import Header from "../../components/Header/Header";
-import { LikeIcon, DislikeIcon } from "../../components/Icons/Icons";
-
+import {
+  LikeIcon,
+  DislikeIcon,
+  BackIcon,
+  MoreIcon,
+  PlayIcon,
+  ShareIcon,
+  MoreIconVerticle,
+} from "../../components/Icons/Icons";
 // Mock data - replace with real data later
 const videos = [
   {
@@ -73,24 +79,27 @@ const VideoPlayer = () => {
     }
   };
 
-  const handleScroll = (e) => {
-    const container = videoContainerRef.current;
-    if (!container) return;
+  const handleScroll = useCallback(
+    (e) => {
+      const container = videoContainerRef.current;
+      if (!container) return;
 
-    const scrollPosition = container.scrollTop;
-    const videoHeight = container.clientHeight;
-    const newIndex = Math.round(scrollPosition / videoHeight);
+      const scrollPosition = container.scrollTop;
+      const videoHeight = container.clientHeight;
+      const newIndex = Math.round(scrollPosition / videoHeight);
 
-    if (
-      newIndex !== currentVideoIndex &&
-      newIndex >= 0 &&
-      newIndex < videos.length
-    ) {
-      setCurrentVideoIndex(newIndex);
-      setIsPlaying(true);
-      setShowPlayIcon(false);
-    }
-  };
+      if (
+        newIndex !== currentVideoIndex &&
+        newIndex >= 0 &&
+        newIndex < videos.length
+      ) {
+        setCurrentVideoIndex(newIndex);
+        setIsPlaying(true);
+        setShowPlayIcon(false);
+      }
+    },
+    [currentVideoIndex, videos.length]
+  );
 
   useEffect(() => {
     const container = videoContainerRef.current;
@@ -98,66 +107,17 @@ const VideoPlayer = () => {
       container.addEventListener("scroll", handleScroll);
       return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, [currentVideoIndex]);
+  }, [handleScroll]);
 
   return (
     <div className={styles.container}>
       <div className={styles.topBar}>
         <button onClick={handleBack} className={styles.backButton}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 12H5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12 19L5 12L12 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <BackIcon />
         </button>
         <span className={styles.pageTitle}>Videos</span>
         <button onClick={handleMore} className={styles.moreButton}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <MoreIcon />
         </button>
       </div>
 
@@ -181,30 +141,29 @@ const VideoPlayer = () => {
               />
               {showPlayIcon && index === currentVideoIndex && (
                 <div className={styles.playIcon}>
-                  <svg
-                    width="64"
-                    height="64"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M5 3L19 12L5 21V3Z" fill="currentColor" />
-                  </svg>
+                  <PlayIcon />
                 </div>
               )}
             </div>
 
             <div className={styles.overlay}>
               <div className={styles.videoInfo}>
-                <div className={styles.userInfo}>
-                  <img
-                    src="/images/avatar.jpg"
-                    alt={video.username}
-                    className={styles.avatar}
-                  />
-                  <span className={styles.username}>{video.username}</span>
+                <div className={styles.details}>
+                  <div className={styles.userInfo}>
+                    <img
+                      src="/images/avatar.jpg"
+                      alt={video.username}
+                      className={styles.avatar}
+                    />
+                    <div className={styles.userInfoDetails}>
+                      <h2 className={styles.title}>{video.title}</h2>
+                      <div className={styles.username}>{video.username}</div>
+                    </div>
+                  </div>
                 </div>
-                <h2 className={styles.title}>{video.title}</h2>
+                <button className={styles.actionButton}>
+                  <MoreIconVerticle />
+                </button>
               </div>
 
               <div className={styles.sideActions}>
@@ -220,14 +179,16 @@ const VideoPlayer = () => {
                 <button className={styles.actionButton} onClick={handleDislike}>
                   <DislikeIcon />
                 </button>
+                <button className={styles.actionButton}>
+                  <ShareIcon />
+                </button>
               </div>
-
-              {/* <button 
+              <button
                 className={styles.shortlistButton}
                 onClick={handleShortlist}
               >
                 Shortlist
-              </button> */}
+              </button>
             </div>
           </div>
         ))}

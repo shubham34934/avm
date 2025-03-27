@@ -126,6 +126,7 @@
   left: 0;
   right: 0;
   padding: var(--spacing-6);
+  padding-bottom: var(--spacing-4);
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   display: flex;
   flex-direction: column;
@@ -135,7 +136,9 @@
 .videoInfo {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   gap: var(--spacing-2);
 }
 
@@ -143,6 +146,11 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
+}
+
+.userInfoDetails {
+  display: flex;
+  flex-direction: column;
 }
 
 .avatar {
@@ -157,21 +165,21 @@
 
 .username {
   color: white;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
 }
 
 .title {
   margin: 0;
   color: white;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: var(--font-medium);
 }
 
 .sideActions {
   position: absolute;
   right: var(--spacing-6);
-  bottom: var(--spacing-8);
+  bottom: 130px;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-6);
@@ -192,8 +200,8 @@
 }
 
 .actionButton svg {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
 }
 
 .actionButton span {
@@ -205,9 +213,6 @@
 }
 
 .shortlistButton {
-  position: absolute;
-  bottom: var(--spacing-6);
-  left: var(--spacing-6);
   padding: var(--spacing-2) var(--spacing-8);
   border-radius: var(--radius-full);
   background-color: var(--primary);

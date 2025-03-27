@@ -10,6 +10,7 @@ import Header from "../../components/Header/Header";
 import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetailed";
 import VideoCard from "../../components/VideoCard/VideoCard";
 import FloatingActionButton from "../../components/FloatingActionButton/FloatingActionButton";
+import Footer from "../../components/Footer/Footer";
 import { setVideoList } from "../../reducers/videoNavigation";
 
 // Debounce utility function
@@ -45,6 +46,7 @@ const Submissions = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState(null);
+  const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
 
   // Use video posts state for both submissions and video posts
   const {
@@ -249,6 +251,12 @@ const Submissions = () => {
 
   const handleMenuClick = (videoId, e) => {
     e.stopPropagation();
+    // Get the position of the clicked button for popover positioning
+    const buttonRect = e.currentTarget.getBoundingClientRect();
+    setPopoverPosition({
+      top: buttonRect.bottom,
+      left: buttonRect.right - 120, // Adjust to position the popover correctly
+    });
     // Toggle menu - close if already open, open if closed
     setActiveMenuId(activeMenuId === videoId ? null : videoId);
   };
@@ -363,6 +371,46 @@ const Submissions = () => {
           <FloatingActionButton />
         </InfiniteLoader>
       )}
+      {activeMenuId && (
+        <div 
+          className={styles.globalPopover}
+          style={{ top: `${popoverPosition.top}px`, left: `${popoverPosition.left}px` }}
+        >
+          <div className={styles.menuOptions}>
+            <button 
+              className={styles.menuOption} 
+              onClick={() => {
+                const videoId = activeMenuId;
+                setActiveMenuId(null);
+                handleView(videoId);
+              }}
+            >
+              View
+            </button>
+            <button 
+              className={styles.menuOption} 
+              onClick={() => {
+                const videoId = activeMenuId;
+                setActiveMenuId(null);
+                handleEdit(videoId);
+              }}
+            >
+              Edit
+            </button>
+            <button 
+              className={`${styles.menuOption} ${styles.deleteOption}`}
+              onClick={() => {
+                const videoId = activeMenuId;
+                setActiveMenuId(null);
+                handleDelete(videoId);
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
+      <Footer />
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import styles from "./VideoCard.module.css";
 import Tag from "../../components/Tag/Tag";
-import Popover from "../../components/Popover/Popover";
 import defaultThumbnail from "./../../assets/images/default-thumbnail.png";
 
 // Function to extract YouTube thumbnail
@@ -55,15 +54,15 @@ const VideoCard = ({
   const handleActionClick = (action, e) => {
     e.stopPropagation(); // Prevent card click
     onCloseMenu();
-    
-    switch(action) {
-      case 'view':
+
+    switch (action) {
+      case "view":
         onView && onView();
         break;
-      case 'edit':
+      case "edit":
         onEdit && onEdit();
         break;
-      case 'delete':
+      case "delete":
         onDelete && onDelete();
         break;
       default:
@@ -88,8 +87,8 @@ const VideoCard = ({
         <div className={styles.header}>
           <h3 className={styles.title}>{title}</h3>
           <div className={styles.menuContainer}>
-            <button 
-              className={styles.moreButton} 
+            <button
+              className={styles.moreButton}
               aria-label="More options"
               onClick={onMenuClick}
               data-menu-button
@@ -108,30 +107,6 @@ const VideoCard = ({
                 />
               </svg>
             </button>
-            {showMenu && (
-              <Popover onClose={onCloseMenu}>
-                <div className={styles.menuOptions}>
-                  <button 
-                    className={styles.menuOption} 
-                    onClick={(e) => handleActionClick('view', e)}
-                  >
-                    View
-                  </button>
-                  <button 
-                    className={styles.menuOption} 
-                    onClick={(e) => handleActionClick('edit', e)}
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    className={`${styles.menuOption} ${styles.deleteOption}`}
-                    onClick={(e) => handleActionClick('delete', e)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </Popover>
-            )}
           </div>
         </div>
         <p className={styles.campaignName}>{campaignName}</p>

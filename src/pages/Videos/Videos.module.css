@@ -240,23 +240,53 @@
   z-index: var(--z-banner);
 }
 
-@media (min-width: 640px) {
-  .videoList {
-    padding: var(--spacing-6);
-    gap: var(--spacing-8);
-  }
+.globalPopover {
+  position: fixed;
+  z-index: 1000;
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.2s ease-in-out;
+  overflow: visible;
+}
 
-  .videoCard {
-    border-radius: var(--radius-xl);
-  }
+.menuOptions {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
 
-  .thumbnail {
-    aspect-ratio: 16/9;
-  }
+.menuOption {
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+}
 
-  .playButton {
-    width: 64px;
-    height: 64px;
+.menuOption:hover {
+  background-color: var(--gray-100);
+}
+
+.deleteOption {
+  color: var(--error);
+}
+
+.deleteOption:hover {
+  background-color: var(--error-light);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -280,4 +310,24 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 640px) {
+  .videoList {
+    padding: var(--spacing-6);
+    gap: var(--spacing-8);
+  }
+
+  .videoCard {
+    border-radius: var(--radius-xl);
+  }
+
+  .thumbnail {
+    aspect-ratio: 16/9;
+  }
+
+  .playButton {
+    width: 64px;
+    height: 64px;
+  }
 }

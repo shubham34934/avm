@@ -213,7 +213,7 @@
 }
 
 .shortlistButton {
-  padding: var(--spacing-2) var(--spacing-8);
+  padding: var(--spacing-3) var(--spacing-8);
   border-radius: var(--radius-full);
   background-color: var(--primary);
   color: white;

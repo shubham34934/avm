@@ -10,6 +10,7 @@ import Header from "../../components/Header/Header";
 import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetailed";
 import VideoCard from "../../components/VideoCard/VideoCard";
 import FloatingActionButton from "../../components/FloatingActionButton/FloatingActionButton";
+import { setVideoList } from "../../reducers/videoNavigation";
 
 // Debounce utility function
 const debounce = (func, delay) => {
@@ -193,12 +194,26 @@ const Submissions = () => {
   };
 
   const handleVideoClick = (submissionId) => {
-    const submission = displayedSubmissions.find((s) => s.id === submissionId);
-    // if (submission && submission.videoUrl) {
-    //   window.open(submission.videoUrl, "_blank", "noopener,noreferrer");
-    // } else {
+    // Find the index of the clicked video
+    const clickedVideoIndex = videoPosts.findIndex(
+      (video) => video.id === submissionId
+    );
+
+    // Dispatch action to set video list for navigation
+    dispatch(
+      setVideoList({
+        videos: videoPosts,
+        initialIndex: clickedVideoIndex,
+        context: {
+          isSubmission,
+          campaignId,
+          searchQuery,
+        },
+      })
+    );
+
+    // Navigate to the video player
     navigate(`/videos/${submissionId}`);
-    // }
   };
 
   const handleShortlist = async (submissionId) => {

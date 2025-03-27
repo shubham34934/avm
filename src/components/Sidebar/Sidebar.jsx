@@ -9,7 +9,12 @@ import Tag from "../Tag/Tag";
 import { useAppDispatch } from "../../config/store";
 import { logout } from "../../reducers/authentication";
 import { toast } from "react-toastify";
-import { checkAllowedRole, getUserTitle } from "../../utils/constants";
+import {
+  checkAllowedRole,
+  getUserTitle,
+  getUserTypeDisplay,
+  USER_TYPE_DISPLAY,
+} from "../../utils/constants";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -38,7 +43,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const handleEditProfile = () => {
     // Navigate to the user details page using login/username
-    navigate(`/users/${user?.login}`);
+    navigate(`/users/${user?.login}?edit=true`);
     onClose();
   };
 
@@ -52,7 +57,18 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className={styles.header}>
           <div className={styles.userInfo}>
             <h2 className={styles.userName}>{getUserTitle(user)}</h2>
-            <Tag text={user?.role} variant={"accent"} size="small" />
+            <div className={styles.tagContainer}>
+              {Array.isArray(user?.authorities) && user.authorities.map(role => (
+                USER_TYPE_DISPLAY[role] && (
+                  <Tag
+                    key={role}
+                    text={USER_TYPE_DISPLAY[role]}
+                    variant="accent"
+                    size="small"
+                  />
+                )
+              ))}
+            </div>
           </div>
           <div className={styles.editIconContainer} onClick={handleEditProfile}>
             <img src={editIcon} alt="Edit" className={styles.editIcon} />

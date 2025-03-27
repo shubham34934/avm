@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
-import { fetchUserByUsername, updateUser } from "../../reducers/users";
+import { fetchUserByUsername, updateUser, uploadUserAvatar } from "../../reducers/users";
 import styles from "./UserDetail.module.css";
 import Header from "../../components/Header/Header";
 import Loader from "../../components/Loader/Loader";
 import Error from "../../components/Error/Error";
 import defaultAvatar from "../../assets/images/default-avatar.png";
-import { getUserTypeDisplay, getUserTitle } from "../../utils/constants";
+import { getUserTypeDisplay, USER_TYPE_DISPLAY } from "../../utils/constants";
 import Button from "../../components/Button/Button";
+import { toast } from "react-toastify";
+import editIcon from "../../assets/icons/edit.svg";
+import Tag from "../../components/Tag/Tag";
 
 const UserDetail = () => {
   const { username } = useParams();
@@ -16,15 +19,18 @@ const UserDetail = () => {
   const isEditMode = searchParams.get("edit") === "true";
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const {
     selectedUser: user,
     loading,
     error,
+    uploadingAvatar,
   } = useAppSelector((state) => state.users);
 
   const [editedUser, setEditedUser] = useState(null);
   const [saveError, setSaveError] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     if (username) {
@@ -35,6 +41,7 @@ const UserDetail = () => {
   useEffect(() => {
     if (user) {
       setEditedUser(user);
+      setPreviewImage(user.imageUrl);
     }
   }, [user]);
 
@@ -57,14 +64,60 @@ const UserDetail = () => {
     }));
   };
 
+  const handleAvatarClick = () => {
+    if (isEditMode && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Preview image
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      await dispatch(uploadUserAvatar({ username, file })).unwrap();
+      toast.success("Avatar uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to upload avatar");
+      // Reset preview if upload fails
+      setPreviewImage(user?.imageUrl || null);
+    }
+  };
+
   const handleSave = async () => {
     try {
       setSaveError(null);
       await dispatch(updateUser(editedUser)).unwrap();
+      toast.success("User updated successfully");
       navigate(`/users/${username}`, { replace: true });
     } catch (error) {
       setSaveError(error);
+      toast.error("Failed to update user");
     }
+  };
+
+  const handleRoleToggle = (role) => {
+    if (!isEditMode) return;
+    
+    // Ensure authorities is an array
+    const currentAuthorities = Array.isArray(editedUser.authorities) ? editedUser.authorities : [];
+    const authorities = [...currentAuthorities];
+    const index = authorities.indexOf(role);
+    
+    if (index === -1) {
+      authorities.push(role);
+    } else {
+      authorities.splice(index, 1);
+    }
+    
+    handleInputChange('authorities', authorities);
   };
 
   const userTypeDisplay = getUserTypeDisplay(user?.authorities);
@@ -112,14 +165,59 @@ const UserDetail = () => {
 
     return (
       <div className={styles.content}>
+        {!isEditMode && (
+          <div className={styles.editButtonContainer}>
+            <Button onClick={handleEdit} variant="secondary" size="small">
+              Edit Profile
+            </Button>
+          </div>
+        )}
+        
         <div className={styles.profileHeader}>
-          <img
-            src={editedUser.imageUrl || defaultAvatar}
-            alt={getUserTitle(editedUser)}
-            className={styles.profileImage}
-          />
-          <h2 className={styles.userName}>{getUserTitle(editedUser)}</h2>
-          <div className={styles.userRole}>{userTypeDisplay}</div>
+          <div className={styles.avatarContainer} onClick={handleAvatarClick}>
+            <img
+              src={previewImage || editedUser.imageUrl || defaultAvatar}
+              alt={getUserTypeDisplay(editedUser)}
+              className={styles.profileImage}
+            />
+            {isEditMode && (
+              <div className={styles.editIconContainer}>
+                <img src={editIcon} alt="Upload" className={styles.editIcon} />
+              </div>
+            )}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              style={{ display: "none" }}
+            />
+          </div>
+          {uploadingAvatar && <div className={styles.uploadingIndicator}>Uploading...</div>}
+          <h2 className={styles.userName}>{getUserTypeDisplay(editedUser)}</h2>
+          
+          <div className={styles.roleTags}>
+            {Object.entries(USER_TYPE_DISPLAY).map(([role, label]) => {
+              const authorities = Array.isArray(editedUser.authorities) ? editedUser.authorities : [];
+              const isActive = authorities.includes(role);
+              return (
+                <div 
+                  key={role} 
+                  className={`${styles.roleTagWrapper} ${isEditMode ? styles.editable : ''}`}
+                  onClick={() => handleRoleToggle(role)}
+                >
+                  <Tag 
+                    text={label} 
+                    variant={isActive ? 'active' : 'inactive'} 
+                    size="medium"
+                  />
+                  {isEditMode && isActive && (
+                    <span className={styles.removeRole}>×</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className={styles.detailsContainer}>
@@ -203,10 +301,12 @@ const UserDetail = () => {
 
         <div className={styles.actions}>
           {isEditMode ? (
-            <Button onClick={handleSave} variant="primary">
+            <Button onClick={handleSave} variant="primary" style={{ width: '100%' }}>
               Save Changes
             </Button>
-          ) : null}
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     );

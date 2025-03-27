@@ -10,9 +10,12 @@ export const USER_TYPE_DISPLAY = {
  * @param {string[]} authorities - Array of user authorities
  * @returns {string} Displayed user type text
  */
-export const getUserTypeDisplay = (authorities = []) => {
+export const getUserTypeDisplay = (authorities) => {
+  // Ensure authorities is an array
+  const authArray = Array.isArray(authorities) ? authorities : [];
+  
   // Find the first matching authority and return its display text
-  const matchedAuthority = authorities.find(
+  const matchedAuthority = authArray.find(
     (authority) => USER_TYPE_DISPLAY[authority]
   );
 

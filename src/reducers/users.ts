@@ -27,6 +27,7 @@ interface UsersState {
   error: string | null;
   totalItems: number;
   currentPage: number;
+  uploadingAvatar: boolean;
 }
 
 const initialState: UsersState = {
@@ -36,7 +37,38 @@ const initialState: UsersState = {
   error: null,
   totalItems: 0,
   currentPage: 0,
+  uploadingAvatar: false,
 };
+
+// Async thunk for uploading user avatar
+export const uploadUserAvatar = createAsyncThunk(
+  "users/uploadUserAvatar",
+  async (
+    { username, file }: { username: string; file: File },
+    { rejectWithValue }
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await axios.post(
+        `${ENV.VITE_APP_API_URL}/admin/users/${username}/avatar`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to upload avatar"
+      );
+    }
+  }
+);
 
 // Async thunk for updating user
 export const updateUser = createAsyncThunk(
@@ -187,6 +219,27 @@ const usersSlice = createSlice({
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(uploadUserAvatar.pending, (state) => {
+        state.uploadingAvatar = true;
+        state.error = null;
+      })
+      .addCase(uploadUserAvatar.fulfilled, (state, action) => {
+        state.uploadingAvatar = false;
+        if (state.selectedUser) {
+          state.selectedUser.imageUrl = action.payload.imageUrl;
+        }
+        // Update user in the list if present
+        const index = state.users.findIndex(
+          (u) => u.login === action.payload.login
+        );
+        if (index !== -1 && action.payload.imageUrl) {
+          state.users[index].imageUrl = action.payload.imageUrl;
+        }
+      })
+      .addCase(uploadUserAvatar.rejected, (state, action) => {
+        state.uploadingAvatar = false;
         state.error = action.payload as string;
       });
   },

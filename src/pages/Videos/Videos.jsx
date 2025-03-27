@@ -44,6 +44,7 @@ const Submissions = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
+  const [activeMenuId, setActiveMenuId] = useState(null);
 
   // Use video posts state for both submissions and video posts
   const {
@@ -225,6 +226,37 @@ const Submissions = () => {
     }
   };
 
+  const handleEdit = (videoId) => {
+    console.log('Edit video', videoId);
+    // Navigate to edit page or open edit modal
+    navigate(`/videos/${videoId}/edit`);
+  };
+
+  const handleDelete = (videoId) => {
+    console.log('Delete video', videoId);
+    // Show confirmation dialog and delete if confirmed
+    if (window.confirm('Are you sure you want to delete this video?')) {
+      // Implement delete logic here
+      toast.success('Video deleted successfully');
+    }
+  };
+
+  const handleView = (videoId) => {
+    console.log('View video', videoId);
+    // Navigate to video player
+    handleVideoClick(videoId);
+  };
+
+  const handleMenuClick = (videoId, e) => {
+    e.stopPropagation();
+    // Toggle menu - close if already open, open if closed
+    setActiveMenuId(activeMenuId === videoId ? null : videoId);
+  };
+
+  const handleCloseMenu = () => {
+    setActiveMenuId(null);
+  };
+
   // Determine which submissions to display
   const displayedSubmissions = videoPostsError
     ? dummySubmissions
@@ -318,6 +350,12 @@ const Submissions = () => {
                   status={video.isShortlisted ? "Shortlisted" : "Pending"}
                   thumbnail={video.thumbnail}
                   onClick={() => handleVideoClick(video.id)}
+                  onEdit={() => handleEdit(video.id)}
+                  onDelete={() => handleDelete(video.id)}
+                  onView={() => handleView(video.id)}
+                  showMenu={activeMenuId === video.id}
+                  onMenuClick={(e) => handleMenuClick(video.id, e)}
+                  onCloseMenu={handleCloseMenu}
                 />
               )
             )}

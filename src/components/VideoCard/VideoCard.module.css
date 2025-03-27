@@ -106,3 +106,43 @@
 .timestamp {
   white-space: nowrap;
 }
+
+.menuContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menuOptions {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.menuOption {
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+}
+
+.menuOption:hover {
+  background-color: var(--gray-100);
+}
+
+.deleteOption {
+  color: var(--error);
+}
+
+.deleteOption:hover {
+  background-color: var(--error-light);
+}

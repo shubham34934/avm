@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import Header from "../../components/Header/Header";
 import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetailed";
 import VideoCard from "../../components/VideoCard/VideoCard";
+import FloatingActionButton from "../../components/FloatingActionButton/FloatingActionButton";
 
 // Debounce utility function
 const debounce = (func, delay) => {
@@ -301,6 +302,7 @@ const Submissions = () => {
             )
           )}
         </div>
+        <FloatingActionButton />
       </InfiniteLoader>
     </div>
   );

@@ -124,6 +124,65 @@ export const fetchVideoPosts = createAsyncThunk(
   }
 );
 
+// Async thunk to upload a video post
+export const uploadVideoPost = createAsyncThunk(
+  "videoPosts/uploadVideoPost",
+  async (
+    {
+      title,
+      description,
+      videoUrl,
+      urlType,
+      topic,
+      localFile,
+    }: {
+      title: string;
+      description: string;
+      videoUrl: string;
+      urlType: string;
+      topic: string;
+      localFile?: File | null;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      // If local file, use FormData for file upload
+      if (localFile) {
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("urlType", urlType);
+        formData.append("topic", topic);
+        formData.append("videoFile", localFile);
+
+        const response = await axios.post<VideoPost>(
+          "/video-posts/upload",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        return response.data;
+      }
+
+      // For external URLs
+      const response = await axios.post<VideoPost>("/video-posts", {
+        title,
+        description,
+        url: videoUrl,
+        urlType,
+        topic,
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue("Failed to upload video post");
+    }
+  }
+);
+
 // Updated slice with additional state for filters
 export const videoPostsSlice = createSlice({
   name: "videoPosts",
@@ -152,6 +211,18 @@ export const videoPostsSlice = createSlice({
         state.videoPosts = action.payload;
       })
       .addCase(fetchVideoPosts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(uploadVideoPost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadVideoPost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.videoPosts.push(action.payload);
+      })
+      .addCase(uploadVideoPost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

@@ -1,35 +1,43 @@
-/* CreateVideoPost.module.css */
+/* UploadVideo.module.css */
 .container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #ffffff;
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--white);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-6);
 }
 
 .backButton {
-  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   border: none;
+  background: none;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  margin-right: 15px;
-  color: #333;
+  color: var(--text-primary);
+  padding: 0;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .description {
-  color: #666;
-  margin-bottom: 20px;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-6);
 }
 
 .form {
@@ -38,7 +46,7 @@
 }
 
 .formGroup {
-  margin-bottom: 15px;
+  margin-bottom: var(--spacing-4);
   position: relative;
 }
 
@@ -47,10 +55,27 @@
 .select,
 .fileInput {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background-color: var(--white);
+  transition: border-color 0.2s ease;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus,
+.fileInput:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.input::placeholder,
+.select::placeholder,
+.textarea::placeholder {
+  color: var(--text-tertiary);
 }
 
 .textarea {
@@ -58,28 +83,31 @@
 }
 
 .required {
-  color: red;
+  color: var(--error);
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: var(--spacing-3);
+  top: var(--spacing-3);
 }
 
 .submitButton {
-  background-color: #007bff;
-  color: white;
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: var(--primary);
+  color: var(--white);
   border: none;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.2s ease;
+  margin-bottom: 20px;
 }
 
 .submitButton:hover {
-  background-color: #0056b3;
+  background-color: var(--primary-dark);
 }
 
 .submitButton:disabled {
-  background-color: #cccccc;
+  background-color: var(--gray-300);
   cursor: not-allowed;
 }

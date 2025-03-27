@@ -2,7 +2,10 @@ import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../config/store";
 import { toast } from "react-toastify";
-import styles from "./CreateVideoPost.module.css";
+import styles from "./UploadVideo.module.css";
+import Button from "../../components/Button/Button";
+import backIcon from "../../assets/icons/back.svg";
+import { uploadVideoPost } from "../../reducers/videoPosts";
 
 // Topics for video posts
 const VIDEO_TOPICS = [
@@ -34,29 +37,62 @@ const CreateVideoPost = () => {
     videoUrl: "",
     urlType: "youtube",
     topic: "",
-    localFile: null,
+    localFile: null as File | null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = useCallback((e) => {
-    const { name, value, files } = e.target;
+  const handleChange = useCallback(
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >
+    ) => {
+      const { name, value, type } = e.target;
 
-    if (name === "localFile" && files) {
-      setFormData((prev) => ({
-        ...prev,
-        localFile: files[0],
-        videoUrl: files[0] ? files[0].name : "",
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      if (type === "file") {
+        const fileInput = e.target as HTMLInputElement;
+        const files = fileInput.files;
+        if (files && files.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            localFile: files[0],
+            videoUrl: files[0].name,
+          }));
+        }
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    },
+    []
+  );
+
+  const validateVideoUrl = (url: string, urlType: string): boolean => {
+    // Remove leading/trailing whitespace
+    url = url.trim();
+
+    // YouTube URL validation
+    const youtubeRegex =
+      /^(https?\:\/\/)?(www\.youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+    // Instagram URL validation (basic pattern)
+    const instagramRegex =
+      /^(https?\:\/\/)?(www\.)?instagram\.com\/(?:p|reel)\/([a-zA-Z0-9_-]+)/;
+
+    switch (urlType) {
+      case "youtube":
+        return youtubeRegex.test(url);
+      case "instagram":
+        return instagramRegex.test(url);
+      default:
+        return true; // For local upload, no URL validation needed
     }
-  }, []);
+  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -68,10 +104,50 @@ const CreateVideoPost = () => {
         return;
       }
 
-      if (!formData.videoUrl.trim()) {
-        toast.error("Please provide a video URL or upload a local video");
-        setIsSubmitting(false);
-        return;
+      // URL validation for non-local upload
+      if (formData.urlType !== "localUpload") {
+        if (!formData.videoUrl.trim()) {
+          toast.error("Please provide a video URL");
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (!validateVideoUrl(formData.videoUrl, formData.urlType)) {
+          toast.error(
+            `Please enter a valid ${
+              formData.urlType === "youtube" ? "YouTube" : "Instagram"
+            } video URL`
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Local file validation
+      if (formData.urlType === "localUpload") {
+        if (!formData.localFile) {
+          toast.error("Please upload a local video file");
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Optional: File size and type validation
+        const maxFileSize = 100 * 1024 * 1024; // 100 MB
+        const allowedTypes = ["video/mp4", "video/mpeg", "video/quicktime"];
+
+        if (formData.localFile.size > maxFileSize) {
+          toast.error("File is too large. Maximum file size is 100 MB.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (!allowedTypes.includes(formData.localFile.type)) {
+          toast.error(
+            "Invalid file type. Please upload MP4, MPEG, or QuickTime videos."
+          );
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       // Prepare payload
@@ -81,22 +157,15 @@ const CreateVideoPost = () => {
         videoUrl: formData.videoUrl,
         urlType: formData.urlType,
         topic: formData.topic,
+        localFile: formData.localFile,
       };
 
-      // If local file, handle file upload
-      if (formData.localFile) {
-        // Implement file upload logic here
-        // This might involve using a file upload service or API
-        // For now, just log the file
-        console.log("Local file to upload:", formData.localFile);
-      }
-
-      // Dispatch action to create video post
-      // await dispatch(createVideoPost(payload)).unwrap();
+      // Upload video post
+      await dispatch(uploadVideoPost(payload)).unwrap();
 
       toast.success("Video post created successfully");
       navigate("/videos");
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message || "Failed to create video post");
     } finally {
       setIsSubmitting(false);
@@ -110,30 +179,9 @@ const CreateVideoPost = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button onClick={handleBack} className={styles.backButton}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 12H5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12 19L5 12L12 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+        <Button onClick={handleBack} className={styles.backButton}>
+          <img src={backIcon} alt="Back" />
+        </Button>
         <h1 className={styles.title}>Create Video Post</h1>
       </div>
 
@@ -164,8 +212,27 @@ const CreateVideoPost = () => {
             onChange={handleChange}
             placeholder="Video Description (Optional)"
             className={styles.textarea}
-            rows="4"
+            rows={4}
           />
+        </div>
+
+        <div className={styles.formGroup}>
+          <select
+            id="topic"
+            name="topic"
+            value={formData.topic}
+            onChange={handleChange}
+            className={styles.select}
+            required
+          >
+            <option value="">Select Topic</option>
+            {VIDEO_TOPICS.map((topic) => (
+              <option key={topic} value={topic}>
+                {topic}
+              </option>
+            ))}
+          </select>
+          <span className={styles.required}>*</span>
         </div>
 
         <div className={styles.formGroup}>
@@ -207,8 +274,8 @@ const CreateVideoPost = () => {
               type="file"
               id="localFile"
               name="localFile"
-              accept="video/*"
               onChange={handleChange}
+              accept="video/*"
               className={styles.fileInput}
               required
             />
@@ -216,29 +283,10 @@ const CreateVideoPost = () => {
           </div>
         )}
 
-        <div className={styles.formGroup}>
-          <select
-            id="topic"
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-            className={styles.select}
-            required
-          >
-            <option value="">Select Topic</option>
-            {VIDEO_TOPICS.map((topic) => (
-              <option key={topic} value={topic}>
-                {topic}
-              </option>
-            ))}
-          </select>
-          <span className={styles.required}>*</span>
-        </div>
-
         <button
           type="submit"
-          className={styles.submitButton}
           disabled={isSubmitting}
+          className={styles.submitButton}
         >
           {isSubmitting ? "Creating..." : "Create Video Post"}
         </button>

@@ -13,6 +13,7 @@ const CampaignDetails = lazy(() =>
 );
 const VideoPlayer = lazy(() => import("../pages/VideoPlayer/VideoPlayer"));
 const Videos = lazy(() => import("../pages/Videos/Videos"));
+const UploadVideo = lazy(() => import("../pages/UploadVideo/UploadVideo"));
 const Users = lazy(() => import("../pages/Users/Users"));
 const UserDetail = lazy(() => import("../pages/UserDetail/UserDetail"));
 const AITools = lazy(() => import("../pages/AITools/AITools"));
@@ -70,6 +71,16 @@ export const routes = [
   {
     path: "/videos",
     component: Videos,
+    allowedRoles: [
+      USER_ROLES.SUPER_ADMIN,
+      USER_ROLES.BRAND_ADMIN,
+      USER_ROLES.END_USER,
+      USER_ROLES.CREATOR,
+    ],
+  },
+  {
+    path: "/uploadVideo",
+    component: UploadVideo,
     allowedRoles: [
       USER_ROLES.SUPER_ADMIN,
       USER_ROLES.BRAND_ADMIN,

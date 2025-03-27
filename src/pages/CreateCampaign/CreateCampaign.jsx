@@ -10,6 +10,8 @@ import { toast } from "react-toastify";
 import styles from "./CreateCampaign.module.css";
 import calendarIcon from "../../assets/icons/calendar.svg";
 import { useUser } from "../../hooks/useUser";
+import Button from "../../components/Button/Button";
+import backIcon from "../../assets/icons/back.svg";
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ const CreateCampaign = () => {
   // Get today's date in YYYY-MM-DD format
   const today = useMemo(() => {
     const date = new Date();
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   }, []);
 
   useEffect(() => {
@@ -61,14 +63,14 @@ const CreateCampaign = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Special handling for dates
-    if (name === 'startDate') {
+    if (name === "startDate") {
       // Reset end date if start date changes
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-        endDate: '', // Reset end date when start date changes
+        endDate: "", // Reset end date when start date changes
       }));
     } else {
       setFormData((prev) => ({
@@ -84,14 +86,14 @@ const CreateCampaign = () => {
 
     try {
       const currentDate = new Date().toISOString().split("T")[0];
-      
+
       // Validate dates
       if (new Date(formData.startDate) < new Date(currentDate)) {
         toast.error("Start date cannot be in the past");
         setIsSubmitting(false);
         return;
       }
-      
+
       if (new Date(formData.endDate) <= new Date(formData.startDate)) {
         toast.error("End date must be after start date");
         setIsSubmitting(false);
@@ -141,30 +143,9 @@ const CreateCampaign = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button onClick={handleBack} className={styles.backButton}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M19 12H5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12 19L5 12L12 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+        <Button onClick={handleBack} className={styles.backButton}>
+          <img src={backIcon} alt="Back" />
+        </Button>
         <h1 className={styles.title}>
           {isEdit ? "Edit Campaign" : "Create Campaign"}
         </h1>
@@ -283,9 +264,9 @@ const CreateCampaign = () => {
           <span className={styles.required}>*</span>
         </div>
 
-        <button 
-          type="submit" 
-          className={styles.submitButton} 
+        <button
+          type="submit"
+          className={styles.submitButton}
           disabled={isSubmitting}
         >
           {isEdit ? "Update Campaign" : "Create Campaign"}

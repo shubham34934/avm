@@ -239,7 +239,7 @@ const CampaignDetails = () => {
       type: "created",
       title: "Campaign Created",
       timestamp: selectedCompetition?.createdOn || "",
-      isActive: true,
+      isActive: true, // Always active once created
       actions: [
         {
           label: "Reschedule",
@@ -258,14 +258,20 @@ const CampaignDetails = () => {
       type: "started",
       title: "Campaign Started",
       timestamp: selectedCompetition?.startDate || "",
-      isActive: selectedCompetition?.status !== "DRAFT" && 
-               selectedCompetition?.startDate && 
-               new Date(selectedCompetition.startDate) <= new Date(),
+      isActive: 
+        (selectedCompetition?.status === "SCHEDULED" || 
+         selectedCompetition?.status === "ACTIVE" || 
+         selectedCompetition?.status === "PAUSED" ||
+         selectedCompetition?.status === "CLOSEDWINNERSPENDING" ||
+         selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
+         selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED") && 
+        selectedCompetition?.startDate && 
+        new Date(selectedCompetition.startDate) <= new Date(),
       actions: [
         {
-          label: "Pause",
-          onClick: () => console.log("Paused Clicked"),
-          icon: <img src={pauseIcon} alt="Pause" />,
+          label: selectedCompetition?.status === "PAUSED" ? "Resume" : "Pause",
+          onClick: () => console.log("Pause/Resume Clicked"),
+          icon: <img src={pauseIcon} alt="Pause/Resume" />,
         },
       ],
     },
@@ -273,7 +279,10 @@ const CampaignDetails = () => {
       type: "completed",
       title: `Completed ${submissionCount > 0 ? `(${submissionCount.toLocaleString()} submissions)` : ''}`,
       timestamp: selectedCompetition?.endDate || "",
-      isActive: selectedCompetition?.status === "COMPLETED",
+      isActive: 
+        selectedCompetition?.status === "CLOSEDWINNERSPENDING" ||
+        selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
+        selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
       actions: [
         {
           label: "Shortlist Reminder",
@@ -286,7 +295,9 @@ const CampaignDetails = () => {
       type: "select_winners",
       title: "Select Winners",
       timestamp: "",
-      isActive: selectedCompetition?.status === "WINNER_SELECTION",
+      isActive: 
+        selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
+        selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
       actions: [
         {
           label: "Choose Winners",
@@ -304,7 +315,7 @@ const CampaignDetails = () => {
       type: "winner_announced",
       title: "Winner Announced",
       timestamp: "",
-      isActive: selectedCompetition?.status === "WINNER_ANNOUNCED",
+      isActive: selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
       actions: [
         {
           label: "View Winners",

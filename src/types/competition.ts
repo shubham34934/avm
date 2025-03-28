@@ -1,25 +1,25 @@
 export enum CompetitionStatus {
-  DRAFT = 'Draft',
-  SCHEDULED = 'Scheduled',
-  ACTIVE = 'Active',
-  BLOCKED = 'Blocked',
-  PAUSED = 'Paused',
-  CLOSED_WINNERS_PENDING = 'ClosedWinnersPending',
-  CLOSED_WINNERS_SELECTED = 'ClosedWinnersSelected',
-  CLOSED_WINNERS_ANNOUNCED = 'ClosedWinnersAnnounced'
+  Draft = "Draft",
+  Scheduled = "Scheduled",
+  Active = "Active",
+  Blocked = "Blocked",
+  Paused = "Paused",
+  ClosedWinnersPending = "ClosedWinnersPending",
+  ClosedWinnersSelected = "ClosedWinnersSelected",
+  ClosedWinnersAnnounced = "ClosedWinnersAnnounced",
 }
 
 export enum CompetitionPaymentStatus {
-  PAYMENT_PENDING_FROM_SPONSOR = 'PaymentPendingFromSponsor',
-  PAYMENT_RECEIVED_FROM_SPONSOR = 'PaymentReceivedFromSponsor',
-  PARTIAL_PAYMENT_RECEIVED = 'PartialPaymentReceivedFromSponsor',
-  PAYMENT_REMITTED_TO_WINNERS = 'PaymentRemittedToWinners'
+  PAYMENT_PENDING_FROM_SPONSOR = "PaymentPendingFromSponsor",
+  PAYMENT_RECEIVED_FROM_SPONSOR = "PaymentReceivedFromSponsor",
+  PARTIAL_PAYMENT_RECEIVED = "PartialPaymentReceivedFromSponsor",
+  PAYMENT_REMITTED_TO_WINNERS = "PaymentRemittedToWinners",
 }
 
 export enum PrizeType {
-  CASH = 'Cash',
-  GIFT = 'Gift',
-  VOUCHER = 'Voucher'
+  CASH = "Cash",
+  GIFT = "Gift",
+  VOUCHER = "Voucher",
 }
 
 export interface Competition {
@@ -43,7 +43,7 @@ export interface Competition {
   remark?: string;
 }
 
-export interface CompetitionPayload extends Omit<Competition, 'id'> {}
+export interface CompetitionPayload extends Omit<Competition, "id"> {}
 
 export interface CompetitionPrize {
   prizeType: PrizeType;

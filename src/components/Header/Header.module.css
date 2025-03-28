@@ -247,22 +247,22 @@
   .header {
     padding: 0 var(--spacing-4);
   }
-  
+
   .leftSection {
     gap: var(--spacing-3);
     margin-right: var(--spacing-4);
   }
-  
+
   .actions {
     gap: var(--spacing-2);
   }
-  
+
   .actionButton {
     width: 40px;
     height: 40px;
     min-width: 40px;
   }
-  
+
   .actionIcon {
     width: 24px;
     height: 24px;

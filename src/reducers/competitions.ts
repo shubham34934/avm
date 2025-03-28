@@ -253,12 +253,16 @@ export const updateCampaignStatus = createAsyncThunk(
       id, 
       status, 
       remark = "",
-      username = "current_user" 
+      username = "current_user",
+      startDate,
+      endDate
     }: { 
       id: number; 
       status: CompetitionStatus; 
       remark?: string;
       username?: string;
+      startDate?: string;
+      endDate?: string;
     },
     { dispatch }
   ) => {
@@ -269,6 +273,15 @@ export const updateCampaignStatus = createAsyncThunk(
         updatedBy: username,
         updatedOn: new Date().toISOString().split("T")[0],
       };
+
+      // Add dates if provided
+      if (startDate) {
+        data.startDate = startDate;
+      }
+
+      if (endDate) {
+        data.endDate = endDate;
+      }
 
       const result = await dispatch(
         partialUpdateCompetition({ id, data })

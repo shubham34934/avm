@@ -1,14 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
-import { fetchCompetitionById, updateCampaignStatus } from "../../reducers/competitions";
+import {
+  fetchCompetitionById,
+  updateCampaignStatus,
+} from "../../reducers/competitions";
 import { fetchUserByUsername } from "../../reducers/users";
 import { fetchVideoPosts } from "../../reducers/videoPosts";
 import { toast } from "react-toastify";
 import styles from "./CampaignDetails.module.css";
 import Button from "../../components/Button/Button";
 import Timeline from "../../components/Timeline/Timeline";
-import { BlockCampaignModal, RescheduleCampaignModal } from "../../components/Modals";
+import {
+  BlockCampaignModal,
+  RescheduleCampaignModal,
+} from "../../components/Modals";
 import SubmissionCard from "../../components/Submission/SubmissionCard";
 import DateRange from "../../components/DateRange/DateRange";
 import Header from "../../components/Header/Header";
@@ -49,7 +55,8 @@ const CampaignDetails = () => {
   const [submissionCount, setSubmissionCount] = useState(0);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
-  const [rescheduleActionType, setRescheduleActionType] = useState('reschedule'); // 'pause' or 'reschedule'
+  const [rescheduleActionType, setRescheduleActionType] =
+    useState("reschedule"); // 'pause' or 'reschedule'
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -158,7 +165,7 @@ const CampaignDetails = () => {
             competition: { id: parseInt(id) },
             page: 0,
             size: 20,
-            sort: "createdOn,desc"
+            sort: "createdOn,desc",
           })
         ).unwrap();
 
@@ -255,9 +262,9 @@ const CampaignDetails = () => {
       await dispatch(
         updateCampaignStatus({
           id: selectedCompetition.id,
-          status: "BLOCKED",
+          status: "Blocked",
           remark,
-          username: "current_user"
+          username: "current_user",
         })
       ).unwrap();
       toast.success("Campaign blocked successfully");
@@ -271,7 +278,7 @@ const CampaignDetails = () => {
   };
 
   const handlePauseCampaign = () => {
-    handleRescheduleModalOpen('pause');
+    handleRescheduleModalOpen("pause");
   };
 
   const handleResumeCampaign = async () => {
@@ -279,8 +286,8 @@ const CampaignDetails = () => {
       await dispatch(
         updateCampaignStatus({
           id: selectedCompetition.id,
-          status: "ACTIVE",
-          username: "current_user"
+          status: "Active",
+          username: "current_user",
         })
       ).unwrap();
       toast.success("Campaign resumed successfully");
@@ -298,39 +305,41 @@ const CampaignDetails = () => {
 
   const handleRescheduleSubmit = async (data) => {
     try {
-      const { remark, startDate, endDate } = data;
+      const { remark, startDate, endDate, status } = data;
       const payload = {
         id: selectedCompetition.id,
-        status: rescheduleActionType === 'pause' ? 'PAUSED' : 'SCHEDULED',
+        status:
+          status || (rescheduleActionType === "pause" ? "pause" : "Scheduled"),
         remark,
-        username: "current_user"
+        username: "current_user",
       };
 
       // Add dates if provided
       if (startDate) {
         payload.startDate = startDate; // Already in YYYY-MM-DD format from date input
       }
-      
+
       if (endDate) {
         payload.endDate = endDate; // Already in YYYY-MM-DD format from date input
       }
 
       await dispatch(updateCampaignStatus(payload)).unwrap();
-      
+
       toast.success(
-        rescheduleActionType === 'pause' 
-          ? "Campaign paused successfully" 
+        rescheduleActionType === "pause"
+          ? "Campaign paused successfully"
           : "Campaign rescheduled successfully"
       );
-      
+
       // Refresh competition data
       dispatch(fetchCompetitionById(selectedCompetition.id));
     } catch (error) {
       toast.error(
-        rescheduleActionType === 'pause' 
-          ? "Failed to pause campaign" 
+        rescheduleActionType === "pause"
+          ? "Failed to pause campaign"
           : "Failed to reschedule campaign"
       );
+      console.error("Error updating campaign status:", error);
     } finally {
       setIsRescheduleModalOpen(false);
     }
@@ -339,8 +348,8 @@ const CampaignDetails = () => {
   // Helper function to format date from DD/MM/YYYY to YYYY-MM-DD
   const formatDateForAPI = (dateString) => {
     if (!dateString) return null;
-    
-    const [day, month, year] = dateString.split('/');
+
+    const [day, month, year] = dateString.split("/");
     return `${year}-${month}-${day}`;
   };
 
@@ -354,7 +363,7 @@ const CampaignDetails = () => {
       actions: [
         {
           label: "Reschedule",
-          onClick: () => handleRescheduleModalOpen('reschedule'),
+          onClick: () => handleRescheduleModalOpen("reschedule"),
           icon: <img src={rescheduleIcon} alt="Reschedule" />,
         },
         {
@@ -370,23 +379,26 @@ const CampaignDetails = () => {
       title: "Campaign Started",
       timestamp: selectedCompetition?.startDate || "",
       isActive:
-        (selectedCompetition?.status === "SCHEDULED" ||
-          selectedCompetition?.status === "ACTIVE" ||
-          selectedCompetition?.status === "PAUSED" ||
-          selectedCompetition?.status === "CLOSEDWINNERSPENDING" ||
-          selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
-          selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED") &&
+        (selectedCompetition?.status === "Scheduled" ||
+          selectedCompetition?.status === "Active" ||
+          selectedCompetition?.status === "pause" ||
+          selectedCompetition?.status === "ClosedWinnersPending" ||
+          selectedCompetition?.status === "ClosedWinnersSelected" ||
+          selectedCompetition?.status === "ClosedWinnersAnnounced") &&
         selectedCompetition?.startDate &&
         new Date(selectedCompetition.startDate) <= new Date(),
       actions: [
         {
-          label: selectedCompetition?.status === "PAUSED" ? "Resume" : "Pause",
-          onClick: selectedCompetition?.status === "PAUSED" ? handleResumeCampaign : handlePauseCampaign,
+          label: selectedCompetition?.status === "pause" ? "Resume" : "Pause",
+          onClick:
+            selectedCompetition?.status === "pause"
+              ? handleResumeCampaign
+              : handlePauseCampaign,
           icon: <img src={pauseIcon} alt="Pause/Resume" />,
         },
         {
           label: "Reschedule",
-          onClick: () => handleRescheduleModalOpen('reschedule'),
+          onClick: () => handleRescheduleModalOpen("reschedule"),
           icon: <img src={rescheduleIcon} alt="Reschedule" />,
         },
       ],
@@ -400,9 +412,9 @@ const CampaignDetails = () => {
       }`,
       timestamp: selectedCompetition?.endDate || "",
       isActive:
-        selectedCompetition?.status === "CLOSEDWINNERSPENDING" ||
-        selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
-        selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
+        selectedCompetition?.status === "ClosedWinnersPending" ||
+        selectedCompetition?.status === "ClosedWinnersSelected" ||
+        selectedCompetition?.status === "ClosedWinnersAnnounced",
       actions: [
         {
           label: "Shortlist Reminder",
@@ -416,8 +428,8 @@ const CampaignDetails = () => {
       title: "Select Winners",
       timestamp: "",
       isActive:
-        selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
-        selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
+        selectedCompetition?.status === "ClosedWinnersSelected" ||
+        selectedCompetition?.status === "ClosedWinnersAnnounced",
       actions: [
         {
           label: "Choose Winners",
@@ -435,7 +447,7 @@ const CampaignDetails = () => {
       type: "winner_announced",
       title: "Winner Announced",
       timestamp: "",
-      isActive: selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
+      isActive: selectedCompetition?.status === "ClosedWinnersAnnounced",
       actions: [
         {
           label: "View Winners",
@@ -472,6 +484,51 @@ const CampaignDetails = () => {
     },
   ];
 
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Draft":
+        return styles.statusDraft;
+      case "Scheduled":
+        return styles.statusScheduled;
+      case "Active":
+        return styles.statusActive;
+      case "Paused":
+        return styles.statusPaused;
+      case "Blocked":
+        return styles.statusBlocked;
+      case "ClosedWinnersPending":
+      case "ClosedWinnersSelected":
+      case "ClosedWinnersAnnounced":
+        return styles.statusClosed;
+      default:
+        return "";
+    }
+  };
+
+  const formatStatus = (status) => {
+    console.log({ status }, "sfsfsf");
+    switch (status) {
+      case "Draft":
+        return "Draft";
+      case "Scheduled":
+        return "Scheduled";
+      case "Active":
+        return "Active";
+      case "Paused":
+        return "Paused";
+      case "Blocked":
+        return "Blocked";
+      case "ClosedWinnersPending":
+        return "Closed - Winners Pending";
+      case "ClosedWinnersSelected":
+        return "Closed - Winners Selected";
+      case "ClosedWinnersAnnounced":
+        return "Closed - Winners Announced";
+      default:
+        return "";
+    }
+  };
+
   if (competitionLoading || userLoading || videoPostsLoading) {
     return <div>Loading...</div>;
   }
@@ -498,6 +555,7 @@ const CampaignDetails = () => {
     month: "short",
   });
 
+  console.log({ selectedCompetition });
   return (
     <div className={styles.container}>
       <Header
@@ -509,7 +567,6 @@ const CampaignDetails = () => {
         showMore
         onMore={handleMore}
       />
-
       <div className={styles.countdown}>
         {campaignStatus === "upcoming" && <span>Starts in {timeLeft}</span>}
         {campaignStatus === "active" && <span>Ends in {timeLeft}</span>}
@@ -527,7 +584,35 @@ const CampaignDetails = () => {
           </div>
         </div>
 
-        <h2 className={styles.title}>About Campaign</h2>
+        <h2 className={styles.title}>
+          About Campaign{" "}
+          <span
+            className={`${styles.statusBadge} ${getStatusClass(
+              selectedCompetition.status
+            )}`}
+          >
+            {formatStatus(selectedCompetition.status)}
+          </span>
+        </h2>
+        <div className={styles.sponsorInfo}>
+          {selectedCompetition.sponsor ? (
+            <>
+              <img
+                src={
+                  selectedCompetition.sponsor.logoUrl ||
+                  "https://via.placeholder.com/32"
+                }
+                alt="Sponsor"
+                className={styles.sponsorLogo}
+              />
+              <span className={styles.sponsorName}>
+                {selectedCompetition.sponsor.name || "Sponsor"}
+              </span>
+            </>
+          ) : (
+            <span className={styles.sponsorName}>No sponsor</span>
+          )}
+        </div>
         <div className={styles.points}>
           <p>{selectedCompetition.description}</p>
           {selectedCompetition.rules && (

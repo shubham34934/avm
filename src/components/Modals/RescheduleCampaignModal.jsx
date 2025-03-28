@@ -1,47 +1,54 @@
-import { useState, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import BottomSheet from '../BottomSheet/BottomSheet';
-import styles from './RescheduleCampaignModal.module.css';
-import calendarIcon from '../../assets/icons/calendar.svg';
+import { useState, useMemo } from "react";
+import PropTypes from "prop-types";
+import BottomSheet from "../BottomSheet/BottomSheet";
+import styles from "./RescheduleCampaignModal.module.css";
+import calendarIcon from "../../assets/icons/calendar.svg";
 
-const RescheduleCampaignModal = ({ 
-  isOpen, 
-  onClose, 
-  campaignName, 
+const RescheduleCampaignModal = ({
+  isOpen,
+  onClose,
+  campaignName,
   onSubmit,
   actionType, // 'pause' or 'reschedule'
   currentStartDate,
-  currentEndDate
+  currentEndDate,
 }) => {
-  const [remark, setRemark] = useState('');
-  const [startDate, setStartDate] = useState(currentStartDate || '');
-  const [endDate, setEndDate] = useState(currentEndDate || '');
+  const [remark, setRemark] = useState("");
+  const [startDate, setStartDate] = useState(currentStartDate || "");
+  const [endDate, setEndDate] = useState(currentEndDate || "");
 
   // Get today's date in YYYY-MM-DD format
   const today = useMemo(() => {
     const date = new Date();
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   }, []);
 
   const handleSubmit = () => {
+    // For rescheduling, make sure we have both dates
+    if (actionType === "reschedule" && (!startDate || !endDate)) {
+      alert("Please provide both start and end dates for rescheduling");
+      return;
+    }
+
     onSubmit({
       remark,
       startDate: startDate || undefined,
-      endDate: endDate || undefined
+      endDate: endDate || undefined,
+      status: actionType === "pause" ? "pause" : "Scheduled",
     });
   };
 
   const getTitle = () => {
-    if (actionType === 'pause') {
+    if (actionType === "pause") {
       return `Pause ${campaignName}`;
-    } else if (actionType === 'reschedule') {
+    } else if (actionType === "reschedule") {
       return `Reschedule ${campaignName}`;
     }
     return `Update ${campaignName}`;
   };
 
   const getActionText = () => {
-    return actionType === 'pause' ? 'Pause' : 'Reschedule';
+    return actionType === "pause" ? "Pause" : "Reschedule";
   };
 
   return (
@@ -55,7 +62,7 @@ const RescheduleCampaignModal = ({
     >
       <div className={styles.container}>
         <p className={styles.description}>Description for admin</p>
-        
+
         <div className={styles.inputGroup}>
           <label className={styles.label}>Remark</label>
           <textarea
@@ -68,7 +75,11 @@ const RescheduleCampaignModal = ({
         </div>
 
         <div className={styles.inputGroup}>
-          <label className={styles.label}>New Start Date (optional)</label>
+          <label className={styles.label}>
+            {actionType === "reschedule"
+              ? "New Start Date"
+              : "New Start Date (optional)"}
+          </label>
           <div className={styles.dateInputWrapper}>
             <input
               type="date"
@@ -77,6 +88,7 @@ const RescheduleCampaignModal = ({
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               min={today}
+              required={actionType === "reschedule"}
             />
             <img
               src={calendarIcon}
@@ -87,7 +99,11 @@ const RescheduleCampaignModal = ({
         </div>
 
         <div className={styles.inputGroup}>
-          <label className={styles.label}>New End Date (optional)</label>
+          <label className={styles.label}>
+            {actionType === "reschedule"
+              ? "New End Date"
+              : "New End Date (optional)"}
+          </label>
           <div className={styles.dateInputWrapper}>
             <input
               type="date"
@@ -95,15 +111,8 @@ const RescheduleCampaignModal = ({
               placeholder="DD/MM/YYYY"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              min={
-                startDate
-                  ? (() => {
-                      const minDate = new Date(startDate);
-                      minDate.setDate(minDate.getDate() + 1);
-                      return minDate.toISOString().split('T')[0];
-                    })()
-                  : today
-              }
+              min={startDate || today}
+              required={actionType === "reschedule"}
             />
             <img
               src={calendarIcon}
@@ -122,9 +131,9 @@ RescheduleCampaignModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   campaignName: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  actionType: PropTypes.oneOf(['pause', 'reschedule']).isRequired,
+  actionType: PropTypes.oneOf(["pause", "reschedule"]).isRequired,
   currentStartDate: PropTypes.string,
-  currentEndDate: PropTypes.string
+  currentEndDate: PropTypes.string,
 };
 
 export default RescheduleCampaignModal;

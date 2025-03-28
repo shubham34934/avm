@@ -60,6 +60,17 @@
   color: var(--text-secondary);
 }
 
+.noResults {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-8);
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+  text-align: center;
+}
+
 .menuOptions {
   display: flex;
   flex-direction: column;

@@ -33,7 +33,7 @@ const Header = ({
 
   // Create a memoized debounced search function
   const debouncedSearch = useMemo(
-    () => 
+    () =>
       debounce((value) => {
         if (onSearch) {
           onSearch(value);

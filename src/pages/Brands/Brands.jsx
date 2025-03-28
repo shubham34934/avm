@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchBrands, deleteBrand } from "../../reducers/brands";
 import { toast } from "react-toastify";
@@ -32,10 +32,26 @@ const Brands = () => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    // Implement search functionality
-    // For now, we'll just log the query
-    console.log("Search query:", query);
   };
+
+  // Filter brands based on search query
+  const filteredBrands = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return brands;
+    }
+
+    const lowerCaseQuery = searchQuery.toLowerCase();
+
+    return brands.filter((brand) => {
+      const sponsorName = (brand.sponsorName || brand.name || "").toLowerCase();
+      const sponsorDescription = (brand.sponsorDescription || "").toLowerCase();
+
+      return (
+        sponsorName.includes(lowerCaseQuery) ||
+        sponsorDescription.includes(lowerCaseQuery)
+      );
+    });
+  }, [brands, searchQuery]);
 
   const handleAdd = () => {
     // Navigate to create sponsor page
@@ -84,7 +100,11 @@ const Brands = () => {
     if (brandToDelete) {
       try {
         await dispatch(deleteBrand(brandToDelete.id)).unwrap();
-        toast.success(`Brand "${brandToDelete.sponsorName || brandToDelete.name || 'Unnamed'}" deleted successfully`);
+        toast.success(
+          `Brand "${
+            brandToDelete.sponsorName || brandToDelete.name || "Unnamed"
+          }" deleted successfully`
+        );
         setBrandToDelete(null);
       } catch (error) {
         toast.error(error || "Failed to delete brand");
@@ -114,7 +134,7 @@ const Brands = () => {
   const handleBrandClick = (brandId) => {
     // Handle brand click
     console.log("Brand clicked:", brandId);
-    const brand = brands.find(b => b.id === brandId);
+    const brand = brands.find((b) => b.id === brandId);
     if (brand) {
       handleViewBrand(brand);
     }
@@ -133,20 +153,30 @@ const Brands = () => {
         onMore={handleMore}
         showBack
       />
-      
+
       <div className={styles.content}>
         {loading ? (
           <div className={styles.loading}>Loading...</div>
         ) : error ? (
           <div className={styles.error}>{error}</div>
+        ) : filteredBrands.length === 0 ? (
+          <div className={styles.noResults}>
+            {searchQuery
+              ? `No brands found matching "${searchQuery}"`
+              : "No brands found"}
+          </div>
         ) : (
-          brands.map((brand) => (
+          filteredBrands.map((brand) => (
             <ListCard
               key={brand.id}
-              image={brand.sponsorLogoUrl || brand.logo || 'https://via.placeholder.com/40'}
-              title={brand.sponsorName || brand.name || 'Name'}
-              subtitle={brand.sponsorDescription || ''}
-              status={brand.isActive ? 'Active' : 'Inactive'}
+              image={
+                brand.sponsorLogoUrl ||
+                brand.logo ||
+                "https://via.placeholder.com/40"
+              }
+              title={brand.sponsorName || brand.name || "Name"}
+              subtitle={brand.sponsorDescription || ""}
+              status={brand.isActive ? "Active" : "Inactive"}
               menuIcon="more_vert"
               onMenuClick={(e) => handleMenuClick(e, brand)}
               onClick={() => handleBrandClick(brand.id)}
@@ -155,16 +185,12 @@ const Brands = () => {
                   <Popover onClose={handleCloseMenu}>
                     <div className={styles.menuOptions}>
                       <button
-                        onClick={(e) =>
-                          handleMenuOptionClick(e, "view", brand)
-                        }
+                        onClick={(e) => handleMenuOptionClick(e, "view", brand)}
                       >
                         View
                       </button>
                       <button
-                        onClick={(e) =>
-                          handleMenuOptionClick(e, "edit", brand)
-                        }
+                        onClick={(e) => handleMenuOptionClick(e, "edit", brand)}
                       >
                         Edit
                       </button>
@@ -188,7 +214,9 @@ const Brands = () => {
       {brandToDelete && (
         <ConfirmationModal
           title="Delete Brand"
-          message={`Are you sure you want to delete the brand "${brandToDelete.sponsorName || brandToDelete.name || 'Unnamed'}"?`}
+          message={`Are you sure you want to delete the brand "${
+            brandToDelete.sponsorName || brandToDelete.name || "Unnamed"
+          }"?`}
           onConfirm={handleConfirmDelete}
           onCancel={() => setBrandToDelete(null)}
           confirmText="Delete"

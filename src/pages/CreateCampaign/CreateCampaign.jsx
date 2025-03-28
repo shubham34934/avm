@@ -26,7 +26,6 @@ const CreateCampaign = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    topic: "",
     sponsorId: "",
     startDate: "",
     endDate: "",
@@ -52,7 +51,6 @@ const CreateCampaign = () => {
           ).unwrap();
           setFormData({
             name: campaign.title,
-            topic: campaign.topic || "",
             sponsorId: campaign.sponsorId?.toString() || "",
             startDate: campaign.startDate,
             endDate: campaign.endDate,
@@ -122,7 +120,6 @@ const CreateCampaign = () => {
       const payload = {
         title: formData.name,
         description: formData.rules,
-        topic: formData.topic,
         sponsorId: formData.sponsorId ? parseInt(formData.sponsorId) : null,
         startDate: formData.startDate,
         endDate: formData.endDate,
@@ -200,31 +197,6 @@ const CreateCampaign = () => {
 
         <div className={styles.formGroup}>
           <select
-            id="topic"
-            name="topic"
-            value={formData.topic}
-            onChange={handleChange}
-            className={styles.select}
-            required
-          >
-            <option value="" disabled>
-              Topic
-            </option>
-            <option value="technology">Technology</option>
-            <option value="fashion">Fashion</option>
-            <option value="food">Food</option>
-            <option value="travel">Travel</option>
-            <option value="health">Health</option>
-            <option value="beauty">Beauty</option>
-            <option value="fitness">Fitness</option>
-            <option value="lifestyle">Lifestyle</option>
-            <option value="other">Other</option>
-          </select>
-          <span className={styles.required}>*</span>
-        </div>
-        
-        <div className={styles.formGroup}>
-          <select
             id="sponsorId"
             name="sponsorId"
             value={formData.sponsorId}
@@ -234,7 +206,7 @@ const CreateCampaign = () => {
             <option value="">Select Sponsor (Optional)</option>
             {brands.map((brand) => (
               <option key={brand.id} value={brand.id}>
-                {brand.name}
+                {brand.sponsorName || brand.name || 'Unnamed Sponsor'}
               </option>
             ))}
           </select>

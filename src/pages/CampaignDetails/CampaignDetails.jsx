@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchCompetitionById } from "../../reducers/competitions";
@@ -29,9 +29,11 @@ const CampaignDetails = () => {
   const { videoPosts, loading: videoPostsLoading } = useAppSelector(
     (state) => state.videoPosts
   );
-  const [timeLeft] = useState("1h 20m 34s");
+  const [timeLeft, setTimeLeft] = useState("");
+  const [campaignStatus, setCampaignStatus] = useState("upcoming"); // upcoming, active, ended
   const [submissions, setSubmissions] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -53,6 +55,74 @@ const CampaignDetails = () => {
       fetchDetails();
     }
   }, [id, dispatch, navigate]);
+
+  // Calculate and update countdown timer
+  useEffect(() => {
+    if (!selectedCompetition) return;
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const startDate = new Date(selectedCompetition.startDate);
+      const endDate = new Date(selectedCompetition.endDate);
+
+      // Determine campaign status
+      if (now < startDate) {
+        setCampaignStatus("upcoming");
+        // Calculate time difference for upcoming campaign
+        const timeDiff = startDate - now;
+        
+        // Convert to days, hours, minutes, seconds
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+        
+        // Format the time left string
+        let timeLeftStr = "";
+        if (days > 0) timeLeftStr += `${days}d `;
+        if (hours > 0 || days > 0) timeLeftStr += `${hours}h `;
+        if (minutes > 0 || hours > 0 || days > 0) timeLeftStr += `${minutes}m `;
+        timeLeftStr += `${seconds}s`;
+        
+        setTimeLeft(timeLeftStr);
+      } else if (now >= startDate && now <= endDate) {
+        setCampaignStatus("active");
+        // Calculate time difference for active campaign (time remaining)
+        const timeDiff = endDate - now;
+        
+        // Convert to days, hours, minutes, seconds
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+        
+        // Format the time left string
+        let timeLeftStr = "";
+        if (days > 0) timeLeftStr += `${days}d `;
+        if (hours > 0 || days > 0) timeLeftStr += `${hours}h `;
+        if (minutes > 0 || hours > 0 || days > 0) timeLeftStr += `${minutes}m `;
+        timeLeftStr += `${seconds}s`;
+        
+        setTimeLeft(timeLeftStr);
+      } else {
+        setCampaignStatus("ended");
+        setTimeLeft("Ended");
+      }
+    };
+
+    // Initial update
+    updateCountdown();
+    
+    // Set up interval to update every second
+    timerRef.current = setInterval(updateCountdown, 1000);
+    
+    // Clean up interval on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [selectedCompetition]);
 
   // Fetch video posts related to this competition
   useEffect(() => {
@@ -99,7 +169,7 @@ const CampaignDetails = () => {
         setLoadingSubmissions(false);
       }
     };
-    
+
     fetchCompetitionVideos();
   }, [id, dispatch]);
 
@@ -223,7 +293,9 @@ const CampaignDetails = () => {
       />
 
       <div className={styles.countdown}>
-        <span>Start in {timeLeft}</span>
+        {campaignStatus === "upcoming" && <span>Starts in {timeLeft}</span>}
+        {campaignStatus === "active" && <span>Ends in {timeLeft}</span>}
+        {campaignStatus === "ended" && <span>Campaign ended</span>}
       </div>
 
       <div className={styles.content}>

@@ -50,6 +50,33 @@ const Submissions = () => {
   const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
   const [videoToDelete, setVideoToDelete] = useState(null);
 
+  // Ref for the popover element
+  const popoverRef = useRef(null);
+
+  // Effect to handle clicks outside the popover
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // If activeMenuId is set and the click is outside the popover
+      if (
+        activeMenuId &&
+        popoverRef.current &&
+        !popoverRef.current.contains(event.target) &&
+        // Make sure we're not clicking on the menu button itself
+        !event.target.closest('[data-menu-button]')
+      ) {
+        setActiveMenuId(null);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeMenuId]);
+
   // Use video posts state for both submissions and video posts
   const {
     videoPosts,
@@ -387,6 +414,7 @@ const Submissions = () => {
                   showMenu={activeMenuId === video.id}
                   onMenuClick={(e) => handleMenuClick(video.id, e)}
                   onCloseMenu={handleCloseMenu}
+                  data-menu-button={`menu-${video.id}`}
                 />
               )
             )}
@@ -396,6 +424,7 @@ const Submissions = () => {
       )}
       {activeMenuId && (
         <div
+          ref={popoverRef}
           className={styles.globalPopover}
           style={{
             top: `${popoverPosition.top}px`,

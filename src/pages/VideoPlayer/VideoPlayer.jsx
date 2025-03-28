@@ -29,13 +29,52 @@ const VideoPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
-    // If we have a specific video ID from the URL
-    if (currentVideoId) {
-      // First try to find the video in the existing list
+    // Always fetch all videos first to ensure we have a complete list
+    if (videoList.length === 0) {
+      console.log('Fetching video posts...');
+      dispatch(fetchVideoPosts({ page: 0, size: 100, sort: "createdOn,desc" }))
+        .unwrap()
+        .then((response) => {
+          console.log('Video posts response:', response);
+          // Check if the response is an array or has a content property
+          const videoContent = Array.isArray(response) ? response : 
+                             (response && response.content ? response.content : []);
+          
+          if (videoContent && videoContent.length > 0) {
+            // If we have videos and a specific ID, find that video's index
+            let initialIndex = 0;
+            if (currentVideoId) {
+              const foundIndex = videoContent.findIndex(
+                (v) => v.id === parseInt(currentVideoId)
+              );
+              if (foundIndex >= 0) initialIndex = foundIndex;
+            }
+            
+            console.log('Setting video list with', videoContent.length, 'videos');
+            dispatch(
+              setVideoList({
+                videos: videoContent,
+                initialIndex: initialIndex,
+                context: "all",
+              })
+            );
+          } else {
+            console.error('No videos found in response');
+            // If we have a specific video ID, try to fetch just that one
+            if (currentVideoId) {
+              fetchSingleVideo(currentVideoId);
+            }
+          }
+        })
+        .catch(() => {
+          toast.error("Failed to load videos");
+        });
+    } else if (currentVideoId) {
+      // If we already have videos but need to navigate to a specific one
       const videoIndex = videoList.findIndex(
         (v) => v.id === parseInt(currentVideoId)
       );
-
+      
       if (videoIndex >= 0) {
         // If found, just update the current index
         dispatch(
@@ -45,57 +84,9 @@ const VideoPlayer = () => {
             context: navigationContext,
           })
         );
-      } else {
-        // If not found or videoList is empty, fetch the specific video
-        dispatch(fetchVideoPostById(parseInt(currentVideoId)))
-          .unwrap()
-          .then((video) => {
-            if (video) {
-              // If video is found, set it as the only video in the list
-              dispatch(
-                setVideoList({
-                  videos: [video],
-                  initialIndex: 0,
-                  context: "single",
-                })
-              );
-            }
-          })
-          .catch(() => {
-            toast.error("Failed to load video");
-          });
       }
     }
-
-    // If no videos are loaded yet, fetch all videos
-    if (videoList.length === 0) {
-      dispatch(fetchVideoPosts({ page: 0, size: 100, sort: "createdOn,desc" }))
-        .unwrap()
-        .then((response) => {
-          if (response && response.content && response.content.length > 0) {
-            // If we have videos and a specific ID, find that video's index
-            let initialIndex = 0;
-            if (currentVideoId) {
-              const foundIndex = response.content.findIndex(
-                (v) => v.id === parseInt(currentVideoId)
-              );
-              if (foundIndex >= 0) initialIndex = foundIndex;
-            }
-
-            dispatch(
-              setVideoList({
-                videos: response.content,
-                initialIndex: initialIndex,
-                context: "all",
-              })
-            );
-          }
-        })
-        .catch(() => {
-          toast.error("Failed to load videos");
-        });
-    }
-  }, [currentVideoId, dispatch, videoList.length]);
+  }, [currentVideoId, dispatch, videoList.length, navigationContext]);
 
   const handleBack = () => navigate(-1);
 
@@ -170,6 +161,29 @@ const VideoPlayer = () => {
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // Helper function to fetch a single video
+  const fetchSingleVideo = (videoId) => {
+    console.log('Fetching single video:', videoId);
+    dispatch(fetchVideoPostById(parseInt(videoId)))
+      .unwrap()
+      .then((video) => {
+        console.log('Single video response:', video);
+        if (video) {
+          dispatch(
+            setVideoList({
+              videos: [video],
+              initialIndex: 0,
+              context: "single",
+            })
+          );
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to load video:', error);
+        toast.error("Failed to load video");
+      });
+  };
+
   // Function to convert regular YouTube URLs to embed URLs
   const getEmbedUrl = (url) => {
     if (!url) return "";
@@ -201,6 +215,7 @@ const VideoPlayer = () => {
   };
 
   if (!videoList || videoList.length === 0) {
+    console.log('Rendering loading state, videoList:', videoList);
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingMessage}>Loading videos...</div>
@@ -210,7 +225,8 @@ const VideoPlayer = () => {
 
   // Get the current video based on the index
   const currentVideo = videoList[currentVideoIndex];
-
+  console.log('Current video:', currentVideo, 'at index', currentVideoIndex, 'of', videoList.length);
+  
   if (!currentVideo) {
     return <div className={styles.errorMessage}>No video available</div>;
   }

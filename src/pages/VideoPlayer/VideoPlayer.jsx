@@ -15,8 +15,9 @@ import {
 import {
   navigateToNextVideo,
   navigateToPreviousVideo,
+  setVideoList,
 } from "../../reducers/videoNavigation";
-import { fetchVideoPosts } from "../../reducers/videoPosts";
+import { fetchVideoPosts, fetchVideoPostById } from "../../reducers/videoPosts";
 import { toggleLike, toggleShortlist } from "../../reducers/submissions";
 
 const VideoPlayer = () => {
@@ -33,10 +34,63 @@ const VideoPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
-    if (videoList.length === 0) {
-      dispatch(fetchVideoPosts({ page: 0, size: 100, sort: "createdOn,desc" }));
+    // If we have a specific video ID from the URL
+    if (currentVideoId) {
+      // First try to find the video in the existing list
+      const videoIndex = videoList.findIndex(v => v.id === parseInt(currentVideoId));
+      
+      if (videoIndex >= 0) {
+        // If found, just update the current index
+        dispatch(setVideoList({
+          videos: videoList,
+          initialIndex: videoIndex,
+          context: navigationContext
+        }));
+      } else {
+        // If not found or videoList is empty, fetch the specific video
+        dispatch(fetchVideoPostById(parseInt(currentVideoId)))
+          .unwrap()
+          .then(video => {
+            if (video) {
+              // If video is found, set it as the only video in the list
+              dispatch(setVideoList({
+                videos: [video],
+                initialIndex: 0,
+                context: 'single'
+              }));
+            }
+          })
+          .catch(() => {
+            toast.error("Failed to load video");
+          });
+      }
     }
-  }, [videoList, dispatch]);
+    
+    // If no videos are loaded yet, fetch all videos
+    if (videoList.length === 0) {
+      dispatch(fetchVideoPosts({ page: 0, size: 100, sort: "createdOn,desc" }))
+        .unwrap()
+        .then(response => {
+          if (response && response.content && response.content.length > 0) {
+            // If we have videos and a specific ID, find that video's index
+            let initialIndex = 0;
+            if (currentVideoId) {
+              const foundIndex = response.content.findIndex(v => v.id === parseInt(currentVideoId));
+              if (foundIndex >= 0) initialIndex = foundIndex;
+            }
+            
+            dispatch(setVideoList({
+              videos: response.content,
+              initialIndex: initialIndex,
+              context: 'all'
+            }));
+          }
+        })
+        .catch(() => {
+          toast.error("Failed to load videos");
+        });
+    }
+  }, [currentVideoId, dispatch, videoList.length]);
 
   const handleBack = () => navigate(-1);
 
@@ -111,8 +165,50 @@ const VideoPlayer = () => {
     return () => container?.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  if (!videoList || videoList.length === 0)
-    return <div>No videos available</div>;
+  // Function to convert regular YouTube URLs to embed URLs
+  const getEmbedUrl = (url) => {
+    if (!url) return '';
+    
+    // Handle YouTube URLs
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      // Extract video ID
+      let videoId = '';
+      
+      if (url.includes('youtube.com/watch')) {
+        // Format: https://www.youtube.com/watch?v=VIDEO_ID
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        videoId = urlParams.get('v');
+      } else if (url.includes('youtu.be')) {
+        // Format: https://youtu.be/VIDEO_ID
+        videoId = url.split('/').pop();
+      } else if (url.includes('youtube.com/embed')) {
+        // Already an embed URL
+        return `${url}?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
+      }
+      
+      if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
+      }
+    }
+    
+    // If not a recognized format or not YouTube, return original with parameters
+    return `${url}?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
+  };
+
+  if (!videoList || videoList.length === 0) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingMessage}>Loading videos...</div>
+      </div>
+    );
+  }
+
+  // Get the current video based on the index
+  const currentVideo = videoList[currentVideoIndex];
+  
+  if (!currentVideo) {
+    return <div className={styles.errorMessage}>No video available</div>;
+  }
 
   return (
     <div className={styles.container}>
@@ -139,7 +235,7 @@ const VideoPlayer = () => {
             >
               <iframe
                 ref={(el) => (playerRefs.current[index] = el)}
-                src={`${video.videoUrl}?autoplay=0&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`}
+                src={getEmbedUrl(video.url || video.videoUrl)}
                 title={video.title}
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen

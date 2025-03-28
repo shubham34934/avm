@@ -64,11 +64,27 @@
 
 .viewAll {
   color: var(--primary);
-  background: none;
-  border: none;
   font-size: 0.875rem;
   font-weight: 500;
+  background: none;
+  border: none;
   cursor: pointer;
+}
+
+.errorMessage {
+  color: var(--error);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.emptyMessage {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.875rem;
+  width: 100%;
 }
 
 .campaigns, .videos {

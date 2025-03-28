@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
-import { fetchCompetitionById, partialUpdateCompetition } from "../../reducers/competitions";
+import { fetchCompetitionById, updateCampaignStatus } from "../../reducers/competitions";
 import { fetchUserByUsername } from "../../reducers/users";
 import { fetchVideoPosts } from "../../reducers/videoPosts";
 import { toast } from "react-toastify";
@@ -236,6 +236,72 @@ const CampaignDetails = () => {
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleMore = () => {
+    // Handle more options
+  };
+
+  const handleBlockModalClose = () => {
+    setIsBlockModalOpen(false);
+  };
+
+  const handleBlockCampaign = async (remark) => {
+    try {
+      await dispatch(
+        updateCampaignStatus({
+          id: selectedCompetition.id,
+          status: "BLOCKED",
+          remark,
+          username: "current_user"
+        })
+      ).unwrap();
+      toast.success("Campaign blocked successfully");
+      // Refresh competition data
+      dispatch(fetchCompetitionById(selectedCompetition.id));
+    } catch (error) {
+      toast.error("Failed to block campaign");
+    } finally {
+      setIsBlockModalOpen(false);
+    }
+  };
+
+  const handlePauseCampaign = async () => {
+    try {
+      await dispatch(
+        updateCampaignStatus({
+          id: selectedCompetition.id,
+          status: "PAUSED",
+          username: "current_user"
+        })
+      ).unwrap();
+      toast.success("Campaign paused successfully");
+      // Refresh competition data
+      dispatch(fetchCompetitionById(selectedCompetition.id));
+    } catch (error) {
+      toast.error("Failed to pause campaign");
+    }
+  };
+
+  const handleResumeCampaign = async () => {
+    try {
+      await dispatch(
+        updateCampaignStatus({
+          id: selectedCompetition.id,
+          status: "ACTIVE",
+          username: "current_user"
+        })
+      ).unwrap();
+      toast.success("Campaign resumed successfully");
+      // Refresh competition data
+      dispatch(fetchCompetitionById(selectedCompetition.id));
+    } catch (error) {
+      toast.error("Failed to resume campaign");
+    }
+  };
+
   // Timeline steps
   const timelineSteps = [
     {
@@ -273,7 +339,7 @@ const CampaignDetails = () => {
       actions: [
         {
           label: selectedCompetition?.status === "PAUSED" ? "Resume" : "Pause",
-          onClick: () => console.log("Pause/Resume Clicked"),
+          onClick: selectedCompetition?.status === "PAUSED" ? handleResumeCampaign : handlePauseCampaign,
           icon: <img src={pauseIcon} alt="Pause/Resume" />,
         },
       ],
@@ -358,41 +424,6 @@ const CampaignDetails = () => {
       ],
     },
   ];
-
-  const handleBack = () => {
-    navigate(-1);
-  };
-
-  const handleMore = () => {
-    // Handle more options
-  };
-
-  const handleBlockModalClose = () => {
-    setIsBlockModalOpen(false);
-  };
-
-  const handleBlockCampaign = async (remark) => {
-    try {
-      await dispatch(
-        partialUpdateCompetition({
-          id: selectedCompetition.id,
-          data: {
-            status: "BLOCKED",
-            remark,
-            updatedBy: "current_user",
-            updatedOn: new Date().toISOString().split("T")[0]
-          }
-        })
-      ).unwrap();
-      toast.success("Campaign blocked successfully");
-      // Refresh competition data
-      dispatch(fetchCompetitionById(selectedCompetition.id));
-    } catch (error) {
-      toast.error("Failed to block campaign");
-    } finally {
-      setIsBlockModalOpen(false);
-    }
-  };
 
   if (competitionLoading || userLoading || videoPostsLoading) {
     return <div>Loading...</div>;

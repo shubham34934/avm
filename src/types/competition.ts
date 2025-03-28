@@ -37,9 +37,10 @@ export interface Competition {
   sponsor?: { id: number };
   isActive?: boolean;
   createdBy?: string;
-  createdDate?: string;
+  createdOn?: string;
   updatedBy?: string;
-  updatedDate?: string;
+  updatedOn?: string;
+  remark?: string;
 }
 
 export interface CompetitionPayload extends Omit<Competition, 'id'> {}

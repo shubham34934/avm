@@ -76,7 +76,10 @@ export const partialUpdateCompetition = createAsyncThunk(
     try {
       const response = await axios.patch(
         `${ENV.VITE_APP_API_URL}/competitions/${id}`,
-        data
+        {
+          id,
+          ...data
+        }
       );
       return response.data;
     } catch (error) {
@@ -238,6 +241,42 @@ export const addPrize = createAsyncThunk(
       return rejectWithValue(
         error.response?.data?.message || "Failed to add prize"
       );
+    }
+  }
+);
+
+// Update Campaign Status
+export const updateCampaignStatus = createAsyncThunk(
+  "competitions/updateCampaignStatus",
+  async (
+    { 
+      id, 
+      status, 
+      remark = "",
+      username = "current_user" 
+    }: { 
+      id: number; 
+      status: CompetitionStatus; 
+      remark?: string;
+      username?: string;
+    },
+    { dispatch }
+  ) => {
+    try {
+      const data: Partial<CompetitionPayload> = {
+        status,
+        remark,
+        updatedBy: username,
+        updatedOn: new Date().toISOString().split("T")[0],
+      };
+
+      const result = await dispatch(
+        partialUpdateCompetition({ id, data })
+      ).unwrap();
+      
+      return result;
+    } catch (error) {
+      throw error;
     }
   }
 );
@@ -446,6 +485,28 @@ const competitionsSlice = createSlice({
         }
       })
       .addCase(addPrize.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // Update Campaign Status
+      .addCase(updateCampaignStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCampaignStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.competitions.findIndex(
+          (c) => c.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.competitions[index] = action.payload;
+        }
+        if (state.selectedCompetition?.id === action.payload.id) {
+          state.selectedCompetition = action.payload;
+        }
+      })
+      .addCase(updateCampaignStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

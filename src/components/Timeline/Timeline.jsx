@@ -12,6 +12,9 @@ import doneIcon from "../../assets/icons/campaign_timeline/done.svg";
 import Button from "../Button/Button";
 
 const Timeline = ({ steps }) => {
+  // Find the index of the current active stage
+  const currentStageIndex = steps.findIndex(step => step.isActive);
+
   return (
     <div className={styles.timeline}>
       <div className={styles.timelineConnector}></div>
@@ -40,27 +43,34 @@ const Timeline = ({ steps }) => {
             </div>
           </div>
 
-          {/* Action buttons between timeline items */}
-          {index < steps.length - 1 &&
-            step.actions &&
-            step.actions.length > 0 && (
-              <div className={styles.actionButtons}>
-                {step.actions.map((action, actionIndex) => (
-                  <Button
-                    key={actionIndex}
-                    variant="text"
-                    className={styles.actionButton}
-                    onClick={action.onClick}
-                    disabled={action.disabled}
-                  >
-                    {action.icon && (
-                      <span className={styles.actionIcon}>{action.icon}</span>
-                    )}
-                    {action.label}
-                  </Button>
-                ))}
-              </div>
-            )}
+          {/* Action buttons only for the current stage */}
+          {index === currentStageIndex && 
+           index < steps.length - 1 &&
+           step.actions &&
+           step.actions.length > 0 && (
+            <div className={styles.actionButtons}>
+              {step.actions.map((action, actionIndex) => (
+                <Button
+                  key={actionIndex}
+                  variant="text"
+                  className={styles.actionButton}
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                >
+                  {action.icon && (
+                    <span className={styles.actionIcon}>{action.icon}</span>
+                  )}
+                  {action.label}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          {/* Small spacing line for non-current stages */}
+          {index !== currentStageIndex && 
+           index < steps.length - 1 && (
+            <div className={styles.spacingLine}></div>
+          )}
         </div>
       ))}
     </div>

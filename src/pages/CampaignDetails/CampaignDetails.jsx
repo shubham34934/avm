@@ -287,7 +287,8 @@ const CampaignDetails = () => {
         updateCampaignStatus({
           id: selectedCompetition.id,
           status: "Active",
-          username: "current_user",
+          username: user?.login || "current_user",
+          sponsor: selectedCompetition.sponsor
         })
       ).unwrap();
       toast.success("Campaign resumed successfully");
@@ -309,9 +310,10 @@ const CampaignDetails = () => {
       const payload = {
         id: selectedCompetition.id,
         status:
-          status || (rescheduleActionType === "pause" ? "pause" : "Scheduled"),
+          status || (rescheduleActionType === "pause" ? "Paused" : "Scheduled"),
         remark,
-        username: "current_user",
+        username: user?.login || "current_user",
+        sponsor: selectedCompetition.sponsor
       };
 
       // Add dates if provided
@@ -506,7 +508,6 @@ const CampaignDetails = () => {
   };
 
   const formatStatus = (status) => {
-    console.log({ status }, "sfsfsf");
     switch (status) {
       case "Draft":
         return "Draft";

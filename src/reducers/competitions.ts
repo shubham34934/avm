@@ -177,13 +177,13 @@ export const searchCompetitions = createAsyncThunk(
 export const assignSponsor = createAsyncThunk(
   "competitions/assignSponsor",
   async (
-    { competitionId, sponsorId }: { competitionId: number; sponsorId: number },
+    { competitionId, sponsor }: { competitionId: number; sponsor: any },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.put(
         `${ENV.VITE_APP_API_URL}/competitions/${competitionId}/sponsor`,
-        { sponsorId }
+        { sponsor }
       );
       return response.data;
     } catch (error) {
@@ -255,7 +255,8 @@ export const updateCampaignStatus = createAsyncThunk(
       remark = "",
       username = "current_user",
       startDate,
-      endDate
+      endDate,
+      sponsor
     }: { 
       id: number; 
       status: CompetitionStatus; 
@@ -263,6 +264,7 @@ export const updateCampaignStatus = createAsyncThunk(
       username?: string;
       startDate?: string;
       endDate?: string;
+      sponsor?: any;
     },
     { dispatch }
   ) => {
@@ -283,12 +285,22 @@ export const updateCampaignStatus = createAsyncThunk(
         data.endDate = endDate;
       }
 
-      const result = await dispatch(
-        partialUpdateCompetition({ id, data })
-      ).unwrap();
-      
-      return result;
+      // Add sponsor if provided
+      if (sponsor) {
+        data.sponsor = sponsor;
+      }
+
+      const response = await axios.patch(
+        `${ENV.VITE_APP_API_URL}/competitions/${id}/status`,
+        data
+      );
+
+      // Refresh the competition data after status update
+      dispatch(fetchCompetitionById(id));
+
+      return response.data;
     } catch (error) {
+      handleApiError(error);
       throw error;
     }
   }

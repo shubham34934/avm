@@ -34,7 +34,13 @@ export interface Competition {
   banner1Url?: string;
   banner2Url?: string;
   banner3Url?: string;
-  sponsor?: { id: number };
+  sponsor?: {
+    id: number;
+    name?: string;
+    logoUrl?: string;
+    username?: string;
+    status?: string;
+  };
   isActive?: boolean;
   createdBy?: string;
   createdOn?: string;

@@ -26,7 +26,7 @@ const CreateCampaign = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    sponsorId: "",
+    sponsor: {},
     startDate: "",
     endDate: "",
     prizeAmount: "",
@@ -42,30 +42,31 @@ const CreateCampaign = () => {
   useEffect(() => {
     // Fetch brands for sponsor dropdown
     dispatch(fetchBrands());
-    
+
     const fetchCampaignData = async () => {
       if (isEdit && campaignId) {
         try {
           const campaign = await dispatch(
             fetchCompetitionById(parseInt(campaignId))
           ).unwrap();
+
           setFormData({
-            name: campaign.title,
-            sponsorId: campaign.sponsorId?.toString() || "",
-            startDate: campaign.startDate,
-            endDate: campaign.endDate,
-            prizeAmount: campaign.totalPrizeValue.toString(),
-            rules: campaign.description,
+            name: campaign.title || "",
+            sponsor: campaign.sponsor || {},
+            startDate: campaign.startDate || "",
+            endDate: campaign.endDate || "",
+            prizeAmount: campaign.totalPrizeValue?.toString() || "",
+            rules: campaign.description || "",
           });
         } catch (error) {
-          toast.error("Failed to fetch campaign details");
+          toast.error("Failed to load campaign data");
           navigate("/campaign");
         }
       }
     };
 
     fetchCampaignData();
-  }, [isEdit, campaignId, dispatch, navigate]);
+  }, [dispatch, isEdit, campaignId, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,12 +78,23 @@ const CreateCampaign = () => {
       const minEndDate = new Date(startDate);
       minEndDate.setDate(startDate.getDate() + 1);
       const minEndDateStr = minEndDate.toISOString().split("T")[0];
-      
+
       // Reset end date if start date changes or if current end date is now invalid
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-        endDate: prev.endDate && new Date(prev.endDate) <= startDate ? "" : prev.endDate,
+        endDate:
+          prev.endDate && new Date(prev.endDate) <= startDate
+            ? ""
+            : prev.endDate,
+      }));
+    } else if (name === "sponsorId") {
+      const selectedBrand = brands.find(
+        (brand) => brand.id === parseInt(value)
+      );
+      setFormData((prev) => ({
+        ...prev,
+        sponsor: selectedBrand || {},
       }));
     } else {
       setFormData((prev) => ({
@@ -110,7 +122,7 @@ const CreateCampaign = () => {
       const startDate = new Date(formData.startDate);
       const minEndDate = new Date(startDate);
       minEndDate.setDate(startDate.getDate() + 1);
-      
+
       if (new Date(formData.endDate) < minEndDate) {
         toast.error("End date must be at least one day after start date");
         setIsSubmitting(false);
@@ -120,7 +132,7 @@ const CreateCampaign = () => {
       const payload = {
         title: formData.name,
         description: formData.rules,
-        sponsorId: formData.sponsorId ? parseInt(formData.sponsorId) : null,
+        sponsor: formData.sponsor,
         startDate: formData.startDate,
         endDate: formData.endDate,
         totalPrizeValue: parseFloat(formData.prizeAmount),
@@ -136,7 +148,7 @@ const CreateCampaign = () => {
         // Add updatedBy and updatedOn fields for edit
         payload.updatedBy = user?.login || "unknown";
         payload.updatedOn = currentDate;
-        
+
         await dispatch(
           updateCompetition({ id: parseInt(campaignId), data: payload })
         ).unwrap();
@@ -145,7 +157,7 @@ const CreateCampaign = () => {
         // Add createdBy and createdOn fields for new campaign
         payload.createdBy = user?.login || "unknown";
         payload.createdOn = currentDate;
-        
+
         await dispatch(createCompetition(payload)).unwrap();
         toast.success("Campaign created successfully");
       }
@@ -199,14 +211,14 @@ const CreateCampaign = () => {
           <select
             id="sponsorId"
             name="sponsorId"
-            value={formData.sponsorId}
+            value={formData.sponsor?.id || ""}
             onChange={handleChange}
             className={styles.select}
           >
             <option value="">Select Sponsor (Optional)</option>
             {brands.map((brand) => (
               <option key={brand.id} value={brand.id}>
-                {brand.sponsorName || brand.name || 'Unnamed Sponsor'}
+                {brand.sponsorName || brand.name || "Unnamed Sponsor"}
               </option>
             ))}
           </select>

@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAppDispatch } from "../../config/store";
+import { useAppDispatch, useAppSelector } from "../../config/store";
 import {
   createCompetition,
   fetchCompetitionById,
   updateCompetition,
 } from "../../reducers/competitions";
+import { fetchBrands } from "../../reducers/brands";
 import { toast } from "react-toastify";
 import styles from "./CreateCampaign.module.css";
 import calendarIcon from "../../assets/icons/calendar.svg";
@@ -20,11 +21,13 @@ const CreateCampaign = () => {
   const [searchParams] = useSearchParams();
   const isEdit = searchParams.get("edit") === "true";
   const campaignId = searchParams.get("id");
+  const { brands } = useAppSelector((state) => state.brands);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     topic: "",
+    sponsorId: "",
     startDate: "",
     endDate: "",
     prizeAmount: "",
@@ -38,6 +41,9 @@ const CreateCampaign = () => {
   }, []);
 
   useEffect(() => {
+    // Fetch brands for sponsor dropdown
+    dispatch(fetchBrands());
+    
     const fetchCampaignData = async () => {
       if (isEdit && campaignId) {
         try {
@@ -46,6 +52,8 @@ const CreateCampaign = () => {
           ).unwrap();
           setFormData({
             name: campaign.title,
+            topic: campaign.topic || "",
+            sponsorId: campaign.sponsorId?.toString() || "",
             startDate: campaign.startDate,
             endDate: campaign.endDate,
             prizeAmount: campaign.totalPrizeValue.toString(),
@@ -115,6 +123,7 @@ const CreateCampaign = () => {
         title: formData.name,
         description: formData.rules,
         topic: formData.topic,
+        sponsorId: formData.sponsorId ? parseInt(formData.sponsorId) : null,
         startDate: formData.startDate,
         endDate: formData.endDate,
         totalPrizeValue: parseFloat(formData.prizeAmount),
@@ -124,16 +133,22 @@ const CreateCampaign = () => {
         isActive: true,
         isBlocked: false,
         isPaused: false,
-        createdBy: user?.login || "unknown",
-        createdOn: currentDate,
       };
 
       if (isEdit && campaignId) {
+        // Add updatedBy and updatedOn fields for edit
+        payload.updatedBy = user?.login || "unknown";
+        payload.updatedOn = currentDate;
+        
         await dispatch(
           updateCompetition({ id: parseInt(campaignId), data: payload })
         ).unwrap();
         toast.success("Campaign updated successfully");
       } else {
+        // Add createdBy and createdOn fields for new campaign
+        payload.createdBy = user?.login || "unknown";
+        payload.createdOn = currentDate;
+        
         await dispatch(createCompetition(payload)).unwrap();
         toast.success("Campaign created successfully");
       }
@@ -199,21 +214,42 @@ const CreateCampaign = () => {
             <option value="fashion">Fashion</option>
             <option value="food">Food</option>
             <option value="travel">Travel</option>
+            <option value="health">Health</option>
+            <option value="beauty">Beauty</option>
+            <option value="fitness">Fitness</option>
+            <option value="lifestyle">Lifestyle</option>
+            <option value="other">Other</option>
           </select>
           <span className={styles.required}>*</span>
         </div>
+        
+        <div className={styles.formGroup}>
+          <select
+            id="sponsorId"
+            name="sponsorId"
+            value={formData.sponsorId}
+            onChange={handleChange}
+            className={styles.select}
+          >
+            <option value="">Select Sponsor (Optional)</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.id}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className={styles.formGroup}>
-          <div className={styles.dateInput}>
+          <div className={styles.dateInputWrapper}>
             <input
               type="date"
               id="startDate"
               name="startDate"
               value={formData.startDate}
               onChange={handleChange}
-              placeholder="Start Date"
-              className={styles.input}
               min={today}
+              className={styles.dateInput}
               required
             />
             <img
@@ -222,27 +258,28 @@ const CreateCampaign = () => {
               className={styles.calendarIcon}
             />
           </div>
+          <span className={styles.required}>*</span>
         </div>
 
         <div className={styles.formGroup}>
-          <div className={styles.dateInput}>
+          <div className={styles.dateInputWrapper}>
             <input
               type="date"
               id="endDate"
               name="endDate"
               value={formData.endDate}
               onChange={handleChange}
-              placeholder="End Date"
-              className={styles.input}
-              min={formData.startDate ? (() => {
-                // Calculate minimum end date (1 day after start date)
-                const startDate = new Date(formData.startDate);
-                const minEndDate = new Date(startDate);
-                minEndDate.setDate(startDate.getDate() + 1);
-                return minEndDate.toISOString().split("T")[0];
-              })() : today}
+              min={
+                formData.startDate
+                  ? (() => {
+                      const minDate = new Date(formData.startDate);
+                      minDate.setDate(minDate.getDate() + 1);
+                      return minDate.toISOString().split("T")[0];
+                    })()
+                  : today
+              }
+              className={styles.dateInput}
               required
-              disabled={!formData.startDate}
             />
             <img
               src={calendarIcon}
@@ -250,6 +287,7 @@ const CreateCampaign = () => {
               className={styles.calendarIcon}
             />
           </div>
+          <span className={styles.required}>*</span>
         </div>
 
         <div className={styles.formGroup}>
@@ -261,8 +299,9 @@ const CreateCampaign = () => {
             onChange={handleChange}
             placeholder="Prize Amount"
             className={styles.input}
-            min="0"
             required
+            min="0"
+            step="0.01"
           />
           <span className={styles.required}>*</span>
         </div>
@@ -273,21 +312,28 @@ const CreateCampaign = () => {
             name="rules"
             value={formData.rules}
             onChange={handleChange}
-            placeholder="Campaign Rules"
+            placeholder="Rules and Guidelines"
             className={styles.textarea}
-            rows="4"
             required
           />
           <span className={styles.required}>*</span>
         </div>
 
-        <button
-          type="submit"
-          className={styles.submitButton}
-          disabled={isSubmitting}
-        >
-          {isEdit ? "Update Campaign" : "Create Campaign"}
-        </button>
+        <div className={styles.actions}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className={styles.submitButton}
+          >
+            {isSubmitting
+              ? isEdit
+                ? "Updating..."
+                : "Creating..."
+              : isEdit
+              ? "Update Campaign"
+              : "Create Campaign"}
+          </Button>
+        </div>
       </form>
     </div>
   );

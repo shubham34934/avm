@@ -6,6 +6,7 @@ import competitionsReducer from "../reducers/competitions";
 import submissionsReducer from "../reducers/submissions";
 import videoPosts from "../reducers/videoPosts";
 import videoNavigationReducer from "../reducers/videoNavigation";
+import brandsReducer from "../reducers/brands";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     submissions: submissionsReducer,
     videoPosts: videoPosts,
     videoNavigation: videoNavigationReducer,
+    brands: brandsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

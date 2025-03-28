@@ -36,11 +36,11 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch campaigns - limit to 2 for the homepage
-        await dispatch(fetchCompetitions({ page: 0, size: 2 })).unwrap();
+        // Fetch campaigns for the homepage
+        await dispatch(fetchCompetitions({ page: 0, size: 10 })).unwrap();
 
-        // Fetch video posts - limit to 2 for the homepage
-        await dispatch(fetchVideoPosts({ page: 0, size: 2 })).unwrap();
+        // Fetch video posts for the homepage
+        await dispatch(fetchVideoPosts({ page: 0, size: 10 })).unwrap();
       } catch (error) {
         console.error("Error fetching data for homepage:", error);
         setError("Failed to load data. Please try again later.");
@@ -52,10 +52,17 @@ const Home = () => {
     fetchData();
   }, [dispatch]);
 
+  // Calculate stats based on the data we have
+  const liveCount = competitions.filter(c => 
+    c.status === "ACTIVE" || c.status === "Active").length;
+  
+  const completeCount = competitions.filter(c => 
+    c.status === "COMPLETED" || c.status === "Completed").length;
+
   const stats = [
-    { title: "Live", value: 12 },
-    { title: "Complete", value: 123 },
-    { title: "Submission", value: 13689 },
+    { title: "Live", value: liveCount },
+    { title: "Complete", value: completeCount },
+    { title: "Submission", value: videoPosts.length },
   ];
 
   return (

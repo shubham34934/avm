@@ -49,9 +49,7 @@ const Timeline = ({ steps }) => {
                   <Button
                     key={actionIndex}
                     variant="text"
-                    className={`${styles.actionButton} ${
-                      action.variant === "block" ? styles.blockButton : ""
-                    }`}
+                    className={styles.actionButton}
                     onClick={action.onClick}
                     disabled={action.disabled}
                   >

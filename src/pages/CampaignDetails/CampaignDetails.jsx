@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchCompetitionById } from "../../reducers/competitions";
 import { fetchUserByUsername } from "../../reducers/users";
 import { fetchVideoPosts } from "../../reducers/videoPosts";
+import { toast } from "react-toastify";
 import styles from "./CampaignDetails.module.css";
 import Timeline from "../../components/Timeline/Timeline";
 import SubmissionCard from "../../components/Submission/SubmissionCard";
@@ -12,8 +13,18 @@ import Header from "../../components/Header/Header";
 import userAvatar from "./../../assets/images/users/1.png";
 import MoreIcon from "./../../assets/icons/more.svg";
 import rightArrow from "./../../assets/icons/rightArrow.svg";
-import { toast } from "react-toastify";
 
+// Icons
+import rescheduleIcon from "../../assets/icons/campaign_timeline/reschedule.svg";
+import blockIcon from "../../assets/icons/campaign_timeline/block.svg";
+import campaignStartedIcon from "../../assets/icons/campaign_timeline/campaign_started.svg";
+import completedIcon from "../../assets/icons/campaign_timeline/completed.svg";
+import selectWinnersIcon from "../../assets/icons/campaign_timeline/select_winners.svg";
+import shortlistReminderIcon from "../../assets/icons/campaign_timeline/shortlistReminder.svg";
+import winnerAnnouncedIcon from "../../assets/icons/campaign_timeline/winner_announced.svg";
+import paymentSentIcon from "../../assets/icons/campaign_timeline/payment_sent.svg";
+import doneIcon from "../../assets/icons/campaign_timeline/done.svg";
+import pauseIcon from "../../assets/icons/campaign_timeline/pause.svg";
 const CampaignDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -33,6 +44,7 @@ const CampaignDetails = () => {
   const [campaignStatus, setCampaignStatus] = useState("upcoming"); // upcoming, active, ended
   const [submissions, setSubmissions] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [submissionCount, setSubmissionCount] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -70,39 +82,43 @@ const CampaignDetails = () => {
         setCampaignStatus("upcoming");
         // Calculate time difference for upcoming campaign
         const timeDiff = startDate - now;
-        
+
         // Convert to days, hours, minutes, seconds
         const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const hours = Math.floor(
+          (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
         const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-        
+
         // Format the time left string
         let timeLeftStr = "";
         if (days > 0) timeLeftStr += `${days}d `;
         if (hours > 0 || days > 0) timeLeftStr += `${hours}h `;
         if (minutes > 0 || hours > 0 || days > 0) timeLeftStr += `${minutes}m `;
         timeLeftStr += `${seconds}s`;
-        
+
         setTimeLeft(timeLeftStr);
       } else if (now >= startDate && now <= endDate) {
         setCampaignStatus("active");
         // Calculate time difference for active campaign (time remaining)
         const timeDiff = endDate - now;
-        
+
         // Convert to days, hours, minutes, seconds
         const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const hours = Math.floor(
+          (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
         const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-        
+
         // Format the time left string
         let timeLeftStr = "";
         if (days > 0) timeLeftStr += `${days}d `;
         if (hours > 0 || days > 0) timeLeftStr += `${hours}h `;
         if (minutes > 0 || hours > 0 || days > 0) timeLeftStr += `${minutes}m `;
         timeLeftStr += `${seconds}s`;
-        
+
         setTimeLeft(timeLeftStr);
       } else {
         setCampaignStatus("ended");
@@ -112,10 +128,10 @@ const CampaignDetails = () => {
 
     // Initial update
     updateCountdown();
-    
+
     // Set up interval to update every second
     timerRef.current = setInterval(updateCountdown, 1000);
-    
+
     // Clean up interval on unmount
     return () => {
       if (timerRef.current) {
@@ -128,7 +144,7 @@ const CampaignDetails = () => {
   useEffect(() => {
     const fetchCompetitionVideos = async () => {
       if (!id) return;
-      
+
       setLoadingSubmissions(true);
       try {
         // Fetch videos with competition filter
@@ -137,30 +153,42 @@ const CampaignDetails = () => {
             competition: { id: parseInt(id) },
             page: 0,
             size: 10,
-            sort: "createdOn,desc"
+            sort: "createdOn,desc",
           })
         ).unwrap();
-        
+
         // Process the response based on its structure
-        const videoContent = Array.isArray(result) ? result : 
-                          (result && result.content ? result.content : []);
-        
+        const videoContent = Array.isArray(result)
+          ? result
+          : result && result.content
+          ? result.content
+          : [];
+
+        // Set the total submission count
+        if (result && result.totalElements) {
+          setSubmissionCount(result.totalElements);
+        } else if (Array.isArray(videoContent)) {
+          setSubmissionCount(videoContent.length);
+        }
+
         // Transform video posts to submission format
-        const formattedSubmissions = videoContent.map(video => {
+        const formattedSubmissions = videoContent.map((video) => {
           // Extract video ID and get thumbnail
           const videoUrl = video.url || video.videoUrl;
           const videoId = getYouTubeVideoId(videoUrl);
-          const thumbnailUrl = videoId ? getYouTubeThumbnail(videoId) : videoUrl;
-          
+          const thumbnailUrl = videoId
+            ? getYouTubeThumbnail(videoId)
+            : videoUrl;
+
           return {
             id: video.id,
             image: thumbnailUrl, // Using YouTube thumbnail if available
             title: video.title,
             views: "0", // Default value if views not available
-            videoUrl: videoUrl
+            videoUrl: videoUrl,
           };
         });
-        
+
         setSubmissions(formattedSubmissions);
       } catch (error) {
         console.error("Error fetching competition videos:", error);
@@ -176,7 +204,7 @@ const CampaignDetails = () => {
   // Function to extract YouTube video ID from URL
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
-    
+
     try {
       // Handle different YouTube URL formats
       if (url.includes("youtube.com/watch")) {
@@ -194,10 +222,10 @@ const CampaignDetails = () => {
       console.error("Error extracting YouTube video ID:", error);
       return null;
     }
-    
+
     return null;
   };
-  
+
   // Function to get YouTube thumbnail URL from video ID
   const getYouTubeThumbnail = (videoId) => {
     if (!videoId) return null;
@@ -216,14 +244,15 @@ const CampaignDetails = () => {
         {
           label: "Reschedule",
           onClick: () => console.log("Reschedule clicked"),
-          icon: "📅"
+          icon: <img src={rescheduleIcon} alt="Reschedule" />,
         },
         {
           label: "Block",
           onClick: () => console.log("Block clicked"),
-          variant: "block"
-        }
-      ]
+          variant: "block",
+          icon: <img src={blockIcon} alt="Block" />,
+        },
+      ],
     },
     {
       type: "started",
@@ -232,22 +261,24 @@ const CampaignDetails = () => {
       isActive: selectedCompetition?.status !== "DRAFT",
       actions: [
         {
-          label: "View Details",
-          onClick: () => console.log("View details clicked")
-        }
-      ]
+          label: "Pause",
+          onClick: () => console.log("Paused Clicked"),
+          icon: <img src={pauseIcon} alt="Pause" />,
+        },
+      ],
     },
     {
       type: "completed",
-      title: "Completed",
+      title: `Completed ${submissionCount > 0 ? `(${submissionCount.toLocaleString()} submissions)` : ''}`,
       timestamp: selectedCompetition?.endDate || "",
       isActive: selectedCompetition?.status === "COMPLETED",
       actions: [
         {
-          label: "Extend",
-          onClick: () => console.log("Extend clicked")
-        }
-      ]
+          label: "Shortlist Reminder",
+          onClick: () => console.log("Send reminder clicked"),
+          icon: <img src={shortlistReminderIcon} alt="Shortlist Reminder" />,
+        },
+      ],
     },
     {
       type: "select_winners",
@@ -257,9 +288,15 @@ const CampaignDetails = () => {
       actions: [
         {
           label: "Choose Winners",
-          onClick: () => console.log("Choose winners clicked")
-        }
-      ]
+          onClick: () => console.log("Choose winners clicked"),
+          icon: <img src={selectWinnersIcon} alt="Choose Winners" />,
+        },
+        {
+          label: "Send Reminder",
+          onClick: () => console.log("Send reminder clicked"),
+          icon: <img src={shortlistReminderIcon} alt="Send Reminder" />,
+        },
+      ],
     },
     {
       type: "winner_announced",
@@ -269,9 +306,10 @@ const CampaignDetails = () => {
       actions: [
         {
           label: "View Winners",
-          onClick: () => console.log("View winners clicked")
-        }
-      ]
+          onClick: () => console.log("View winners clicked"),
+          icon: <img src={winnerAnnouncedIcon} alt="View Winners" />,
+        },
+      ],
     },
     {
       type: "payment_sent",
@@ -281,15 +319,23 @@ const CampaignDetails = () => {
       actions: [
         {
           label: "Payment Details",
-          onClick: () => console.log("Payment details clicked")
-        }
-      ]
+          onClick: () => console.log("Payment details clicked"),
+          icon: <img src={paymentSentIcon} alt="Payment Details" />,
+        },
+      ],
     },
     {
       type: "done",
       title: "Remittance done",
       timestamp: "",
-      isActive: selectedCompetition?.paymentStatus === "REMITTANCE_DONE"
+      isActive: selectedCompetition?.paymentStatus === "REMITTANCE_DONE",
+      actions: [
+        {
+          label: "View Remittance",
+          onClick: () => console.log("View remittance clicked"),
+          icon: <img src={doneIcon} alt="View Remittance" />,
+        },
+      ],
     },
   ];
 
@@ -405,7 +451,9 @@ const CampaignDetails = () => {
           </div>
           <div className={styles.submissionsList}>
             {loadingSubmissions ? (
-              <div className={styles.loadingSubmissions}>Loading submissions...</div>
+              <div className={styles.loadingSubmissions}>
+                Loading submissions...
+              </div>
             ) : submissions.length > 0 ? (
               submissions.map((submission) => (
                 <SubmissionCard key={submission.id} {...submission} />

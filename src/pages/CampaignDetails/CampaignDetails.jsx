@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import styles from "./CampaignDetails.module.css";
 import Button from "../../components/Button/Button";
 import Timeline from "../../components/Timeline/Timeline";
-import { BlockCampaignModal } from "../../components/Modals";
+import { BlockCampaignModal, RescheduleCampaignModal } from "../../components/Modals";
 import SubmissionCard from "../../components/Submission/SubmissionCard";
 import DateRange from "../../components/DateRange/DateRange";
 import Header from "../../components/Header/Header";
@@ -48,6 +48,8 @@ const CampaignDetails = () => {
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+  const [rescheduleActionType, setRescheduleActionType] = useState('reschedule'); // 'pause' or 'reschedule'
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -268,21 +270,8 @@ const CampaignDetails = () => {
     }
   };
 
-  const handlePauseCampaign = async () => {
-    try {
-      await dispatch(
-        updateCampaignStatus({
-          id: selectedCompetition.id,
-          status: "PAUSED",
-          username: "current_user"
-        })
-      ).unwrap();
-      toast.success("Campaign paused successfully");
-      // Refresh competition data
-      dispatch(fetchCompetitionById(selectedCompetition.id));
-    } catch (error) {
-      toast.error("Failed to pause campaign");
-    }
+  const handlePauseCampaign = () => {
+    handleRescheduleModalOpen('pause');
   };
 
   const handleResumeCampaign = async () => {
@@ -302,6 +291,59 @@ const CampaignDetails = () => {
     }
   };
 
+  const handleRescheduleModalOpen = (type) => {
+    setRescheduleActionType(type);
+    setIsRescheduleModalOpen(true);
+  };
+
+  const handleRescheduleSubmit = async (data) => {
+    try {
+      const { remark, startDate, endDate } = data;
+      const payload = {
+        id: selectedCompetition.id,
+        status: rescheduleActionType === 'pause' ? 'PAUSED' : 'SCHEDULED',
+        remark,
+        username: "current_user"
+      };
+
+      // Add dates if provided
+      if (startDate) {
+        payload.startDate = formatDateForAPI(startDate);
+      }
+      
+      if (endDate) {
+        payload.endDate = formatDateForAPI(endDate);
+      }
+
+      await dispatch(updateCampaignStatus(payload)).unwrap();
+      
+      toast.success(
+        rescheduleActionType === 'pause' 
+          ? "Campaign paused successfully" 
+          : "Campaign rescheduled successfully"
+      );
+      
+      // Refresh competition data
+      dispatch(fetchCompetitionById(selectedCompetition.id));
+    } catch (error) {
+      toast.error(
+        rescheduleActionType === 'pause' 
+          ? "Failed to pause campaign" 
+          : "Failed to reschedule campaign"
+      );
+    } finally {
+      setIsRescheduleModalOpen(false);
+    }
+  };
+
+  // Helper function to format date from DD/MM/YYYY to YYYY-MM-DD
+  const formatDateForAPI = (dateString) => {
+    if (!dateString) return null;
+    
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
+  };
+
   // Timeline steps
   const timelineSteps = [
     {
@@ -312,7 +354,7 @@ const CampaignDetails = () => {
       actions: [
         {
           label: "Reschedule",
-          onClick: () => console.log("Reschedule clicked"),
+          onClick: () => handleRescheduleModalOpen('reschedule'),
           icon: <img src={rescheduleIcon} alt="Reschedule" />,
         },
         {
@@ -341,6 +383,11 @@ const CampaignDetails = () => {
           label: selectedCompetition?.status === "PAUSED" ? "Resume" : "Pause",
           onClick: selectedCompetition?.status === "PAUSED" ? handleResumeCampaign : handlePauseCampaign,
           icon: <img src={pauseIcon} alt="Pause/Resume" />,
+        },
+        {
+          label: "Reschedule",
+          onClick: () => handleRescheduleModalOpen('reschedule'),
+          icon: <img src={rescheduleIcon} alt="Reschedule" />,
         },
       ],
     },
@@ -550,6 +597,15 @@ const CampaignDetails = () => {
           onClose={handleBlockModalClose}
           campaignName={selectedCompetition?.name || "Campaign Name"}
           onBlock={handleBlockCampaign}
+        />
+      )}
+      {isRescheduleModalOpen && (
+        <RescheduleCampaignModal
+          isOpen={isRescheduleModalOpen}
+          onClose={() => setIsRescheduleModalOpen(false)}
+          campaignName={selectedCompetition?.name || "Campaign Name"}
+          actionType={rescheduleActionType}
+          onSubmit={handleRescheduleSubmit}
         />
       )}
     </div>

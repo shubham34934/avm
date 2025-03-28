@@ -66,11 +66,17 @@ const CreateCampaign = () => {
 
     // Special handling for dates
     if (name === "startDate") {
-      // Reset end date if start date changes
+      // Calculate minimum end date (1 day after start date)
+      const startDate = new Date(value);
+      const minEndDate = new Date(startDate);
+      minEndDate.setDate(startDate.getDate() + 1);
+      const minEndDateStr = minEndDate.toISOString().split("T")[0];
+      
+      // Reset end date if start date changes or if current end date is now invalid
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-        endDate: "", // Reset end date when start date changes
+        endDate: prev.endDate && new Date(prev.endDate) <= startDate ? "" : prev.endDate,
       }));
     } else {
       setFormData((prev) => ({
@@ -94,8 +100,13 @@ const CreateCampaign = () => {
         return;
       }
 
-      if (new Date(formData.endDate) <= new Date(formData.startDate)) {
-        toast.error("End date must be after start date");
+      // Calculate minimum end date (1 day after start date)
+      const startDate = new Date(formData.startDate);
+      const minEndDate = new Date(startDate);
+      minEndDate.setDate(startDate.getDate() + 1);
+      
+      if (new Date(formData.endDate) < minEndDate) {
+        toast.error("End date must be at least one day after start date");
         setIsSubmitting(false);
         return;
       }
@@ -223,7 +234,13 @@ const CreateCampaign = () => {
               onChange={handleChange}
               placeholder="End Date"
               className={styles.input}
-              min={formData.startDate || today}
+              min={formData.startDate ? (() => {
+                // Calculate minimum end date (1 day after start date)
+                const startDate = new Date(formData.startDate);
+                const minEndDate = new Date(startDate);
+                minEndDate.setDate(startDate.getDate() + 1);
+                return minEndDate.toISOString().split("T")[0];
+              })() : today}
               required
               disabled={!formData.startDate}
             />

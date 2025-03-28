@@ -101,6 +101,24 @@ input[type="reset"]:focus-visible {
   outline: none;
 }
 
+/* Increase font size for select elements and dropdown options */
+select {
+  font-size: var(--text-lg) !important;
+}
+
+select option {
+  font-size: var(--text-lg) !important;
+  padding: var(--spacing-2) var(--spacing-4) !important;
+}
+
+/* Ensure dropdown options are properly sized and padded */
+option {
+  padding: var(--spacing-2) var(--spacing-4) !important;
+  min-height: 2.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
 /* Add focus-visible for keyboard users */
 *:focus-visible {
   outline: 2px solid #6c63ff; /* Customize the color/style */

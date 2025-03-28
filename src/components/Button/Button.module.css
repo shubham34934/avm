@@ -62,7 +62,11 @@
 }
 
 .text:hover:not(:disabled) {
-  text-decoration: underline;
+  text-decoration: none;
+}
+
+.text:hover {
+  background-color: transparent;
 }
 
 /* Sizes */

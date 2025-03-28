@@ -3,10 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchCompetitionById } from "../../reducers/competitions";
 import { fetchUserByUsername } from "../../reducers/users";
-import { fetchVideoPosts } from "../../reducers/videoPosts";
-import { toast } from "react-toastify";
+import { fetchVideoPostsByCompetitionId } from "../../reducers/videoPosts";
 import styles from "./CampaignDetails.module.css";
+import Button from "../../components/Button/Button";
 import Timeline from "../../components/Timeline/Timeline";
+import { BlockCampaignModal } from "../../components/Modals";
 import SubmissionCard from "../../components/Submission/SubmissionCard";
 import DateRange from "../../components/DateRange/DateRange";
 import Header from "../../components/Header/Header";
@@ -45,6 +46,7 @@ const CampaignDetails = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -149,12 +151,7 @@ const CampaignDetails = () => {
       try {
         // Fetch videos with competition filter
         const result = await dispatch(
-          fetchVideoPosts({
-            competition: { id: parseInt(id) },
-            page: 0,
-            size: 10,
-            sort: "createdOn,desc",
-          })
+          fetchVideoPostsByCompetitionId(parseInt(id))
         ).unwrap();
 
         // Process the response based on its structure
@@ -248,7 +245,7 @@ const CampaignDetails = () => {
         },
         {
           label: "Block",
-          onClick: () => console.log("Block clicked"),
+          onClick: () => setIsBlockModalOpen(true),
           variant: "block",
           icon: <img src={blockIcon} alt="Block" />,
         },
@@ -358,6 +355,17 @@ const CampaignDetails = () => {
 
   const handleMore = () => {
     // Handle more options
+  };
+
+  const handleBlockModalClose = () => {
+    setIsBlockModalOpen(false);
+  };
+
+  const handleBlockCampaign = (remark) => {
+    console.log(`Blocking campaign ${selectedCompetition?.name} with remark: ${remark}`);
+    // Here you would dispatch an action to update the campaign status to BLOCKED
+    // dispatch(blockCompetition({ id: selectedCompetition?.id, remark }));
+    setIsBlockModalOpen(false);
   };
 
   if (competitionLoading || userLoading || videoPostsLoading) {
@@ -479,6 +487,14 @@ const CampaignDetails = () => {
 
         <Timeline steps={timelineSteps} />
       </div>
+      {isBlockModalOpen && (
+        <BlockCampaignModal
+          isOpen={isBlockModalOpen}
+          onClose={handleBlockModalClose}
+          campaignName={selectedCompetition?.name || 'Campaign Name'}
+          onBlock={handleBlockCampaign}
+        />
+      )}
     </div>
   );
 };

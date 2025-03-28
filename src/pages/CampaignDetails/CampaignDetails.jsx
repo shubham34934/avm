@@ -205,44 +205,91 @@ const CampaignDetails = () => {
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   };
 
+  // Timeline steps
   const timelineSteps = [
     {
-      type: "campaign_created",
+      type: "created",
       title: "Campaign Created",
-      timestamp: selectedCompetition?.createdDate || "",
+      timestamp: selectedCompetition?.createdOn || "",
       isActive: true,
+      actions: [
+        {
+          label: "Reschedule",
+          onClick: () => console.log("Reschedule clicked"),
+          icon: "📅"
+        },
+        {
+          label: "Block",
+          onClick: () => console.log("Block clicked"),
+          variant: "block"
+        }
+      ]
     },
     {
-      type: "campaign_started",
+      type: "started",
       title: "Campaign Started",
       timestamp: selectedCompetition?.startDate || "",
-      isActive: selectedCompetition?.status === "ACTIVE",
+      isActive: selectedCompetition?.status !== "DRAFT",
+      actions: [
+        {
+          label: "View Details",
+          onClick: () => console.log("View details clicked")
+        }
+      ]
     },
     {
       type: "completed",
       title: "Completed",
       timestamp: selectedCompetition?.endDate || "",
       isActive: selectedCompetition?.status === "COMPLETED",
+      actions: [
+        {
+          label: "Extend",
+          onClick: () => console.log("Extend clicked")
+        }
+      ]
     },
     {
       type: "select_winners",
       title: "Select Winners",
+      timestamp: "",
       isActive: selectedCompetition?.status === "WINNER_SELECTION",
+      actions: [
+        {
+          label: "Choose Winners",
+          onClick: () => console.log("Choose winners clicked")
+        }
+      ]
     },
     {
       type: "winner_announced",
       title: "Winner Announced",
+      timestamp: "",
       isActive: selectedCompetition?.status === "WINNER_ANNOUNCED",
+      actions: [
+        {
+          label: "View Winners",
+          onClick: () => console.log("View winners clicked")
+        }
+      ]
     },
     {
       type: "payment_sent",
       title: "Payment Sent",
+      timestamp: "",
       isActive: selectedCompetition?.paymentStatus === "PAID",
+      actions: [
+        {
+          label: "Payment Details",
+          onClick: () => console.log("Payment details clicked")
+        }
+      ]
     },
     {
       type: "done",
       title: "Remittance done",
-      isActive: selectedCompetition?.paymentStatus === "REMITTANCE_DONE",
+      timestamp: "",
+      isActive: selectedCompetition?.paymentStatus === "REMITTANCE_DONE"
     },
   ];
 

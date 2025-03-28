@@ -1,30 +1,69 @@
-import PropTypes from 'prop-types';
-import TimelineItem from './TimelineItem';
-import styles from './Timeline.module.css';
+import PropTypes from "prop-types";
+import styles from "./Timeline.module.css";
 
 // Campaign timeline icons
-import campaignCreatedIcon from '../../assets/icons/campaign_timeline/campaign_created.svg';
-import campaignStartedIcon from '../../assets/icons/campaign_timeline/campaign_started.svg';
-import completedIcon from '../../assets/icons/campaign_timeline/completed.svg';
-import selectWinnersIcon from '../../assets/icons/campaign_timeline/select_winners.svg';
-import winnerAnnouncedIcon from '../../assets/icons/campaign_timeline/winner_announced.svg';
-import paymentSentIcon from '../../assets/icons/campaign_timeline/payment_sent.svg';
-import doneIcon from '../../assets/icons/campaign_timeline/done.svg';
+import campaignCreatedIcon from "../../assets/icons/campaign_timeline/campaign_created.svg";
+import campaignStartedIcon from "../../assets/icons/campaign_timeline/campaign_started.svg";
+import completedIcon from "../../assets/icons/campaign_timeline/completed.svg";
+import selectWinnersIcon from "../../assets/icons/campaign_timeline/select_winners.svg";
+import winnerAnnouncedIcon from "../../assets/icons/campaign_timeline/winner_announced.svg";
+import paymentSentIcon from "../../assets/icons/campaign_timeline/payment_sent.svg";
+import doneIcon from "../../assets/icons/campaign_timeline/done.svg";
+import Button from "../Button/Button";
 
 const Timeline = ({ steps }) => {
   return (
     <div className={styles.timeline}>
+      <div className={styles.timelineConnector}></div>
       {steps.map((step, index) => (
-        <TimelineItem
-          key={step.title}
-          icon={getIconForStep(step.type)}
-          title={step.title}
-          timestamp={step.timestamp}
-          isActive={step.isActive}
-          isLast={index === steps.length - 1}
-          reminder={step.reminder}
-          description={step.description}
-        />
+        <div key={step.title} className={styles.timelineItemContainer}>
+          {/* Timeline item */}
+          <div className={styles.timelineItem}>
+            <div
+              className={`${styles.iconWrapper} ${
+                step.isActive ? styles.active : ""
+              }`}
+            >
+              <img
+                src={getIconForStep(step.type)}
+                alt={step.title}
+                className={styles.icon}
+              />
+            </div>
+            <div className={styles.timelineContent}>
+              <div className={styles.timelineTitle}>{step.title}</div>
+              {step.timestamp && (
+                <div className={styles.timelineTimestamp}>
+                  {formatTimestamp(step.timestamp)}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action buttons between timeline items */}
+          {index < steps.length - 1 &&
+            step.actions &&
+            step.actions.length > 0 && (
+              <div className={styles.actionButtons}>
+                {step.actions.map((action, actionIndex) => (
+                  <Button
+                    key={actionIndex}
+                    variant="text"
+                    className={`${styles.actionButton} ${
+                      action.variant === "block" ? styles.blockButton : ""
+                    }`}
+                    onClick={action.onClick}
+                    disabled={action.disabled}
+                  >
+                    {action.icon && (
+                      <span className={styles.actionIcon}>{action.icon}</span>
+                    )}
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+        </div>
       ))}
     </div>
   );
@@ -32,22 +71,38 @@ const Timeline = ({ steps }) => {
 
 const getIconForStep = (type) => {
   switch (type) {
-    case 'campaign_created':
+    case "created":
       return campaignCreatedIcon;
-    case 'campaign_started':
+    case "started":
       return campaignStartedIcon;
-    case 'completed':
+    case "completed":
       return completedIcon;
-    case 'select_winners':
+    case "select_winners":
       return selectWinnersIcon;
-    case 'winner_announced':
+    case "winner_announced":
       return winnerAnnouncedIcon;
-    case 'payment_sent':
+    case "payment_sent":
       return paymentSentIcon;
-    case 'done':
+    case "done":
       return doneIcon;
     default:
       return campaignCreatedIcon;
+  }
+};
+
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return "";
+
+  try {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return timestamp; // Return as is if not a valid date
+
+    return `${date.getHours()}:${String(date.getMinutes()).padStart(
+      2,
+      "0"
+    )} ${date.toLocaleString("default", { month: "long" })} ${date.getDate()}`;
+  } catch (error) {
+    return timestamp; // Return as is if there's an error
   }
 };
 
@@ -58,10 +113,17 @@ Timeline.propTypes = {
       title: PropTypes.string.isRequired,
       timestamp: PropTypes.string,
       isActive: PropTypes.bool,
-      reminder: PropTypes.string,
-      description: PropTypes.string
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          label: PropTypes.string.isRequired,
+          onClick: PropTypes.func,
+          variant: PropTypes.string,
+          icon: PropTypes.node,
+          disabled: PropTypes.bool,
+        })
+      ),
     })
-  ).isRequired
+  ).isRequired,
 };
 
 export default Timeline;

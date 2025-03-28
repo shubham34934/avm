@@ -54,6 +54,17 @@
   background-color: var(--error-dark);
 }
 
+.text {
+  background-color: transparent;
+  color: var(--primary);
+  padding: 0;
+  border: none;
+}
+
+.text:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
 /* Sizes */
 .small {
   padding: var(--spacing-1) var(--spacing-2);

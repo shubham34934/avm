@@ -1,0 +1,36 @@
+.searchForm {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: var(--input-bg, #f5f5f5);
+  border-radius: 12px;
+  padding: 0 12px;
+}
+
+.searchInput {
+  flex: 1;
+  height: 44px;
+  border: none;
+  background: transparent;
+  padding: 0 8px;
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--text-secondary);
+}
+
+.micButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+}

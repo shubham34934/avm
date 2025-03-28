@@ -14,7 +14,7 @@ import LogoutIcon from "../assets/icons/logout.svg";
 export const USER_ROLES = {
   ROLE_USER: "ROLE_USER",
   ROLE_ADMIN: "ROLE_ADMIN",
-  CREATOR: "CREATOR",
+  ROLE_CREATOR: "ROLE_CREATOR",
 };
 
 // Sidebar Navigation Items
@@ -53,7 +53,11 @@ export const SIDEBAR_ITEMS = [
     label: "Videos",
     path: "/videos",
     icon: VideosIcon,
-    roles: [USER_ROLES.ROLE_ADMIN, USER_ROLES.ROLE_USER, USER_ROLES.CREATOR],
+    roles: [
+      USER_ROLES.ROLE_ADMIN,
+      USER_ROLES.ROLE_USER,
+      USER_ROLES.ROLE_CREATOR,
+    ],
   },
   {
     label: "Settings",
@@ -69,7 +73,11 @@ export const FOOTER_ITEMS = [
     label: "Home",
     path: "/",
     icon: HomeIcon,
-    roles: [USER_ROLES.ROLE_ADMIN, USER_ROLES.ROLE_USER, USER_ROLES.CREATOR],
+    roles: [
+      USER_ROLES.ROLE_ADMIN,
+      USER_ROLES.ROLE_USER,
+      USER_ROLES.ROLE_CREATOR,
+    ],
   },
   {
     label: "Campaign",
@@ -81,7 +89,11 @@ export const FOOTER_ITEMS = [
     label: "Videos",
     path: "/videos",
     icon: VideosIcon,
-    roles: [USER_ROLES.ROLE_ADMIN, USER_ROLES.ROLE_USER, USER_ROLES.CREATOR],
+    roles: [
+      USER_ROLES.ROLE_ADMIN,
+      USER_ROLES.ROLE_USER,
+      USER_ROLES.ROLE_CREATOR,
+    ],
   },
   {
     label: "AI tools",

@@ -3,6 +3,7 @@ import { USER_ROLES } from "../constants/navigation";
 
 // Import pages
 const Home = lazy(() => import("../pages/Home/Home"));
+const UserHome = lazy(() => import("../pages/UserHome/UserHome"));
 const Brands = lazy(() => import("../pages/Brands/Brands"));
 const Campaign = lazy(() => import("../pages/Campaign/Campaign"));
 const CreateCampaign = lazy(() =>
@@ -40,6 +41,11 @@ export const routes = [
       USER_ROLES.END_USER,
       USER_ROLES.CREATOR,
     ],
+  },
+  {
+    path: "/user-home",
+    component: UserHome,
+    allowedRoles: [USER_ROLES.END_USER],
   },
   {
     path: "/brands",

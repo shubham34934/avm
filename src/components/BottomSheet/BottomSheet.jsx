@@ -78,7 +78,11 @@ const BottomSheet = ({
           {primaryAction && (
             <button 
               onClick={() => {
-                onPrimaryAction();
+                if (typeof primaryAction === 'function') {
+                  primaryAction();
+                } else if (typeof onPrimaryAction === 'function') {
+                  onPrimaryAction();
+                }
                 handleClose();
               }} 
               className={styles.primaryButton}

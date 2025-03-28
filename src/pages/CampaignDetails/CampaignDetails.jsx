@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
-import { fetchCompetitionById } from "../../reducers/competitions";
+import { fetchCompetitionById, partialUpdateCompetition } from "../../reducers/competitions";
 import { fetchUserByUsername } from "../../reducers/users";
 import { fetchVideoPosts } from "../../reducers/videoPosts";
+import { toast } from "react-toastify";
 import styles from "./CampaignDetails.module.css";
 import Button from "../../components/Button/Button";
 import Timeline from "../../components/Timeline/Timeline";
@@ -370,13 +371,27 @@ const CampaignDetails = () => {
     setIsBlockModalOpen(false);
   };
 
-  const handleBlockCampaign = (remark) => {
-    console.log(
-      `Blocking campaign ${selectedCompetition?.name} with remark: ${remark}`
-    );
-    // Here you would dispatch an action to update the campaign status to BLOCKED
-    // dispatch(blockCompetition({ id: selectedCompetition?.id, remark }));
-    setIsBlockModalOpen(false);
+  const handleBlockCampaign = async (remark) => {
+    try {
+      await dispatch(
+        partialUpdateCompetition({
+          id: selectedCompetition.id,
+          data: {
+            status: "BLOCKED",
+            remark,
+            updatedBy: "current_user",
+            updatedOn: new Date().toISOString().split("T")[0]
+          }
+        })
+      ).unwrap();
+      toast.success("Campaign blocked successfully");
+      // Refresh competition data
+      dispatch(fetchCompetitionById(selectedCompetition.id));
+    } catch (error) {
+      toast.error("Failed to block campaign");
+    } finally {
+      setIsBlockModalOpen(false);
+    }
   };
 
   if (competitionLoading || userLoading || videoPostsLoading) {

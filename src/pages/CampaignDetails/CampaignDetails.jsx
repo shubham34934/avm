@@ -308,11 +308,11 @@ const CampaignDetails = () => {
 
       // Add dates if provided
       if (startDate) {
-        payload.startDate = formatDateForAPI(startDate);
+        payload.startDate = startDate; // Already in YYYY-MM-DD format from date input
       }
       
       if (endDate) {
-        payload.endDate = formatDateForAPI(endDate);
+        payload.endDate = endDate; // Already in YYYY-MM-DD format from date input
       }
 
       await dispatch(updateCampaignStatus(payload)).unwrap();
@@ -603,9 +603,11 @@ const CampaignDetails = () => {
         <RescheduleCampaignModal
           isOpen={isRescheduleModalOpen}
           onClose={() => setIsRescheduleModalOpen(false)}
-          campaignName={selectedCompetition?.name || "Campaign Name"}
+          campaignName={selectedCompetition?.title || "Campaign Name"}
           actionType={rescheduleActionType}
           onSubmit={handleRescheduleSubmit}
+          currentStartDate={selectedCompetition?.startDate}
+          currentEndDate={selectedCompetition?.endDate}
         />
       )}
     </div>

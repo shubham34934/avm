@@ -258,7 +258,9 @@ const CampaignDetails = () => {
       type: "started",
       title: "Campaign Started",
       timestamp: selectedCompetition?.startDate || "",
-      isActive: selectedCompetition?.status !== "DRAFT",
+      isActive: selectedCompetition?.status !== "DRAFT" && 
+               selectedCompetition?.startDate && 
+               new Date(selectedCompetition.startDate) <= new Date(),
       actions: [
         {
           label: "Pause",

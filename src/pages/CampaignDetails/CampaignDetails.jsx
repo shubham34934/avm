@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchCompetitionById } from "../../reducers/competitions";
 import { fetchUserByUsername } from "../../reducers/users";
-import { fetchVideoPostsByCompetitionId } from "../../reducers/videoPosts";
+import { fetchVideoPosts } from "../../reducers/videoPosts";
 import styles from "./CampaignDetails.module.css";
 import Button from "../../components/Button/Button";
 import Timeline from "../../components/Timeline/Timeline";
@@ -151,7 +151,12 @@ const CampaignDetails = () => {
       try {
         // Fetch videos with competition filter
         const result = await dispatch(
-          fetchVideoPostsByCompetitionId(parseInt(id))
+          fetchVideoPosts({
+            competition: { id: parseInt(id) },
+            page: 0,
+            size: 20,
+            sort: "createdOn,desc"
+          })
         ).unwrap();
 
         // Process the response based on its structure
@@ -255,14 +260,14 @@ const CampaignDetails = () => {
       type: "started",
       title: "Campaign Started",
       timestamp: selectedCompetition?.startDate || "",
-      isActive: 
-        (selectedCompetition?.status === "SCHEDULED" || 
-         selectedCompetition?.status === "ACTIVE" || 
-         selectedCompetition?.status === "PAUSED" ||
-         selectedCompetition?.status === "CLOSEDWINNERSPENDING" ||
-         selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
-         selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED") && 
-        selectedCompetition?.startDate && 
+      isActive:
+        (selectedCompetition?.status === "SCHEDULED" ||
+          selectedCompetition?.status === "ACTIVE" ||
+          selectedCompetition?.status === "PAUSED" ||
+          selectedCompetition?.status === "CLOSEDWINNERSPENDING" ||
+          selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
+          selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED") &&
+        selectedCompetition?.startDate &&
         new Date(selectedCompetition.startDate) <= new Date(),
       actions: [
         {
@@ -274,9 +279,13 @@ const CampaignDetails = () => {
     },
     {
       type: "completed",
-      title: `Completed ${submissionCount > 0 ? `(${submissionCount.toLocaleString()} submissions)` : ''}`,
+      title: `Completed ${
+        submissionCount > 0
+          ? `(${submissionCount.toLocaleString()} submissions)`
+          : ""
+      }`,
       timestamp: selectedCompetition?.endDate || "",
-      isActive: 
+      isActive:
         selectedCompetition?.status === "CLOSEDWINNERSPENDING" ||
         selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
         selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
@@ -292,7 +301,7 @@ const CampaignDetails = () => {
       type: "select_winners",
       title: "Select Winners",
       timestamp: "",
-      isActive: 
+      isActive:
         selectedCompetition?.status === "CLOSEDWINNERSSELECTED" ||
         selectedCompetition?.status === "CLOSEDWINNERSANNOUNCED",
       actions: [
@@ -362,7 +371,9 @@ const CampaignDetails = () => {
   };
 
   const handleBlockCampaign = (remark) => {
-    console.log(`Blocking campaign ${selectedCompetition?.name} with remark: ${remark}`);
+    console.log(
+      `Blocking campaign ${selectedCompetition?.name} with remark: ${remark}`
+    );
     // Here you would dispatch an action to update the campaign status to BLOCKED
     // dispatch(blockCompetition({ id: selectedCompetition?.id, remark }));
     setIsBlockModalOpen(false);
@@ -491,7 +502,7 @@ const CampaignDetails = () => {
         <BlockCampaignModal
           isOpen={isBlockModalOpen}
           onClose={handleBlockModalClose}
-          campaignName={selectedCompetition?.name || 'Campaign Name'}
+          campaignName={selectedCompetition?.name || "Campaign Name"}
           onBlock={handleBlockCampaign}
         />
       )}

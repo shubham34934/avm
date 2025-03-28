@@ -118,17 +118,13 @@
   align-items: center;
   justify-content: center;
   padding: 6px 16px;
-  border-radius: var(--radius-full);
   background-color: transparent;
   border: 1px solid var(--primary);
   color: var(--primary);
   font-size: var(--text-sm);
   cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.actionButton:hover {
-  background-color: var(--primary-light);
+  border: none;
 }
 
 .blockButton {

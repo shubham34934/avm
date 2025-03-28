@@ -5,7 +5,12 @@ import { toast } from "react-toastify";
 import styles from "./UploadVideo.module.css";
 import Button from "../../components/Button/Button";
 import backIcon from "../../assets/icons/back.svg";
-import { uploadVideoPost, fetchVideoPostById, updateVideoPost, clearSelectedVideoPost } from "../../reducers/videoPosts";
+import {
+  uploadVideoPost,
+  fetchVideoPostById,
+  updateVideoPost,
+  clearSelectedVideoPost,
+} from "../../reducers/videoPosts";
 import { useUser } from "../../hooks/useUser";
 
 // Topics for video posts
@@ -37,11 +42,13 @@ const UploadVideo = () => {
 
   // Check if we're in edit mode
   const searchParams = new URLSearchParams(location.search);
-  const isEditMode = searchParams.get("edit") === "true";
+  const isEditMode = searchParams.get("edit") === "true" || Boolean(params.id);
   const videoId = params.id ? parseInt(params.id) : null;
 
   // Get the selected video post from Redux store
-  const { selectedVideoPost, loading } = useAppSelector((state) => state.videoPosts);
+  const { selectedVideoPost, loading } = useAppSelector(
+    (state) => state.videoPosts
+  );
 
   // Extract campaign ID from query params
   const campaignId = searchParams.get("campaignId");
@@ -60,9 +67,15 @@ const UploadVideo = () => {
   // Fetch video data if in edit mode
   useEffect(() => {
     if (isEditMode && videoId) {
+      // Fetch the video data
       dispatch(fetchVideoPostById(videoId));
+
+      // Update page title to reflect edit mode
+      document.title = "Edit Video | AVM Platform";
+    } else {
+      document.title = "Upload Video | AVM Platform";
     }
-    
+
     // Cleanup on unmount
     return () => {
       dispatch(clearSelectedVideoPost());
@@ -77,7 +90,7 @@ const UploadVideo = () => {
         description: selectedVideoPost.description || "",
         videoUrl: selectedVideoPost.url || "",
         urlType: selectedVideoPost.urlType || "YouTube",
-        topic: "", 
+        topic: "",
         localFile: null,
       });
     }
@@ -202,9 +215,8 @@ const UploadVideo = () => {
       const payload: any = {
         title: formData.title,
         description: formData.description,
-        videoUrl: formData.videoUrl,
+        url: formData.videoUrl,
         urlType: formData.urlType,
-        localFile: formData.localFile,
         tags: [],
         // topic: formData.topic,
       };
@@ -219,49 +231,68 @@ const UploadVideo = () => {
         payload.createdOn = new Date().toISOString();
       }
 
+      // Add file only for new uploads, not for edits
+      if (!isEditMode && formData.localFile) {
+        payload.localFile = formData.localFile;
+      }
+
+      // Add update info for edits
+      if (isEditMode && videoId) {
+        payload.updatedBy = user.login;
+        payload.updatedOn = new Date().toISOString();
+        payload.id = videoId; // Add the ID to the payload for edit requests
+      }
+
       if (isEditMode && videoId) {
         // Update existing video
-        const updateData = {
-          title: formData.title,
-          description: formData.description,
-          url: formData.videoUrl,
-          urlType: formData.urlType,
-          updatedBy: user.login,
-          updatedOn: new Date().toISOString(),
-        };
-        
-        await dispatch(updateVideoPost({ videoId, updateData })).unwrap();
+        await dispatch(
+          updateVideoPost({ videoId, updateData: payload })
+        ).unwrap();
         toast.success("Video post updated successfully");
       } else {
         // Upload new video post
         await dispatch(uploadVideoPost(payload)).unwrap();
         toast.success("Video post created successfully");
       }
-      
+
       navigate("/videos");
     } catch (error: any) {
-      toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'create'} video post`);
+      toast.error(
+        error.message ||
+          `Failed to ${isEditMode ? "update" : "create"} video post`
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleBack = () => {
-    navigate(-1);
+    // If we came from editing, go back to videos page
+    if (isEditMode) {
+      navigate("/videos");
+    } else {
+      navigate(-1);
+    }
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Button onClick={handleBack} className={styles.backButton}>
+        <Button
+          onClick={handleBack}
+          className={styles.backButton}
+          variant="icon"
+        >
           <img src={backIcon} alt="Back" />
         </Button>
-        <h1 className={styles.title}>{isEditMode ? "Edit" : "Create"} Video Post</h1>
+        <h1 className={styles.title}>
+          {isEditMode ? "Edit" : "Create"} Video Post
+        </h1>
       </div>
 
       <p className={styles.description}>
-        {isEditMode 
-          ? "Update your video details below." 
+        {isEditMode
+          ? "Update your video details below."
           : "Share your video with our community. Fill in the details below."}
       </p>
 
@@ -367,9 +398,13 @@ const UploadVideo = () => {
             disabled={isSubmitting || loading}
             className={styles.submitButton}
           >
-            {isSubmitting 
-              ? (isEditMode ? "Updating..." : "Creating...") 
-              : (isEditMode ? "Update Video Post" : "Create Video Post")}
+            {isSubmitting
+              ? isEditMode
+                ? "Updating..."
+                : "Creating..."
+              : isEditMode
+              ? "Update Video Post"
+              : "Create Video Post"}
           </button>
         </form>
       )}

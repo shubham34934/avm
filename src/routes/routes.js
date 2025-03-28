@@ -92,6 +92,16 @@ export const routes = [
     ],
   },
   {
+    path: "/uploadVideo/:id",
+    component: UploadVideo,
+    allowedRoles: [
+      USER_ROLES.SUPER_ADMIN,
+      USER_ROLES.BRAND_ADMIN,
+      USER_ROLES.END_USER,
+      USER_ROLES.CREATOR,
+    ],
+  },
+  {
     path: "/users",
     component: Users,
     allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN],

@@ -78,7 +78,7 @@ export const partialUpdateCompetition = createAsyncThunk(
         `${ENV.VITE_APP_API_URL}/competitions/${id}`,
         {
           id,
-          ...data
+          ...data,
         }
       );
       return response.data;
@@ -249,17 +249,17 @@ export const addPrize = createAsyncThunk(
 export const updateCampaignStatus = createAsyncThunk(
   "competitions/updateCampaignStatus",
   async (
-    { 
-      id, 
-      status, 
+    {
+      id,
+      status,
       remark = "",
       username = "current_user",
       startDate,
       endDate,
-      sponsor
-    }: { 
-      id: number; 
-      status: CompetitionStatus; 
+      sponsor,
+    }: {
+      id: number;
+      status: CompetitionStatus;
       remark?: string;
       username?: string;
       startDate?: string;

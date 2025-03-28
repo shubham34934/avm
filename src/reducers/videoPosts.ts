@@ -118,9 +118,12 @@ export const fetchVideoPosts = createAsyncThunk(
       }
 
       // Fetch video posts with applied filters
-      const response = await axios.get<VideoPost[]>(`${ENV.VITE_APP_API_URL}/video-posts`, {
-        params,
-      });
+      const response = await axios.get<VideoPost[]>(
+        `${ENV.VITE_APP_API_URL}/video-posts`,
+        {
+          params,
+        }
+      );
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -188,18 +191,21 @@ export const uploadVideoPost = createAsyncThunk(
       }
 
       // For external URLs
-      const response = await axios.post<VideoPost>(`${ENV.VITE_APP_API_URL}/video-posts`, {
-        title,
-        description,
-        url: videoUrl,
-        urlType,
-        topic,
-        creator,
-        competition,
-        tags, // Always send tags, even if empty
-        createdOn,
-        createdBy,
-      });
+      const response = await axios.post<VideoPost>(
+        `${ENV.VITE_APP_API_URL}/video-posts`,
+        {
+          title,
+          description,
+          url: videoUrl,
+          urlType,
+          topic,
+          creator,
+          competition,
+          tags, // Always send tags, even if empty
+          createdOn,
+          createdBy,
+        }
+      );
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -359,7 +365,10 @@ export const videoPostsSlice = createSlice({
 });
 
 // Export actions for filters
-export const { setVideoPostFilters, clearVideoPostFilters, clearSelectedVideoPost } =
-  videoPostsSlice.actions;
+export const {
+  setVideoPostFilters,
+  clearVideoPostFilters,
+  clearSelectedVideoPost,
+} = videoPostsSlice.actions;
 
 export default videoPostsSlice.reducer;

@@ -76,6 +76,7 @@
   cursor: pointer;
   /* Remove tap highlight */
   -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
 }
 
 .video iframe {
@@ -84,8 +85,20 @@
   left: 0;
   width: 100%;
   height: 100%;
+  opacity: 1;
   border: none;
-  object-fit: cover;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.videoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: transparent;
   pointer-events: none;
 }
 
@@ -131,6 +144,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
+  z-index: 3; /* Higher than videoOverlay */
 }
 
 .videoInfo {

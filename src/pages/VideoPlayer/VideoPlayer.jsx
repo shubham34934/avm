@@ -188,16 +188,16 @@ const VideoPlayer = () => {
         videoId = url.split("/").pop();
       } else if (url.includes("youtube.com/embed")) {
         // Already an embed URL
-        return `${url}?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
+        return `${url}?autoplay=1&mute=1&controls=0&rel=0&showinfo=0&fs=0&modestbranding=1&iv_load_policy=3&color=white&disablekb=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
       }
 
       if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&rel=0&showinfo=0&fs=0&modestbranding=1&iv_load_policy=3&color=white&disablekb=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
       }
     }
 
     // If not a recognized format or not YouTube, return original with parameters
-    return `${url}?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
+    return `${url}?autoplay=1&mute=1&controls=0&rel=0&showinfo=0&fs=0&modestbranding=1&iv_load_policy=3&color=white&disablekb=1&playsinline=1&enablejsapi=1&origin=${window.location.origin}`;
   };
 
   if (!videoList || videoList.length === 0) {
@@ -246,7 +246,9 @@ const VideoPlayer = () => {
                 allowFullScreen
                 loading="lazy"
                 frameBorder="0"
+                style={{ pointerEvents: 'none' }}
               />
+              <div className={styles.videoOverlay}></div>
             </div>
             <div className={styles.overlay}>
               <div className={styles.videoInfo}>

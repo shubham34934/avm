@@ -59,3 +59,31 @@
   padding: var(--spacing-8) 0;
   color: var(--text-secondary);
 }
+
+.menuOptions {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.menuOptions button {
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.menuOptions button:hover {
+  background-color: var(--bg-color);
+}
+
+.menuOptions .deleteButton {
+  color: var(--error);
+}
+
+.menuOptions .deleteButton:hover {
+  background-color: var(--error-bg);
+}

@@ -8,6 +8,9 @@ const Campaign = lazy(() => import("../pages/Campaign/Campaign"));
 const CreateCampaign = lazy(() =>
   import("../pages/CreateCampaign/CreateCampaign")
 );
+const CreateSponsor = lazy(() =>
+  import("../pages/CreateSponsor/CreateSponsor")
+);
 const CampaignDetails = lazy(() =>
   import("../pages/CampaignDetails/CampaignDetails")
 );
@@ -41,6 +44,11 @@ export const routes = [
   {
     path: "/brands",
     component: Brands,
+    allowedRoles: [USER_ROLES.SUPER_ADMIN],
+  },
+  {
+    path: "/sponsor/create",
+    component: CreateSponsor,
     allowedRoles: [USER_ROLES.SUPER_ADMIN],
   },
   {

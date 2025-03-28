@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchCompetitionById } from "../../reducers/competitions";
 import { fetchUserByUsername } from "../../reducers/users";
+import { fetchVideoPosts } from "../../reducers/videoPosts";
 import styles from "./CampaignDetails.module.css";
 import Timeline from "../../components/Timeline/Timeline";
 import SubmissionCard from "../../components/Submission/SubmissionCard";
@@ -10,9 +11,6 @@ import DateRange from "../../components/DateRange/DateRange";
 import Header from "../../components/Header/Header";
 import userAvatar from "./../../assets/images/users/1.png";
 import MoreIcon from "./../../assets/icons/more.svg";
-import thumbnail1 from "./../../assets/images/thumbnails/1.png";
-import thumbnail2 from "./../../assets/images/thumbnails/2.png";
-import thumbnail3 from "./../../assets/images/thumbnails/3.png";
 import rightArrow from "./../../assets/icons/rightArrow.svg";
 import { toast } from "react-toastify";
 
@@ -28,7 +26,12 @@ const CampaignDetails = () => {
   const { selectedUser, loading: userLoading } = useAppSelector(
     (state) => state.users
   );
+  const { videoPosts, loading: videoPostsLoading } = useAppSelector(
+    (state) => state.videoPosts
+  );
   const [timeLeft] = useState("1h 20m 34s");
+  const [submissions, setSubmissions] = useState([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -50,6 +53,87 @@ const CampaignDetails = () => {
       fetchDetails();
     }
   }, [id, dispatch, navigate]);
+
+  // Fetch video posts related to this competition
+  useEffect(() => {
+    const fetchCompetitionVideos = async () => {
+      if (!id) return;
+      
+      setLoadingSubmissions(true);
+      try {
+        // Fetch videos with competition filter
+        const result = await dispatch(
+          fetchVideoPosts({
+            competition: { id: parseInt(id) },
+            page: 0,
+            size: 10,
+            sort: "createdOn,desc"
+          })
+        ).unwrap();
+        
+        // Process the response based on its structure
+        const videoContent = Array.isArray(result) ? result : 
+                          (result && result.content ? result.content : []);
+        
+        // Transform video posts to submission format
+        const formattedSubmissions = videoContent.map(video => {
+          // Extract video ID and get thumbnail
+          const videoUrl = video.url || video.videoUrl;
+          const videoId = getYouTubeVideoId(videoUrl);
+          const thumbnailUrl = videoId ? getYouTubeThumbnail(videoId) : videoUrl;
+          
+          return {
+            id: video.id,
+            image: thumbnailUrl, // Using YouTube thumbnail if available
+            title: video.title,
+            views: "0", // Default value if views not available
+            videoUrl: videoUrl
+          };
+        });
+        
+        setSubmissions(formattedSubmissions);
+      } catch (error) {
+        console.error("Error fetching competition videos:", error);
+        toast.error("Failed to load submissions");
+      } finally {
+        setLoadingSubmissions(false);
+      }
+    };
+    
+    fetchCompetitionVideos();
+  }, [id, dispatch]);
+
+  // Function to extract YouTube video ID from URL
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    
+    try {
+      // Handle different YouTube URL formats
+      if (url.includes("youtube.com/watch")) {
+        // Format: https://www.youtube.com/watch?v=VIDEO_ID
+        const urlParams = new URLSearchParams(url.split("?")[1]);
+        return urlParams.get("v");
+      } else if (url.includes("youtu.be")) {
+        // Format: https://youtu.be/VIDEO_ID
+        return url.split("/").pop();
+      } else if (url.includes("youtube.com/embed")) {
+        // Format: https://www.youtube.com/embed/VIDEO_ID
+        return url.split("/").pop().split("?")[0];
+      }
+    } catch (error) {
+      console.error("Error extracting YouTube video ID:", error);
+      return null;
+    }
+    
+    return null;
+  };
+  
+  // Function to get YouTube thumbnail URL from video ID
+  const getYouTubeThumbnail = (videoId) => {
+    if (!videoId) return null;
+    // YouTube provides several thumbnail options, using the high quality one
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  };
 
   const timelineSteps = [
     {
@@ -92,27 +176,6 @@ const CampaignDetails = () => {
     },
   ];
 
-  const submissions = [
-    {
-      id: 1,
-      image: thumbnail1,
-      title: "Amazing Nature",
-      views: "2.4M",
-    },
-    {
-      id: 2,
-      image: thumbnail2,
-      title: "Tech Innovations",
-      views: "2.8M",
-    },
-    {
-      id: 3,
-      image: thumbnail3,
-      title: "Community",
-      views: "1.5M",
-    },
-  ];
-
   const handleBack = () => {
     navigate(-1);
   };
@@ -121,7 +184,7 @@ const CampaignDetails = () => {
     // Handle more options
   };
 
-  if (competitionLoading || userLoading) {
+  if (competitionLoading || userLoading || videoPostsLoading) {
     return <div>Loading...</div>;
   }
 
@@ -222,9 +285,15 @@ const CampaignDetails = () => {
             </button>
           </div>
           <div className={styles.submissionsList}>
-            {submissions.map((submission) => (
-              <SubmissionCard key={submission.id} {...submission} />
-            ))}
+            {loadingSubmissions ? (
+              <div className={styles.loadingSubmissions}>Loading submissions...</div>
+            ) : submissions.length > 0 ? (
+              submissions.map((submission) => (
+                <SubmissionCard key={submission.id} {...submission} />
+              ))
+            ) : (
+              <div className={styles.noSubmissions}>No submissions yet</div>
+            )}
           </div>
         </div>
 

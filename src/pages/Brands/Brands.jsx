@@ -84,7 +84,7 @@ const Brands = () => {
     if (brandToDelete) {
       try {
         await dispatch(deleteBrand(brandToDelete.id)).unwrap();
-        toast.success(`Brand "${brandToDelete.name}" deleted successfully`);
+        toast.success(`Brand "${brandToDelete.sponsorName || brandToDelete.name || 'Unnamed'}" deleted successfully`);
         setBrandToDelete(null);
       } catch (error) {
         toast.error(error || "Failed to delete brand");
@@ -143,10 +143,10 @@ const Brands = () => {
           brands.map((brand) => (
             <ListCard
               key={brand.id}
-              image={brand.logo || 'https://via.placeholder.com/40'}
-              title={brand.name || 'Name'}
-              subtitle={brand.username ? `@${brand.username}` : '@user_name'}
-              status={brand.status}
+              image={brand.sponsorLogoUrl || brand.logo || 'https://via.placeholder.com/40'}
+              title={brand.sponsorName || brand.name || 'Name'}
+              subtitle={brand.sponsorDescription || ''}
+              status={brand.isActive ? 'Active' : 'Inactive'}
               menuIcon="more_vert"
               onMenuClick={(e) => handleMenuClick(e, brand)}
               onClick={() => handleBrandClick(brand.id)}
@@ -188,7 +188,7 @@ const Brands = () => {
       {brandToDelete && (
         <ConfirmationModal
           title="Delete Brand"
-          message={`Are you sure you want to delete the brand "${brandToDelete.name}"?`}
+          message={`Are you sure you want to delete the brand "${brandToDelete.sponsorName || brandToDelete.name || 'Unnamed'}"?`}
           onConfirm={handleConfirmDelete}
           onCancel={() => setBrandToDelete(null)}
           confirmText="Delete"

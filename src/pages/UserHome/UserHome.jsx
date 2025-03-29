@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./UserHome.module.css";
-import SearchBar from "../../components/SearchBar/SearchBar";
 import VideoCarousel from "../../components/VideoCarousel/VideoCarousel";
 import CategoryGrid from "../../components/CategoryGrid/CategoryGrid";
 import FeaturedVideo from "../../components/FeaturedVideo/FeaturedVideo";
 import VideoPost from "../../components/VideoPost/VideoPost";
 import Header from "../../components/Header/Header";
+import SubmissionsSection from "../../components/SubmissionsSection/SubmissionsSection";
 import { ENV } from "../../config/env";
 import axios from "axios";
 
@@ -17,6 +17,8 @@ const UserHome = () => {
   const [categories, setCategories] = useState([]);
   const [featuredVideo, setFeaturedVideo] = useState(null);
   const [feedVideos, setFeedVideos] = useState([]);
+  const [topVideos, setTopVideos] = useState([]);
+  const [loadingTopVideos, setLoadingTopVideos] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +36,7 @@ const UserHome = () => {
         );
 
         // Transform data for our UI
-        const popularData = popularResponse.data.content.map((video) => ({
+        const popularData = popularResponse.data.map((video) => ({
           id: video.id,
           title: video.title,
           thumbnail: video.url,
@@ -55,13 +57,11 @@ const UserHome = () => {
         const competitionsResponse = await axios.get(
           `${ENV.VITE_APP_API_URL}/competitions`
         );
-        const categoryData = competitionsResponse.data.content.map(
-          (comp, index) => ({
-            id: comp.id,
-            name: comp.title,
-            image: `https://source.unsplash.com/random/300x200?sig=${index}`, // Placeholder images
-          })
-        );
+        const categoryData = competitionsResponse.data.map((comp, index) => ({
+          id: comp.id,
+          name: comp.title,
+          image: `https://source.unsplash.com/random/300x200?sig=${index}`, // Placeholder images
+        }));
 
         // Add some predefined categories
         const predefinedCategories = [
@@ -90,22 +90,45 @@ const UserHome = () => {
         setCategories(predefinedCategories);
 
         // Create feed videos
-        const feedData = popularResponse.data.content
-          .slice(0, 5)
-          .map((video) => ({
-            id: video.id,
-            title: video.title,
-            thumbnail: video.url,
-            likes: Math.floor(Math.random() * 1000) + 100,
-            comments: Math.floor(Math.random() * 50) + 5,
-            username: video.creator?.username || "@" + video.createdBy,
-            userAvatar: "https://source.unsplash.com/random/100x100?face",
-            createdAt: video.createdOn || new Date().toISOString(),
-          }));
+        const feedData = popularResponse.data.slice(0, 5).map((video) => ({
+          id: video.id,
+          title: video.title,
+          thumbnail: video.url,
+          likes: Math.floor(Math.random() * 1000) + 100,
+          comments: Math.floor(Math.random() * 50) + 5,
+          username: video.creator?.username || "@" + video.createdBy,
+          userAvatar: "https://source.unsplash.com/random/100x100?face",
+          createdAt: video.createdOn || new Date().toISOString(),
+        }));
 
         setFeedVideos(feedData);
+
+        // Transform popular videos for SubmissionsSection format
+        setLoadingTopVideos(true);
+        const topVideosData = popularResponse.data.slice(0, 8).map((video) => {
+          // Extract YouTube video ID if available
+          const videoUrl = video.url || video.videoUrl;
+          let thumbnailUrl = videoUrl;
+
+          // Try to extract YouTube video ID for better thumbnails
+          const videoId = getYouTubeVideoId(videoUrl);
+          if (videoId) {
+            thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          }
+
+          return {
+            id: video.id,
+            image: thumbnailUrl,
+            title: video.title,
+            views: String(Math.floor(Math.random() * 10000) + 1000), // Placeholder for views
+          };
+        });
+
+        setTopVideos(topVideosData);
+        setLoadingTopVideos(false);
       } catch (error) {
         console.error("Error fetching data for user home:", error);
+        setLoadingTopVideos(false);
       } finally {
         setLoading(false);
       }
@@ -113,6 +136,31 @@ const UserHome = () => {
 
     fetchData();
   }, []);
+
+  // Function to extract YouTube video ID from URL
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+
+    try {
+      // Handle different YouTube URL formats
+      if (url.includes("youtube.com/watch")) {
+        // Format: https://www.youtube.com/watch?v=VIDEO_ID
+        const urlParams = new URLSearchParams(url.split("?")[1]);
+        return urlParams.get("v");
+      } else if (url.includes("youtu.be")) {
+        // Format: https://youtu.be/VIDEO_ID
+        return url.split("/").pop();
+      } else if (url.includes("youtube.com/embed")) {
+        // Format: https://www.youtube.com/embed/VIDEO_ID
+        return url.split("/").pop().split("?")[0];
+      }
+    } catch (error) {
+      console.error("Error extracting YouTube video ID:", error);
+      return null;
+    }
+
+    return null;
+  };
 
   const handleSearch = (query) => {
     console.log("Searching for:", query);
@@ -138,10 +186,12 @@ const UserHome = () => {
         onAdd={handleAdd}
       />
       <div className={styles.content}>
-        <VideoCarousel
+        <SubmissionsSection
           title="Most Upvoted Videos"
-          videos={popularVideos}
-          viewAllLink="/popular"
+          submissions={topVideos}
+          loading={loadingTopVideos}
+          viewAllLink="/videos?tag=popular"
+          emptyMessage="No videos available"
         />
 
         <CategoryGrid

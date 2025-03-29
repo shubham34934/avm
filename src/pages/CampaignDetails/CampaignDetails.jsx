@@ -15,7 +15,7 @@ import {
   BlockCampaignModal,
   RescheduleCampaignModal,
 } from "../../components/Modals";
-import SubmissionCard from "../../components/Submission/SubmissionCard";
+import SubmissionsSection from "../../components/SubmissionsSection/SubmissionsSection";
 import DateRange from "../../components/DateRange/DateRange";
 import Header from "../../components/Header/Header";
 import userAvatar from "./../../assets/images/users/1.png";
@@ -646,34 +646,13 @@ const CampaignDetails = () => {
           </button>
         </div>
 
-        <div className={styles.section}>
-          <div
-            className={styles.sectionHeader}
-            onClick={() => {
-              navigate(
-                `/videos?campaignId=${id}&isSubmission=true&isDetailed=true`
-              );
-            }}
-          >
-            <h2>Submissions</h2>
-            <button className={styles.viewAll}>
-              <img src={rightArrow} alt="view all" />
-            </button>
-          </div>
-          <div className={styles.submissionsList}>
-            {loadingSubmissions ? (
-              <div className={styles.loadingSubmissions}>
-                Loading submissions...
-              </div>
-            ) : submissions.length > 0 ? (
-              submissions.map((submission) => (
-                <SubmissionCard key={submission.id} {...submission} />
-              ))
-            ) : (
-              <div className={styles.noSubmissions}>No submissions yet</div>
-            )}
-          </div>
-        </div>
+        <SubmissionsSection
+          title="Submissions"
+          submissions={submissions}
+          loading={loadingSubmissions}
+          viewAllLink={`/videos?campaignId=${id}&isSubmission=true&isDetailed=true`}
+          emptyMessage="No submissions yet"
+        />
 
         <Timeline steps={timelineSteps} />
       </div>

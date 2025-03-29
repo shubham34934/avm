@@ -1,9 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CategoryGrid.module.css';
+import rightArrow from '../../assets/icons/rightArrow.svg';
 
 const CategoryGrid = ({ categories, title, viewAllLink }) => {
   const navigate = useNavigate();
+
+  const handleCategoryClick = (category) => {
+    // Navigate to videos page with tag filter
+    navigate(`/videos?tag=${category.name.toLowerCase()}`);
+  };
 
   return (
     <div className={styles.container}>
@@ -14,7 +20,7 @@ const CategoryGrid = ({ categories, title, viewAllLink }) => {
             className={styles.viewAll} 
             onClick={() => navigate(viewAllLink)}
           >
-            View All
+            <img src={rightArrow} alt="View All" className={styles.rightArrow} />
           </button>
         )}
       </div>
@@ -23,7 +29,7 @@ const CategoryGrid = ({ categories, title, viewAllLink }) => {
           <div 
             key={category.id} 
             className={styles.categoryCard}
-            onClick={() => navigate(`/category/${category.id}`)}
+            onClick={() => handleCategoryClick(category)}
             style={{
               backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)), url(${category.image})`,
             }}

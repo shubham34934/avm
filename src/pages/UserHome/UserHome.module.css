@@ -23,7 +23,10 @@
 }
 
 .feed {
-  margin-top: 24px;
+  margin-top: 0px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
 }
 
 /* Add responsive styles */

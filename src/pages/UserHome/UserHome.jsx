@@ -4,11 +4,17 @@ import styles from "./UserHome.module.css";
 import VideoCarousel from "../../components/VideoCarousel/VideoCarousel";
 import CategoryGrid from "../../components/CategoryGrid/CategoryGrid";
 import FeaturedVideo from "../../components/FeaturedVideo/FeaturedVideo";
-import VideoPost from "../../components/VideoPost/VideoPost";
 import Header from "../../components/Header/Header";
 import SubmissionsSection from "../../components/SubmissionsSection/SubmissionsSection";
+import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetailed";
 import { ENV } from "../../config/env";
 import axios from "axios";
+import userAvatar from "../../assets/images/users/1.png";
+// Import the category images
+import trendingImage from "../../assets/images/homepage/trending.png";
+import mostRecentImage from "../../assets/images/homepage/mostRecent.png";
+import comedyImage from "../../assets/images/homepage/comedy.png";
+import techImage from "../../assets/images/homepage/tech.png";
 
 const UserHome = () => {
   const navigate = useNavigate();
@@ -63,43 +69,56 @@ const UserHome = () => {
           image: `https://source.unsplash.com/random/300x200?sig=${index}`, // Placeholder images
         }));
 
-        // Add some predefined categories
+        // Add predefined categories with imported images
         const predefinedCategories = [
           {
             id: "trending",
             name: "Trending",
-            image: "https://source.unsplash.com/random/300x200?group",
+            image: trendingImage,
           },
           {
             id: "recent",
             name: "Most Recent",
-            image: "https://source.unsplash.com/random/300x200?collage",
+            image: mostRecentImage,
           },
           {
             id: "comedy",
             name: "Comedy",
-            image: "https://source.unsplash.com/random/300x200?stage",
+            image: comedyImage,
           },
           {
             id: "tech",
             name: "Tech",
-            image: "https://source.unsplash.com/random/300x200?code",
+            image: techImage,
           },
         ];
 
         setCategories(predefinedCategories);
 
         // Create feed videos
-        const feedData = popularResponse.data.slice(0, 5).map((video) => ({
-          id: video.id,
-          title: video.title,
-          thumbnail: video.url,
-          likes: Math.floor(Math.random() * 1000) + 100,
-          comments: Math.floor(Math.random() * 50) + 5,
-          username: video.creator?.username || "@" + video.createdBy,
-          userAvatar: "https://source.unsplash.com/random/100x100?face",
-          createdAt: video.createdOn || new Date().toISOString(),
-        }));
+        const feedData = popularResponse.data.slice(0, 5).map((video) => {
+          // Extract YouTube video ID if available
+          const videoUrl = video.url || video.videoUrl;
+          let thumbnailUrl = videoUrl;
+
+          // Try to extract YouTube video ID for better thumbnails
+          const videoId = getYouTubeVideoId(videoUrl);
+          if (videoId) {
+            thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          }
+
+          return {
+            id: video.id,
+            title: video.title,
+            thumbnail: videoUrl, // Use the original URL for VideoCardDetailed's own extraction
+            likes: Math.floor(Math.random() * 1000) + 100,
+            username: video.creator?.username || video.createdBy?.replace(/\s+/g, "") || "user",
+            userAvatar: userAvatar,
+            createdAt: video.createdOn || new Date().toISOString(),
+            isLiked: false,
+            isDisliked: false
+          };
+        });
 
         setFeedVideos(feedData);
 
@@ -171,6 +190,49 @@ const UserHome = () => {
     navigate("/uploadVideo");
   };
 
+  // Handlers for VideoCardDetailed component
+  const handleVideoClick = (videoId) => {
+    navigate(`/videos/${videoId}`);
+  };
+
+  const handleLike = (videoId, isLiked) => {
+    console.log(`${isLiked ? 'Unlike' : 'Like'} video ${videoId}`);
+    // Update like status in state
+    setFeedVideos(prevVideos => 
+      prevVideos.map(video => 
+        video.id === videoId 
+          ? { 
+              ...video, 
+              isLiked: !isLiked,
+              likes: isLiked ? video.likes - 1 : video.likes + 1,
+              isDisliked: isLiked ? video.isDisliked : false
+            }
+          : video
+      )
+    );
+  };
+
+  const handleDislike = (videoId, isDisliked) => {
+    console.log(`${isDisliked ? 'Remove dislike from' : 'Dislike'} video ${videoId}`);
+    // Update dislike status in state
+    setFeedVideos(prevVideos => 
+      prevVideos.map(video => 
+        video.id === videoId 
+          ? { 
+              ...video, 
+              isDisliked: !isDisliked,
+              isLiked: isDisliked ? video.isLiked : false
+            }
+          : video
+      )
+    );
+  };
+
+  const handleShortlist = (videoId) => {
+    console.log(`Toggle shortlist for video ${videoId}`);
+    // Implement shortlist functionality
+  };
+
   if (loading) {
     return <div className={styles.loading}>Loading...</div>;
   }
@@ -203,8 +265,15 @@ const UserHome = () => {
         {featuredVideo && <FeaturedVideo video={featuredVideo} />}
 
         <div className={styles.feed}>
-          {feedVideos.map((post) => (
-            <VideoPost key={post.id} post={post} />
+          {feedVideos.map((video) => (
+            <VideoCardDetailed
+              key={video.id}
+              video={video}
+              onVideoClick={handleVideoClick}
+              onLike={handleLike}
+              onDislike={handleDislike}
+              onShortlist={handleShortlist}
+            />
           ))}
         </div>
       </div>

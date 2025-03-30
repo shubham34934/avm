@@ -22,7 +22,7 @@ export interface VideoPost {
   reviews: any;
   changesHistories: any;
   competition: any;
-  tags: any[];
+  tag: any;
   affinityVectors: any[];
   competitionWinner: any;
   creator: any;
@@ -32,7 +32,7 @@ interface VideoPostFilters {
   competition?: any;
   title?: string;
   description?: string;
-  tags?: any[];
+  tag?: any;
   isAIGenerated?: boolean;
   isPremium?: boolean;
   isBlocked?: boolean;
@@ -107,15 +107,16 @@ export const fetchVideoPosts = createAsyncThunk(
         params["isModerated.equals"] = filters.isModerated;
       }
 
-      // Tags filtering
-      if (filters.tags && filters.tags.length > 0) {
-        params["tags.name.in"] = filters.tags.map((tag) => tag.name).join(",");
+      if (filters.tag) {
+        params["tag.equals"] = filters.tag;
       }
 
       // Global search query (if supported by backend)
       if (filters.searchQuery) {
         params["searchQuery"] = filters.searchQuery;
       }
+
+      console.log({ params, filters }, "Sfsfsf");
 
       // Fetch video posts with applied filters
       const response = await axios.get<VideoPost[]>(
@@ -145,7 +146,7 @@ export const uploadVideoPost = createAsyncThunk(
       localFile,
       creator,
       competition,
-      tags = [], // Default to empty array if not provided
+      tag = "", // Default to empty array if not provided
       createdOn = new Date().toISOString(), // Default to current timestamp
       createdBy = creator, // Default to creator if not specified
     }: {
@@ -157,7 +158,7 @@ export const uploadVideoPost = createAsyncThunk(
       localFile?: File | null;
       creator: { id: number };
       competition: { id: number };
-      tags?: any[];
+      tag?: any;
       createdOn?: string;
       createdBy?: { id: number };
     },
@@ -174,7 +175,7 @@ export const uploadVideoPost = createAsyncThunk(
         formData.append("videoFile", localFile);
         formData.append("creator", JSON.stringify(creator));
         formData.append("competition", JSON.stringify(competition));
-        formData.append("tags", JSON.stringify(tags));
+        formData.append("tag", JSON.stringify(tag));
         formData.append("createdOn", createdOn);
         formData.append("createdBy", JSON.stringify(createdBy));
 
@@ -201,7 +202,7 @@ export const uploadVideoPost = createAsyncThunk(
           topic,
           creator,
           competition,
-          tags, // Always send tags, even if empty
+          tag, // Always send tag, even if empty
           createdOn,
           createdBy,
         }

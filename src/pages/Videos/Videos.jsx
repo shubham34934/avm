@@ -31,17 +31,14 @@ const Submissions = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
 
-  // Check if it's a submissions page or a videos page
-  const isSubmission =
-    new URLSearchParams(location.search).get("isSubmission") === "true";
-  const campaignId = new URLSearchParams(location.search).get("campaignId");
+  // Extract all query parameters
+  const isSubmission = queryParams.get("isSubmission") === "true";
+  const campaignId = queryParams.get("campaignId");
+  const isDetailed = queryParams.get("isDetailed") === "true";
+  const tag = queryParams.get("tag");
 
-  // Check if the video cards should be detailed or simple
-  const isDetailed =
-    new URLSearchParams(location.search).get("isDetailed") === "true";
-
-  console.log({ isDetailed, isSubmission, campaignId });
   const [activeTab, setActiveTab] = useState("submissions");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
@@ -62,18 +59,18 @@ const Submissions = () => {
         popoverRef.current &&
         !popoverRef.current.contains(event.target) &&
         // Make sure we're not clicking on the menu button itself
-        !event.target.closest('[data-menu-button]')
+        !event.target.closest("[data-menu-button]")
       ) {
         setActiveMenuId(null);
       }
     };
 
     // Add event listener
-    document.addEventListener('mousedown', handleClickOutside);
-    
+    document.addEventListener("mousedown", handleClickOutside);
+
     // Clean up
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [activeMenuId]);
 
@@ -88,6 +85,42 @@ const Submissions = () => {
   // Ref to track if initial load has happened
   const isInitialLoadRef = useRef(true);
 
+  // Helper function to build API filters from URL parameters and other state
+  const buildFilters = useCallback(
+    (page = 0) => {
+      const filters = {
+        page,
+        size: 10,
+        sort: "createdOn,desc",
+      };
+
+      // Add competition filter if it's a submission page
+      if (isSubmission && campaignId) {
+        filters.competition = { id: parseInt(campaignId) };
+      }
+
+      // Add search query if available
+      if (searchQuery) {
+        filters.searchQuery = searchQuery;
+      }
+
+      // Add tag filter if available
+      if (tag) {
+        filters.tag = tag.toLowerCase();
+
+        // Special handling for predefined tags
+        if (tag.toLowerCase() === "popular") {
+          filters.sort = "likes,desc";
+        } else if (tag.toLowerCase() === "recent") {
+          filters.sort = "createdOn,desc";
+        }
+      }
+
+      return filters;
+    },
+    [isSubmission, campaignId, searchQuery, tag]
+  );
+
   // Debounced search handler
   const debouncedSearch = useCallback(
     debounce((query) => {
@@ -98,31 +131,22 @@ const Submissions = () => {
       // Reset page to 0 when searching
       setCurrentPage(0);
 
-      // Determine filters based on submission or video posts
-      const filters = {
-        page: 0,
-        size: 10,
-        sort: "createdOn,desc",
-        ...(isSubmission && campaignId
-          ? { competition: { id: parseInt(campaignId) } }
-          : {}),
-        ...(query ? { searchQuery: query } : {}),
-      };
-
-      console.log("Searching with filters:", filters);
+      // Get filters with search query
+      const filters = buildFilters(0);
+      if (query) {
+        filters.searchQuery = query;
+      }
 
       dispatch(fetchVideoPosts(filters))
         .then((response) => {
-          console.log("Search response:", response);
           setIsSearching(false);
         })
         .catch((error) => {
-          console.error("Search error:", error);
           toast.error("Failed to perform search");
           setIsSearching(false);
         });
     }, 500), // 500ms debounce delay
-    [dispatch, isSubmission, campaignId]
+    [dispatch, buildFilters]
   );
 
   // Handler for search from Header
@@ -134,64 +158,43 @@ const Submissions = () => {
   );
 
   const handleLoadMore = useCallback(() => {
-    // Determine filters based on submission or video posts
-    const filters = {
-      page: currentPage + 1,
-      size: 10,
-      sort: "createdOn,desc",
-      ...(isSubmission && campaignId
-        ? { competition: { id: parseInt(campaignId) } }
-        : {}),
-      ...(searchQuery ? { searchQuery } : {}),
-    };
-
-    console.log("Fetching next page with filters:", filters);
-
+    // Get filters for next page
+    const filters = buildFilters(currentPage + 1);
     dispatch(fetchVideoPosts(filters))
       .then((response) => {
-        // Always increment page, regardless of response
         setCurrentPage((prev) => {
-          console.log("Page updated from", prev, "to", prev + 1);
           return prev + 1;
         });
-
-        // Log the response for debugging
-        console.log("Fetch video posts response:", response);
       })
       .catch((error) => {
         console.error("Error fetching next page:", error);
         toast.error("Failed to load more items");
       });
-  }, [dispatch, isSubmission, campaignId, searchQuery, currentPage]);
+  }, [dispatch, buildFilters, currentPage]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Determine filters based on submission or video posts
-        const filters = {
-          page: 0,
-          size: 10,
-          sort: "createdOn,desc",
-          ...(isSubmission && campaignId
-            ? { competition: { id: parseInt(campaignId) } }
-            : {}),
-          ...(searchQuery ? { searchQuery } : {}),
-        };
-
-        console.log("Initial fetch with filters:", filters);
-
+        // Get initial filters
+        const filters = buildFilters(0);
         await dispatch(fetchVideoPosts(filters)).unwrap();
-
         // Reset initial load ref
         isInitialLoadRef.current = false;
       } catch (error) {
-        console.error("Initial fetch error:", error);
         toast.error(error.message || "Failed to fetch data");
       }
     };
 
     fetchData();
-  }, [campaignId, activeTab, isSubmission, searchQuery]);
+  }, [
+    dispatch,
+    buildFilters,
+    campaignId,
+    activeTab,
+    isSubmission,
+    searchQuery,
+    tag,
+  ]);
 
   const handleBack = () => {
     navigate(-1);
@@ -199,12 +202,10 @@ const Submissions = () => {
 
   const handleAdd = () => {
     // Handle add
-    console.log("Add clicked");
   };
 
   const handleMore = () => {
     // Handle more options
-    console.log("More clicked");
   };
 
   const handleLike = async (submissionId, isCurrentlyLiked) => {
@@ -240,6 +241,7 @@ const Submissions = () => {
           isSubmission,
           campaignId,
           searchQuery,
+          tag,
         },
       })
     );
@@ -258,7 +260,6 @@ const Submissions = () => {
   };
 
   const handleEdit = (videoId) => {
-    console.log("Edit video", videoId);
     // Navigate to edit page with edit flag
     navigate(`/uploadVideo/${videoId}?edit=true`);
   };
@@ -283,7 +284,7 @@ const Submissions = () => {
         `Failed to delete video: ${error?.message || "Unknown error"}`
       );
       // If API call fails, refresh the video list to ensure UI is in sync with backend
-      dispatch(fetchVideoPosts());
+      dispatch(fetchVideoPosts(buildFilters(0)));
     } finally {
       setVideoToDelete(null);
     }
@@ -294,7 +295,6 @@ const Submissions = () => {
   };
 
   const handleView = (videoId) => {
-    console.log("View video", videoId);
     // Navigate to video player
     handleVideoClick(videoId);
   };
@@ -332,12 +332,18 @@ const Submissions = () => {
         userAvatar: null,
       }));
 
-  console.log({ activeTab });
+  // Generate page title based on filters
+  let pageTitle = isSubmission ? "Submissions Video" : "Videos";
+  if (tag) {
+    // Capitalize first letter of tag for display
+    const displayTag = tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
+    pageTitle = `${displayTag} Videos`;
+  }
 
   return (
     <div className={styles.container}>
       <Header
-        title={isSubmission ? "Submissions Video" : "Videos"}
+        title={pageTitle}
         showBack
         onBack={handleBack}
         showSearch

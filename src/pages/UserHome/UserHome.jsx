@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import styles from "./UserHome.module.css";
 import VideoCarousel from "../../components/VideoCarousel/VideoCarousel";
 import CategoryGrid from "../../components/CategoryGrid/CategoryGrid";
-import FeaturedVideo from "../../components/FeaturedVideo/FeaturedVideo";
 import Header from "../../components/Header/Header";
 import SubmissionsSection from "../../components/SubmissionsSection/SubmissionsSection";
 import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetailed";
@@ -21,7 +20,7 @@ const UserHome = () => {
   const [loading, setLoading] = useState(true);
   const [popularVideos, setPopularVideos] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [featuredVideo, setFeaturedVideo] = useState(null);
+  const [featuredVideos, setFeaturedVideos] = useState([]);
   const [feedVideos, setFeedVideos] = useState([]);
   const [topVideos, setTopVideos] = useState([]);
   const [loadingTopVideos, setLoadingTopVideos] = useState(true);
@@ -51,12 +50,31 @@ const UserHome = () => {
 
         setPopularVideos(popularData);
 
-        // Set featured video (first popular video)
+        // Create featured videos for carousel (first 5 popular videos)
         if (popularData.length > 0) {
-          setFeaturedVideo({
-            ...popularData[0],
-            badge: "Top Pick",
-          });
+          const carouselVideos = popularResponse.data
+            .slice(0, 5)
+            .map((video, index) => {
+              // Extract YouTube video ID if available
+              const videoUrl = video.url || video.videoUrl;
+              let thumbnailUrl = videoUrl;
+
+              // Try to extract YouTube video ID for better thumbnails
+              const videoId = getYouTubeVideoId(videoUrl);
+              if (videoId) {
+                thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+              }
+
+              return {
+                id: video.id,
+                title: video.title,
+                thumbnail: thumbnailUrl,
+                likes: Math.floor(Math.random() * 5000) + 500,
+                badge: index === 0 ? "Top Pick" : "",
+              };
+            });
+
+          setFeaturedVideos(carouselVideos);
         }
 
         // Create categories based on competitions
@@ -112,11 +130,14 @@ const UserHome = () => {
             title: video.title,
             thumbnail: videoUrl, // Use the original URL for VideoCardDetailed's own extraction
             likes: Math.floor(Math.random() * 1000) + 100,
-            username: video.creator?.username || video.createdBy?.replace(/\s+/g, "") || "user",
+            username:
+              video.creator?.username ||
+              video.createdBy?.replace(/\s+/g, "") ||
+              "user",
             userAvatar: userAvatar,
             createdAt: video.createdOn || new Date().toISOString(),
             isLiked: false,
-            isDisliked: false
+            isDisliked: false,
           };
         });
 
@@ -196,16 +217,16 @@ const UserHome = () => {
   };
 
   const handleLike = (videoId, isLiked) => {
-    console.log(`${isLiked ? 'Unlike' : 'Like'} video ${videoId}`);
+    console.log(`${isLiked ? "Unlike" : "Like"} video ${videoId}`);
     // Update like status in state
-    setFeedVideos(prevVideos => 
-      prevVideos.map(video => 
-        video.id === videoId 
-          ? { 
-              ...video, 
+    setFeedVideos((prevVideos) =>
+      prevVideos.map((video) =>
+        video.id === videoId
+          ? {
+              ...video,
               isLiked: !isLiked,
               likes: isLiked ? video.likes - 1 : video.likes + 1,
-              isDisliked: isLiked ? video.isDisliked : false
+              isDisliked: isLiked ? video.isDisliked : false,
             }
           : video
       )
@@ -213,15 +234,17 @@ const UserHome = () => {
   };
 
   const handleDislike = (videoId, isDisliked) => {
-    console.log(`${isDisliked ? 'Remove dislike from' : 'Dislike'} video ${videoId}`);
+    console.log(
+      `${isDisliked ? "Remove dislike from" : "Dislike"} video ${videoId}`
+    );
     // Update dislike status in state
-    setFeedVideos(prevVideos => 
-      prevVideos.map(video => 
-        video.id === videoId 
-          ? { 
-              ...video, 
+    setFeedVideos((prevVideos) =>
+      prevVideos.map((video) =>
+        video.id === videoId
+          ? {
+              ...video,
               isDisliked: !isDisliked,
-              isLiked: isDisliked ? video.isLiked : false
+              isLiked: isDisliked ? video.isLiked : false,
             }
           : video
       )
@@ -262,7 +285,11 @@ const UserHome = () => {
           viewAllLink="/categories"
         />
 
-        {featuredVideo && <FeaturedVideo video={featuredVideo} />}
+        <VideoCarousel
+          title="Featured Videos"
+          videos={featuredVideos}
+          viewAllLink="/videos?tag=featured"
+        />
 
         <div className={styles.feed}>
           {feedVideos.map((video) => (

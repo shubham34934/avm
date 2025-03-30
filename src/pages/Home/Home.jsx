@@ -53,11 +53,13 @@ const Home = () => {
   }, [dispatch]);
 
   // Calculate stats based on the data we have
-  const liveCount = competitions.filter(c => 
-    c.status === "ACTIVE" || c.status === "Active").length;
-  
-  const completeCount = competitions.filter(c => 
-    c.status === "COMPLETED" || c.status === "Completed").length;
+  const liveCount = competitions.filter(
+    (c) => c.status === "ACTIVE" || c.status === "Active"
+  ).length;
+
+  const completeCount = competitions.filter(
+    (c) => c.status === "COMPLETED" || c.status === "Completed"
+  ).length;
 
   const stats = [
     { title: "Live", value: liveCount },
@@ -92,7 +94,20 @@ const Home = () => {
 
       <div className={styles.stats}>
         {stats.map((stat, index) => (
-          <div key={stat.title} className={styles.statsCard}>
+          <div 
+            key={stat.title} 
+            className={styles.statsCard}
+            onClick={() => {
+              if (stat.title === "Live") {
+                navigate("/campaign?status=active");
+              } else if (stat.title === "Complete") {
+                navigate("/campaign?status=completed");
+              } else if (stat.title === "Submission") {
+                navigate("/videos");
+              }
+            }}
+            style={{ cursor: "pointer" }}
+          >
             <StatsCard
               title={stat.title}
               value={stat.value}
@@ -169,6 +184,14 @@ const Home = () => {
             />
             <h2>Videos Uploaded</h2>
           </div>
+          <button
+            className={styles.viewAll}
+            onClick={() => {
+              navigate("/videos");
+            }}
+          >
+            View all
+          </button>
         </div>
         <div className={styles.videos}>
           {loading ? (
@@ -178,12 +201,12 @@ const Home = () => {
           ) : videoPosts.length === 0 ? (
             <p className={styles.emptyMessage}>No videos available.</p>
           ) : (
-            videoPosts.slice(0, 2).map((video) => (
+            videoPosts.slice(0, 5).map((video) => (
               <VideoCard
                 key={video.id}
                 title={video.title}
                 campaignName={video.competition?.title || "No Campaign"}
-                userName={video.creator?.username || "@" + video.createdBy}
+                userName={video.creator?.username || video.createdBy}
                 timestamp={new Date(video.createdOn).toLocaleDateString(
                   "en-US",
                   {

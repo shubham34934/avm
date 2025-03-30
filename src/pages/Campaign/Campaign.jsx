@@ -4,7 +4,7 @@ import styles from "./Campaign.module.css";
 import CampaignCard from "../../components/CampaignCard/CampaignCard";
 import brandLogo from "./../../assets/images/brand.png";
 import FloatingActionButton from "../../components/FloatingActionButton/FloatingActionButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import {
   fetchCompetitions,
@@ -18,6 +18,7 @@ import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationMo
 
 const Campaign = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const {
     competitions = [],
@@ -33,10 +34,28 @@ const Campaign = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const pageSize = 20;
 
+  // Get status filter from URL query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const statusFilter = queryParams.get("status");
+
+  // Set page title based on status filter
+  const getPageTitle = () => {
+    if (statusFilter === "active") {
+      return "Live Campaigns";
+    } else if (statusFilter === "completed") {
+      return "Completed Campaigns";
+    }
+    return "All Campaigns";
+  };
+
   const fetchData = async () => {
     try {
       const result = await dispatch(
-        fetchCompetitions({ page: currentPage, size: pageSize })
+        fetchCompetitions({
+          page: currentPage,
+          size: pageSize,
+          status: statusFilter,
+        })
       ).unwrap();
       console.log("API Response:", result);
     } catch (error) {
@@ -46,7 +65,7 @@ const Campaign = () => {
 
   useEffect(() => {
     fetchData();
-  }, [dispatch, currentPage, pageSize]);
+  }, [dispatch, currentPage, pageSize, statusFilter]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -71,6 +90,7 @@ const Campaign = () => {
         page: currentPage + 1,
         size: pageSize,
         sort: ["startDate,desc"],
+        status: statusFilter,
       })
     );
   };
@@ -139,7 +159,13 @@ const Campaign = () => {
           title="Failed to Load Campaigns"
           message={error}
           onRetry={() =>
-            dispatch(fetchCompetitions({ page: currentPage, size: pageSize }))
+            dispatch(
+              fetchCompetitions({
+                page: currentPage,
+                size: pageSize,
+                status: statusFilter,
+              })
+            )
           }
         />
       );
@@ -210,7 +236,7 @@ const Campaign = () => {
   return (
     <div className={styles.container}>
       <Header
-        title="Campaigns"
+        title={getPageTitle()}
         showSearch
         showAdd
         searchQuery={searchQuery}

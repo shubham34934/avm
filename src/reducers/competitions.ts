@@ -99,12 +99,19 @@ export const fetchCompetitions = createAsyncThunk(
       page = 0,
       size = 20,
       sort = ["id,desc"],
-    }: { page?: number; size?: number; sort?: string[] },
+      status,
+    }: { page?: number; size?: number; sort?: string[]; status?: string },
     { rejectWithValue }
   ) => {
     try {
+      const params: any = { page, size, sort };
+      if (status) {
+        params.status = status;
+      }
+
+      console.log({ params }, "sfsfs");
       const response = await axios.get(`${ENV.VITE_APP_API_URL}/competitions`, {
-        params: { page, size, sort },
+        params,
       });
       return {
         competitions: response.data,

@@ -393,7 +393,11 @@ const Submissions = () => {
             <div>Loading more {isSubmission ? "submissions" : "videos"}...</div>
           }
         >
-          <div className={styles.videoList}>
+          <div
+            className={`${styles.videoList} ${
+              isDetailed ? styles.detailedList : styles.gridList
+            } ${isSubmission ? styles.submissionsList : styles.videosList}`}
+          >
             {displayedSubmissions.map((video) =>
               isDetailed ? (
                 <VideoCardDetailed

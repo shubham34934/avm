@@ -1,10 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './VideoCarousel.module.css';
-import rightArrowIcon from '../../assets/icons/rightArrow.svg';
+import { CirclePlayIcon, LikeIcon } from '../Icons/Icons';
+import defaultThumbnail from '../../assets/images/default-thumbnail.png';
 
 const VideoCarousel = ({ videos, title, viewAllLink }) => {
   const navigate = useNavigate();
+
+  const handleVideoClick = (videoId) => {
+    navigate(`/video/${videoId}`);
+  };
 
   return (
     <div className={styles.container}>
@@ -15,7 +20,7 @@ const VideoCarousel = ({ videos, title, viewAllLink }) => {
             className={styles.viewAll} 
             onClick={() => navigate(viewAllLink)}
           >
-            <img src={rightArrowIcon} alt="View All" className={styles.rightArrow} />
+            View all
           </button>
         )}
       </div>
@@ -24,21 +29,24 @@ const VideoCarousel = ({ videos, title, viewAllLink }) => {
           <div 
             key={video.id} 
             className={styles.videoCard}
-            onClick={() => navigate(`/videos/${video.id}`)}
+            onClick={() => handleVideoClick(video.id)}
           >
             <div className={styles.thumbnailContainer}>
               <img 
-                src={video.thumbnail} 
+                src={video.thumbnail || defaultThumbnail} 
                 alt={video.title} 
-                className={styles.thumbnail} 
+                className={styles.thumbnail}
               />
-            </div>
-            <div className={styles.videoInfo}>
-              <h3 className={styles.videoTitle}>{video.title}</h3>
-              <div className={styles.stats}>
-                <div className={styles.likes}>
-                  <i className="fas fa-thumbs-up"></i>
-                  <span>{video.likes}</span>
+              <div className={styles.overlay}>
+                <div className={styles.likeCounter}>
+                  <LikeIcon />
+                  <span>{video.likes || 950}</span>
+                </div>
+                <div className={styles.playButton}>
+                  <CirclePlayIcon />
+                </div>
+                <div className={styles.videoTitle}>
+                  <h3>{video.title || 'Top Pick'}</h3>
                 </div>
               </div>
             </div>

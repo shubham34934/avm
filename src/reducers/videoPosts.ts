@@ -116,8 +116,6 @@ export const fetchVideoPosts = createAsyncThunk(
         params["searchQuery"] = filters.searchQuery;
       }
 
-      console.log({ params, filters }, "Sfsfsf");
-
       // Fetch video posts with applied filters
       const response = await axios.get<VideoPost[]>(
         `${ENV.VITE_APP_API_URL}/video-posts`,

@@ -14,6 +14,7 @@ import {
 import { setVideoList } from "../../reducers/videoNavigation";
 import { fetchVideoPosts, fetchVideoPostById } from "../../reducers/videoPosts";
 import { toggleLike, toggleShortlist } from "../../reducers/submissions";
+import defaultAvatar from "../../assets/images/default-avatar.png";
 
 const VideoPlayer = () => {
   const dispatch = useDispatch();
@@ -405,7 +406,7 @@ const VideoPlayer = () => {
                 <div className={styles.details}>
                   <div className={styles.userInfo}>
                     <img
-                      src={video.userProfilePicture || "/images/avatar.jpg"}
+                      src={video.userProfilePicture || defaultAvatar}
                       alt={video.username}
                       className={styles.avatar}
                     />

@@ -45,6 +45,15 @@ const VideoCardDetailed = ({
     ? youtubeThumbnails[0]
     : video.thumbnail || defaultThumbnail;
 
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+    });
+  };
+
   return (
     <div className={styles.videoCard}>
       <div className={styles.userInfo}>
@@ -54,10 +63,13 @@ const VideoCardDetailed = ({
           className={styles.avatar}
         />
         <div className={styles.userMeta}>
-          <span className={styles.username}>@{video.username}</span>
-          <span className={styles.timeAgo}>
-            {new Date(video.createdAt).toLocaleDateString()}
-          </span>
+          <div className={styles.userMetaTop}>
+            <span className={styles.username}>@{video.username}</span>
+            <span className={styles.dot}>•</span>
+            <span className={styles.timeAgo}>
+              {formatDate(video.createdAt)}
+            </span>
+          </div>
         </div>
         <button
           onClick={() => onShortlist(video.id)}
@@ -83,25 +95,25 @@ const VideoCardDetailed = ({
           </div>
         </div>
         
-        <div className={styles.likeCounter}>
-          <button
-            onClick={() => onLike(video.id, video.isLiked)}
-            className={`${styles.likeButton} ${video.isLiked ? styles.active : ""}`}
-          >
-            <LikeIcon />
-            <span>{video.likes}</span>
-          </button>
-        </div>
-      </div>
-
-      <div className={styles.actions}>
-        <div className={styles.dislikeButton}>
-          <button
-            onClick={() => onDislike(video.id, video.isDisliked)}
-            className={`${styles.actionButton} ${video.isDisliked ? styles.active : ""}`}
-          >
-            <DislikeIcon />
-          </button>
+        <div className={styles.actionButtons}>
+          <div className={styles.likeButton}>
+            <button
+              onClick={() => onLike(video.id, video.isLiked)}
+              className={`${styles.actionButton} ${video.isLiked ? styles.active : ""}`}
+            >
+              <LikeIcon />
+              <span>{video.likes}</span>
+            </button>
+          </div>
+          
+          <div className={styles.dislikeButton}>
+            <button
+              onClick={() => onDislike(video.id, video.isDisliked)}
+              className={`${styles.actionButton} ${video.isDisliked ? styles.active : ""}`}
+            >
+              <DislikeIcon />
+            </button>
+          </div>
         </div>
       </div>
     </div>

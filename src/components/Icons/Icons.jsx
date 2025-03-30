@@ -151,16 +151,59 @@ export const MoreIconVerticle = () => {
 
 export const CirclePlayIcon = () => (
   <svg
-    width="48"
-    height="48"
-    viewBox="0 0 48 48"
+    width="55"
+    height="54"
+    viewBox="0 0 65 64"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle cx="24" cy="24" r="24" fill="#FFFFFF" opacity="0.8" />
-    <path
-      d="M32 24L20 31.464V16.536L32 24Z"
-      fill="#333333"
-    />
+    <g filter="url(#filter0_d_3052_15471)">
+      <path
+        d="M4.5 31C4.5 15.536 17.036 3 32.5 3C47.964 3 60.5 15.536 60.5 31C60.5 46.464 47.964 59 32.5 59C17.036 59 4.5 46.464 4.5 31Z"
+        fill="#938F96"
+        shape-rendering="crispEdges"
+      />
+      <path
+        d="M25.5 39.0019V22.9947C25.5 21.6554 26.9432 20.8125 28.1098 21.4705L42.298 29.4741C43.4849 30.1437 43.4849 31.853 42.298 32.5225L28.1098 40.5261C26.9432 41.1842 25.5 40.3413 25.5 39.0019Z"
+        fill="white"
+      />
+    </g>
+    <defs>
+      <filter
+        id="filter0_d_3052_15471"
+        x="-45.5"
+        y="-47"
+        width="156"
+        height="156"
+        filterUnits="userSpaceOnUse"
+        color-interpolation-filters="sRGB"
+      >
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feColorMatrix
+          in="SourceAlpha"
+          type="matrix"
+          values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+          result="hardAlpha"
+        />
+        <feOffset dy="1" />
+        <feGaussianBlur stdDeviation="2" />
+        <feComposite in2="hardAlpha" operator="out" />
+        <feColorMatrix
+          type="matrix"
+          values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0"
+        />
+        <feBlend
+          mode="normal"
+          in2="BackgroundImageFix"
+          result="effect1_dropShadow_3052_15471"
+        />
+        <feBlend
+          mode="normal"
+          in="SourceGraphic"
+          in2="effect1_dropShadow_3052_15471"
+          result="shape"
+        />
+      </filter>
+    </defs>
   </svg>
 );

@@ -4,7 +4,6 @@
   transition: all 0.2s ease;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: var(--spacing-4);
-  margin-bottom: var(--spacing-4);
 }
 
 .userInfo {
@@ -12,11 +11,12 @@
   align-items: center;
   padding: var(--spacing-3) 0;
   gap: var(--spacing-3);
+  padding-bottom: 0px;
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-full);
   object-fit: cover;
 }
@@ -25,7 +25,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+}
+
+.userMetaTop {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .username {
@@ -34,8 +39,13 @@
   color: var(--text-primary);
 }
 
+.dot {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
 .timeAgo {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
@@ -58,7 +68,7 @@
 
 .videoTitle {
   font-size: var(--text-base);
-  font-weight: var(--font-medium);
+  font-weight: var(--font-bold);
   color: var(--text-primary);
   margin: 0;
   padding: 0 0 var(--spacing-3) 0;
@@ -67,7 +77,6 @@
 .thumbnailContainer {
   position: relative;
   width: 100%;
-  margin-bottom: var(--spacing-3);
 }
 
 .thumbnail {
@@ -76,7 +85,23 @@
   aspect-ratio: 16/9;
   cursor: pointer;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+}
+
+.thumbnail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  pointer-events: none;
 }
 
 .thumbnail img {
@@ -99,54 +124,23 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  z-index: 1000;
 }
 
 .thumbnail:hover .playButton {
   transform: translate(-50%, -50%) scale(1.1);
 }
 
-.likeCounter {
+.actionButtons {
   position: absolute;
   bottom: 16px;
   right: 16px;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
-.likeButton {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-1);
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  padding: var(--spacing-1) var(--spacing-2);
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  border-radius: var(--radius-full);
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.likeButton:hover {
-  background: rgba(255, 255, 255, 1);
-  color: var(--text-primary);
-}
-
-.likeButton.active {
-  color: var(--primary);
-}
-
-.likeButton span {
-  font-weight: var(--font-medium);
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
+.likeButton,
 .dislikeButton {
   display: flex;
   align-items: center;
@@ -155,11 +149,11 @@
 .actionButton {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
-  background: none;
+  gap: var(--spacing-1);
+  background: transparent;
   border: none;
-  padding: var(--spacing-2);
-  color: var(--text-secondary);
+  padding: var(--spacing-1);
+  color: white;
   font-size: var(--text-sm);
   cursor: pointer;
   border-radius: var(--radius-full);
@@ -167,15 +161,21 @@
 }
 
 .actionButton:hover {
-  color: var(--text-primary);
+  color: white;
+  opacity: 0.8;
 }
 
 .actionButton.active {
-  color: var(--primary);
+  color: white;
+}
+
+.actionButton span {
+  font-weight: var(--font-medium);
+  margin-left: 2px;
 }
 
 @media (min-width: 640px) {
   .thumbnail {
-    border-radius: var(--radius-xl);
+    border-radius: 24px;
   }
 }

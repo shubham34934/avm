@@ -24,37 +24,65 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 4px;
 }
 
-.carousel {
+.rightArrow {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.viewAll:hover .rightArrow {
+  transform: translateX(2px);
+}
+
+.carouselWrapper {
+  position: relative;
+  width: 100%;
+  padding: 20px 0;
+  height: 100%;
+}
+
+.carouselContainer {
+  width: 100%;
+  height: 100%;
   display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  justify-content: center;
+  align-items: center;
 }
 
-.carousel::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-.videoCard {
-  flex: 0 0 auto;
-  width: 280px;
+.card {
+  position: relative;
+  transition: all 0.3s ease;
+  transform-origin: center;
   cursor: pointer;
-  transition: transform 0.2s;
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 100%;
+  /* Instagram Reels aspect ratio (9:16) */
+  aspect-ratio: 9/16;
 }
 
-.videoCard:hover {
-  transform: scale(1.02);
+.activeCard {
+  cursor: pointer;
+  z-index: 10; /* Ensure active card appears above others */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Add shadow for emphasis */
+}
+
+.cardContent {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
 .thumbnailContainer {
   position: relative;
   width: 100%;
-  aspect-ratio: 1/1.2;
-  border-radius: 20px;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -70,7 +98,12 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.1) 60%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -81,17 +114,25 @@
   align-self: flex-start;
   display: flex;
   align-items: center;
-  gap: 4px;
-  background-color: rgba(147, 143, 150, 0.8);
+  gap: 8px;
+  background-color: rgba(114, 85, 168, 0.9); /* Purple background as in image */
   color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 16px;
   font-weight: 500;
 }
 
-.videoTitle {
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
+}
+
+.videoTitle {
+  flex: 1;
+  margin-right: 12px;
 }
 
 .videoTitle h3 {
@@ -99,21 +140,95 @@
   font-size: 24px;
   font-weight: 700;
   margin: 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
 }
 
 .playButton {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+.playButton:hover {
+  transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.controls {
   position: absolute;
-  bottom: 16px;
-  right: 16px;
+  width: 100%;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.navButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.navButton:hover {
+  background-color: white;
+  transform: scale(1.1);
+}
+
+.prevButton {
+  margin-left: -20px;
+}
+
+.nextButton {
+  margin-right: -20px;
 }
 
 @media (max-width: 768px) {
-  .videoCard {
-    width: 220px;
+  .navButton {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
   }
-  
+
   .videoTitle h3 {
-    font-size: 20px;
+    font-size: 18px;
+  }
+
+  .likeCounter {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .playButton {
+    width: 32px;
+    height: 32px;
   }
 }

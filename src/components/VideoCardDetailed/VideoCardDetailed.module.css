@@ -125,7 +125,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  z-index: 1000;
+  z-index: 49;
 }
 
 .thumbnail:hover .playButton {

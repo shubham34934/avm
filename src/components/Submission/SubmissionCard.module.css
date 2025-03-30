@@ -5,6 +5,12 @@
   overflow: hidden;
   width: 180px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
 }
 
 .imageContainer {
@@ -37,6 +43,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .views {
   color: var(--primary);
   font-size: var(--text-xs);

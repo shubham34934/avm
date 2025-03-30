@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./VideoCardDetailed.module.css";
-import { LikeIcon, DislikeIcon, PlayIcon, MoreIcon } from "../Icons/Icons";
+import { LikeIcon, DislikeIcon, MoreIcon, CirclePlayIcon } from "../Icons/Icons";
 import defaultAvatar from "./../../assets/images/default-avatar.png";
 import defaultThumbnail from "./../../assets/images/default-thumbnail.png";
 
@@ -68,35 +68,37 @@ const VideoCardDetailed = ({
       </div>
 
       <h2 className={styles.videoTitle}>{video.title}</h2>
-      <div className={styles.thumbnail} onClick={() => onVideoClick(video.id)}>
-        <img
-          src={thumbnailSrc}
-          alt={video.title}
-          onError={(e) => {
-            // e.target.src = defaultThumbnail;
-          }}
-        />
-        <div className={styles.playButton}>
-          <PlayIcon />
+      
+      <div className={styles.thumbnailContainer}>
+        <div className={styles.thumbnail} onClick={() => onVideoClick(video.id)}>
+          <img
+            src={thumbnailSrc}
+            alt={video.title}
+            onError={(e) => {
+              // e.target.src = defaultThumbnail;
+            }}
+          />
+          <div className={styles.playButton}>
+            <CirclePlayIcon />
+          </div>
         </div>
-      </div>
-
-      <div className={styles.actions}>
-        <div className={styles.likes}>
+        
+        <div className={styles.likeCounter}>
           <button
             onClick={() => onLike(video.id, video.isLiked)}
-            className={`${styles.actionButton} ${
-              video.isLiked ? styles.active : ""
-            }`}
+            className={`${styles.likeButton} ${video.isLiked ? styles.active : ""}`}
           >
             <LikeIcon />
             <span>{video.likes}</span>
           </button>
+        </div>
+      </div>
+
+      <div className={styles.actions}>
+        <div className={styles.dislikeButton}>
           <button
             onClick={() => onDislike(video.id, video.isDisliked)}
-            className={`${styles.actionButton} ${
-              video.isDisliked ? styles.active : ""
-            }`}
+            className={`${styles.actionButton} ${video.isDisliked ? styles.active : ""}`}
           >
             <DislikeIcon />
           </button>

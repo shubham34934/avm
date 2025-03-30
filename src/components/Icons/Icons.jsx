@@ -148,3 +148,19 @@ export const MoreIconVerticle = () => {
     </svg>
   );
 };
+
+export const CirclePlayIcon = () => (
+  <svg
+    width="48"
+    height="48"
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="24" cy="24" r="24" fill="#FFFFFF" opacity="0.8" />
+    <path
+      d="M32 24L20 31.464V16.536L32 24Z"
+      fill="#333333"
+    />
+  </svg>
+);

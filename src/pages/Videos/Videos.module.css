@@ -4,6 +4,7 @@
   min-height: 100vh;
   background-color: var(--bg-color);
   padding-top: 60px;
+  padding-bottom: 90px;
 }
 
 .loading {

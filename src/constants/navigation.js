@@ -36,12 +36,7 @@ export const SIDEBAR_ITEMS = [
     label: "AI tools",
     path: "/ai-tools",
     icon: AIToolsIcon,
-    roles: [
-      USER_ROLES.SUPER_ADMIN,
-      USER_ROLES.ADMIN,
-      USER_ROLES.CREATOR,
-      USER_ROLES.USER,
-    ],
+    roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.CREATOR],
   },
   {
     label: "Price Distributions",

@@ -15,12 +15,18 @@ import {
   getUserTypeDisplay,
   USER_TYPE_DISPLAY,
 } from "../../utils/constants";
+import { usePermissions } from "../../hooks/usePermissions";
+import { USER_ROLES } from "../../utils/constants";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useUser();
   const dispatch = useAppDispatch();
+  const { userRole } = usePermissions();
+
+  // Check if edit icon should be visible (not visible for ROLE_CREATOR and ROLE_USER)
+  const showEditIcon = userRole !== USER_ROLES.CREATOR && userRole !== USER_ROLES.USER;
 
   const filteredNavItems = SIDEBAR_ITEMS.filter((item) =>
     checkAllowedRole(item.roles, user?.authorities)
@@ -70,9 +76,11 @@ const Sidebar = ({ isOpen, onClose }) => {
               ))}
             </div>
           </div>
-          <div className={styles.editIconContainer} onClick={handleEditProfile}>
-            <img src={editIcon} alt="Edit" className={styles.editIcon} />
-          </div>
+          {showEditIcon && (
+            <div className={styles.editIconContainer} onClick={handleEditProfile}>
+              <img src={editIcon} alt="Edit" className={styles.editIcon} />
+            </div>
+          )}
         </div>
 
         <nav className={styles.nav}>

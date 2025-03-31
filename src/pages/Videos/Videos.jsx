@@ -13,6 +13,8 @@ import FloatingActionButton from "../../components/FloatingActionButton/Floating
 import Footer from "../../components/Footer/Footer";
 import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationModal";
 import { setVideoList } from "../../reducers/videoNavigation";
+import { usePermissions } from "../../hooks/usePermissions";
+import { USER_ROLES } from "../../utils/constants";
 
 // Debounce utility function
 const debounce = (func, delay) => {
@@ -32,12 +34,20 @@ const Submissions = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
+  const { userRole } = usePermissions();
 
   // Extract all query parameters
   const isSubmission = queryParams.get("isSubmission") === "true";
   const campaignId = queryParams.get("campaignId");
   const isDetailed = queryParams.get("isDetailed") === "true";
   const tag = queryParams.get("tag");
+
+  // Determine if we should show detailed view based on user role
+  // Creators and End Users (ROLE_CREATOR and ROLE_USER) should see detailed view
+  const shouldShowDetailedView = 
+    isDetailed || 
+    userRole === USER_ROLES.CREATOR || 
+    userRole === USER_ROLES.USER;
 
   const [activeTab, setActiveTab] = useState("submissions");
   const [searchQuery, setSearchQuery] = useState("");
@@ -395,11 +405,11 @@ const Submissions = () => {
         >
           <div
             className={`${styles.videoList} ${
-              isDetailed ? styles.detailedList : styles.gridList
+              shouldShowDetailedView ? styles.detailedList : styles.gridList
             } ${isSubmission ? styles.submissionsList : styles.videosList}`}
           >
             {displayedSubmissions.map((video) =>
-              isDetailed ? (
+              shouldShowDetailedView ? (
                 <VideoCardDetailed
                   key={video.id}
                   video={video}

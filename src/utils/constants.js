@@ -1,8 +1,16 @@
 // Mapping of user role authorities to display text
 export const USER_TYPE_DISPLAY = {
-  ROLE_ADMIN: "Super Admin",
+  ROLE_ADMIN: "Admin",
   ROLE_USER: "Creator",
-  ROLE_MANAGER: "Manager",
+  ROLE_SUPER_ADMIN: "Super Admin",
+  ROLE_CREATOR: "End User",
+};
+
+export const USER_ROLES = {
+  USER: "ROLE_USER",
+  ADMIN: "ROLE_ADMIN",
+  CREATOR: "ROLE_CREATOR",
+  SUPER_ADMIN: "ROLE_SUPER_ADMIN",
 };
 
 /**
@@ -13,7 +21,7 @@ export const USER_TYPE_DISPLAY = {
 export const getUserTypeDisplay = (authorities) => {
   // Ensure authorities is an array
   const authArray = Array.isArray(authorities) ? authorities : [];
-  
+
   // Find the first matching authority and return its display text
   const matchedAuthority = authArray.find(
     (authority) => USER_TYPE_DISPLAY[authority]
@@ -42,12 +50,9 @@ export const getUserTitle = (user = {}) => {
 };
 
 export const checkAllowedRole = (allowedRole, userRole) => {
-  // If userRole is a string, convert it to an array
+  const allowedRoles = Array.isArray(allowedRole) ? allowedRole : [allowedRole];
   const roles = Array.isArray(userRole) ? userRole : [userRole];
-  
-  // If roles is empty, return false
-  if (roles.length === 0) return false;
-  
-  // Check if any role is in the allowed roles
-  return roles.some(role => allowedRole.includes(role));
+  if (allowedRoles.length === 0 || roles.length === 0) return false;
+  let result = roles.some((role) => allowedRoles.includes(role));
+  return result;
 };

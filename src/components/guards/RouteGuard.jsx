@@ -45,7 +45,7 @@ const RouteGuard = ({ children, allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (checkAllowedRole(allowedRoles, user.authorities)) {
+  if (!checkAllowedRole(allowedRoles, user.authorities)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

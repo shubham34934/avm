@@ -1,6 +1,5 @@
 import { lazy } from "react";
-import { USER_ROLES } from "../constants/navigation";
-
+import { USER_ROLES } from "../utils/constants";
 // Import pages
 const Home = lazy(() => import("../pages/Home/Home"));
 const UserHome = lazy(() => import("../pages/UserHome/UserHome"));
@@ -37,15 +36,15 @@ export const routes = [
     component: Home,
     allowedRoles: [
       USER_ROLES.SUPER_ADMIN,
-      USER_ROLES.BRAND_ADMIN,
-      USER_ROLES.END_USER,
+      USER_ROLES.ADMIN,
+      USER_ROLES.USER,
       USER_ROLES.CREATOR,
     ],
   },
   {
     path: "/user-home",
     component: UserHome,
-    allowedRoles: [USER_ROLES.END_USER],
+    allowedRoles: [USER_ROLES.USER],
   },
   {
     path: "/brands",
@@ -60,17 +59,17 @@ export const routes = [
   {
     path: "/campaign",
     component: Campaign,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN],
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
   {
     path: "/campaign/create",
     component: CreateCampaign,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN],
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
   {
     path: "/campaign/:id",
     component: CampaignDetails,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN],
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
   {
     path: "/videos/:id",
@@ -80,8 +79,8 @@ export const routes = [
     },
     allowedRoles: [
       USER_ROLES.SUPER_ADMIN,
-      USER_ROLES.BRAND_ADMIN,
-      USER_ROLES.END_USER,
+      USER_ROLES.ADMIN,
+      USER_ROLES.USER,
       USER_ROLES.CREATOR,
     ],
   },
@@ -90,8 +89,8 @@ export const routes = [
     component: Videos,
     allowedRoles: [
       USER_ROLES.SUPER_ADMIN,
-      USER_ROLES.BRAND_ADMIN,
-      USER_ROLES.END_USER,
+      USER_ROLES.ADMIN,
+      USER_ROLES.USER,
       USER_ROLES.CREATOR,
     ],
   },
@@ -100,8 +99,8 @@ export const routes = [
     component: UploadVideo,
     allowedRoles: [
       USER_ROLES.SUPER_ADMIN,
-      USER_ROLES.BRAND_ADMIN,
-      USER_ROLES.END_USER,
+      USER_ROLES.ADMIN,
+      USER_ROLES.USER,
       USER_ROLES.CREATOR,
     ],
   },
@@ -110,25 +109,25 @@ export const routes = [
     component: UploadVideo,
     allowedRoles: [
       USER_ROLES.SUPER_ADMIN,
-      USER_ROLES.BRAND_ADMIN,
-      USER_ROLES.END_USER,
+      USER_ROLES.ADMIN,
+      USER_ROLES.USER,
       USER_ROLES.CREATOR,
     ],
   },
   {
     path: "/users",
     component: Users,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN],
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
   {
     path: "/users/:username",
     component: UserDetail,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN],
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
   {
     path: "/ai-tools",
     component: AITools,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.BRAND_ADMIN],
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
 ];
 

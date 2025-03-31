@@ -33,7 +33,7 @@ const VideoCard = ({
   campaignName,
   userName,
   timestamp,
-  status,
+  status = "",
   thumbnail,
   onClick,
   onEdit,

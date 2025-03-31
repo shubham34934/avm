@@ -7,7 +7,7 @@ const ListCard = ({
   image,
   title,
   subtitle,
-  status,
+  status = "",
   onClick,
   menuIcon,
   onMenuClick,

@@ -98,7 +98,13 @@ const VideoCarousel = ({ videos = [], title, viewAllLink }) => {
                 <div className={styles.videoTitle}>
                   <h3>{title}</h3>
                 </div>
-                <div className={styles.playButton}>
+                <div 
+                  className={styles.playButton}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the card click
+                    navigate(`/videos/${id}`);
+                  }}
+                >
                   <CirclePlayIcon />
                 </div>
               </div>

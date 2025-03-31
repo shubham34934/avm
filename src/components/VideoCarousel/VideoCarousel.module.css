@@ -169,11 +169,18 @@
   transition: all 0.2s ease;
   z-index: 5;
   flex-shrink: 0;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .playButton:hover {
   transform: scale(1.1);
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(255, 107, 0, 0.8); /* Orange color on hover */
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.5);
+}
+
+.playButton:active {
+  transform: scale(0.95);
 }
 
 .controls {

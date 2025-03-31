@@ -21,6 +21,17 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/api/, '/api')
         }
       }
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: mode !== 'production',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+          }
+        }
+      }
     }
   };
 });

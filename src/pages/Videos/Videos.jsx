@@ -448,9 +448,7 @@ const Submissions = () => {
                   onCloseMenu={handleCloseMenu}
                   data-menu-button={`menu-${video.id}`}
                   tags={(() => {
-                    console.log("Video object in Videos:", video);
                     const tags = generateVideoTags(video);
-                    console.log("Generated tags in Videos:", tags);
                     return tags;
                   })()}
                 />

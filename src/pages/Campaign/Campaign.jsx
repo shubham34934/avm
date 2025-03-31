@@ -17,6 +17,7 @@ import Popover from "../../components/Popover/Popover";
 import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationModal";
 import { usePermissions } from "../../hooks/usePermissions";
 import { USER_ROLES } from "../../utils/constants";
+import { isCampaignInProgress } from "../../utils/dateUtils";
 
 const Campaign = () => {
   const navigate = useNavigate();
@@ -237,7 +238,12 @@ const Campaign = () => {
                 </Popover>
               ) : null
             }
-            actionText={isCreator ? "Submit Video" : null}
+            actionText={
+              isCreator &&
+              isCampaignInProgress(campaign.startDate, campaign.endDate)
+                ? "Submit Video"
+                : null
+            }
             // actionText={isCreator && campaign.status === "ACTIVE" ? "Submit Video" : null}
             onActionClick={() => handleSubmitVideo(campaign)}
           />

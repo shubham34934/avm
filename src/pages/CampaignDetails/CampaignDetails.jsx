@@ -23,6 +23,10 @@ import MoreIcon from "./../../assets/icons/more.svg";
 import rightArrow from "./../../assets/icons/rightArrow.svg";
 import { usePermissions } from "../../hooks/usePermissions";
 import { USER_ROLES } from "../../utils/constants";
+import {
+  isCampaignInProgress,
+  getCampaignTimeStatus,
+} from "../../utils/dateUtils";
 
 // Icons
 import rescheduleIcon from "../../assets/icons/campaign_timeline/reschedule.svg";
@@ -44,6 +48,7 @@ const CampaignDetails = () => {
   const { userRole } = usePermissions();
   const isAdminOrSuperAdmin =
     userRole === USER_ROLES.ADMIN || userRole === USER_ROLES.SUPER_ADMIN;
+  const isCreator = userRole === USER_ROLES.CREATOR;
 
   const {
     selectedCompetition,
@@ -597,6 +602,22 @@ const CampaignDetails = () => {
         {campaignStatus === "ended" && <span>Campaign ended</span>}
       </div>
 
+      {/* Floating Submit Video button - only visible for creators and active campaigns */}
+      {isCreator &&
+        isCampaignInProgress(
+          selectedCompetition.startDate,
+          selectedCompetition.endDate
+        ) && (
+          <div className={styles.floatingButtonContainer}>
+            <Button
+              variant="primary"
+              className={styles.floatingButton}
+              onClick={() => navigate(`/uploadVideo?campaignId=${id}`)}
+            >
+              Submit Video +
+            </Button>
+          </div>
+        )}
       <div className={styles.content}>
         <div className={styles.info}>
           <DateRange

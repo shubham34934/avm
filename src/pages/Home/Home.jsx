@@ -6,6 +6,7 @@ import { fetchCompetitions } from "../../reducers/competitions";
 import { fetchVideoPosts } from "../../reducers/videoPosts";
 import { usePermissions } from "../../hooks/usePermissions";
 import { generateVideoTags } from "../../utils/videoUtils";
+import { isCampaignInProgress } from "../../utils/dateUtils";
 
 // Components
 import Header from "../../components/Header/Header";
@@ -225,8 +226,8 @@ const Home = () => {
   }, [dispatch, canViewMostUpvoted, canViewVideoCarousel, canViewFeedVideos]);
 
   // Calculate stats based on the data we have
-  const liveCount = competitions.filter(
-    (c) => c.status === "ACTIVE" || c.status === "Active"
+  const liveCount = competitions.filter((campaign) =>
+    isCampaignInProgress(campaign.startDate, campaign.endDate)
   ).length;
 
   const completeCount = competitions.filter(
@@ -235,7 +236,7 @@ const Home = () => {
 
   const stats = [
     { title: "Live", value: liveCount },
-    { title: "Complete", value: completeCount },
+    { title: "Completed", value: completeCount },
     { title: "Submission", value: videoPosts.length },
   ];
 
@@ -377,7 +378,7 @@ const Home = () => {
               onClick={() => {
                 if (stat.title === "Live") {
                   navigate("/campaign?status=active");
-                } else if (stat.title === "Complete") {
+                } else if (stat.title === "Completed") {
                   navigate("/campaign?status=completed");
                 } else if (stat.title === "Submission") {
                   navigate("/videos");
@@ -437,32 +438,45 @@ const Home = () => {
             ) : competitions.length === 0 ? (
               <p className={styles.emptyMessage}>No campaigns available.</p>
             ) : (
-              competitions.slice(0, 2).map((campaign) => (
-                <CampaignCard
-                  key={campaign.id}
-                  name={campaign.title}
-                  startDate={new Date(campaign.startDate).toLocaleDateString(
-                    "en-US",
-                    {
-                      day: "2-digit",
-                      month: "short",
+              competitions
+                .filter((campaign) =>
+                  isCampaignInProgress(campaign.startDate, campaign.endDate)
+                )
+                .slice(0, 2)
+                .map((campaign) => (
+                  <CampaignCard
+                    key={campaign.id}
+                    name={campaign.title}
+                    startDate={new Date(campaign.startDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}
+                    endDate={new Date(campaign.endDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}
+                    amount={campaign.totalPrizeValue}
+                    actionText={
+                      isCreator &&
+                      isCampaignInProgress(campaign.startDate, campaign.endDate)
+                        ? "Submit Video"
+                        : null
                     }
-                  )}
-                  endDate={new Date(campaign.endDate).toLocaleDateString(
-                    "en-US",
-                    {
-                      day: "2-digit",
-                      month: "short",
+                    status={campaign.status}
+                    brandName={campaign.sponsor?.name || "Brand Name"}
+                    brandLogo={campaign.sponsor?.logo || brandLogo}
+                    onClick={() => navigate(`/campaign/${campaign.id}`)}
+                    onActionClick={() =>
+                      navigate(`/uploadVideo?campaignId=${campaign.id}`)
                     }
-                  )}
-                  amount={campaign.totalPrizeValue}
-                  actionText={isCreator ? "Submit Video" : null}
-                  status={campaign.status}
-                  brandName={campaign.sponsor?.name || "Brand Name"}
-                  brandLogo={campaign.sponsor?.logo || brandLogo}
-                  onClick={() => navigate(`/campaign/${campaign.id}`)}
-                />
-              ))
+                  />
+                ))
             )}
           </div>
         </section>
@@ -499,9 +513,7 @@ const Home = () => {
               <p className={styles.emptyMessage}>No videos available.</p>
             ) : (
               videoPosts.slice(0, 5).map((video) => {
-                console.log("Video object in Home:", video);
                 const tags = generateVideoTags(video);
-                console.log("Generated tags:", tags);
                 return (
                   <VideoCard
                     key={video.id}

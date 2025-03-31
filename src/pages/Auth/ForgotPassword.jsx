@@ -34,7 +34,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <Container className="login-container">
+    <Container className="forgot-password-container">
       <Row className="justify-content-center w-100">
         <Col md={6} lg={4}>
           <Form onSubmit={handleForgotPassword} className="auth-form">

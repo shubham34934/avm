@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../config/store";
 import { fetchCompetitions } from "../../reducers/competitions";
 import { fetchVideoPosts } from "../../reducers/videoPosts";
 import { usePermissions } from "../../hooks/usePermissions";
+import { generateVideoTags } from "../../utils/videoUtils";
 
 // Components
 import Header from "../../components/Header/Header";
@@ -490,16 +491,30 @@ const Home = () => {
             ) : (
               videoPosts
                 .slice(0, 5)
-                .map((video) => (
-                  <VideoCard
-                    key={video.id}
-                    id={video.id}
-                    title={video.title}
-                    views={video.views || "0"}
-                    thumbnail={video.url}
-                    onClick={() => navigate(`/videos/${video.id}`)}
-                  />
-                ))
+                .map((video) => {
+                  console.log("Video object in Home:", video);
+                  const tags = generateVideoTags(video);
+                  console.log("Generated tags:", tags);
+                  return (
+                    <VideoCard
+                      key={video.id}
+                      id={video.id}
+                      title={video.title}
+                      campaignName={video.competition || "General Campaign"}
+                      userName={video.updatedBy || "Anonymous"}
+                      timestamp={
+                        video.createdOn
+                          ? new Date(video.createdOn).toLocaleDateString()
+                          : "Recent"
+                      }
+                      status={video.status || "PUBLISHED"}
+                      views={video.views || "0"}
+                      thumbnail={video.url}
+                      onClick={() => navigate(`/videos/${video.id}`)}
+                      tags={tags}
+                    />
+                  );
+                })
             )}
           </div>
         </section>

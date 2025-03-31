@@ -15,6 +15,7 @@ import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationMo
 import { setVideoList } from "../../reducers/videoNavigation";
 import { usePermissions } from "../../hooks/usePermissions";
 import { USER_ROLES } from "../../utils/constants";
+import { generateVideoTags } from "../../utils/videoUtils";
 
 // Debounce utility function
 const debounce = (func, delay) => {
@@ -435,6 +436,12 @@ const Submissions = () => {
                   onMenuClick={(e) => handleMenuClick(video.id, e)}
                   onCloseMenu={handleCloseMenu}
                   data-menu-button={`menu-${video.id}`}
+                  tags={(() => {
+                    console.log('Video object in Videos:', video);
+                    const tags = generateVideoTags(video);
+                    console.log('Generated tags in Videos:', tags);
+                    return tags;
+                  })()}
                 />
               )
             )}

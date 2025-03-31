@@ -63,7 +63,6 @@ const Campaign = () => {
           status: statusFilter,
         })
       ).unwrap();
-      console.log("API Response:", result);
     } catch (error) {
       console.error("Error fetching competitions:", error);
     }

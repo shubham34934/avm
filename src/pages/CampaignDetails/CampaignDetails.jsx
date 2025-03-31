@@ -288,7 +288,7 @@ const CampaignDetails = () => {
           id: selectedCompetition.id,
           status: "Active",
           username: user?.login || "current_user",
-          sponsor: selectedCompetition.sponsor
+          sponsor: selectedCompetition.sponsor,
         })
       ).unwrap();
       toast.success("Campaign resumed successfully");
@@ -313,7 +313,7 @@ const CampaignDetails = () => {
           status || (rescheduleActionType === "pause" ? "Paused" : "Scheduled"),
         remark,
         username: user?.login || "current_user",
-        sponsor: selectedCompetition.sponsor
+        sponsor: selectedCompetition.sponsor,
       };
 
       // Add dates if provided
@@ -556,7 +556,6 @@ const CampaignDetails = () => {
     month: "short",
   });
 
-  console.log({ selectedCompetition });
   return (
     <div className={styles.container}>
       <Header

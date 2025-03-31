@@ -2,31 +2,7 @@ import PropTypes from "prop-types";
 import styles from "./VideoCard.module.css";
 import Tag from "../../components/Tag/Tag";
 import defaultThumbnail from "./../../assets/images/default-thumbnail.png";
-
-// Function to extract YouTube thumbnail
-const getYouTubeThumbnail = (videoUrl) => {
-  try {
-    // Regular expressions to match different YouTube URL formats
-    const youtubeRegex =
-      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = videoUrl.match(youtubeRegex);
-
-    if (match && match[1]) {
-      const videoId = match[1];
-      // Return different quality thumbnails in order of preference
-      const thumbnailSizes = [
-        `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-        `https://img.youtube.com/vi/${videoId}/sddefault.jpg`,
-        `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-        `https://img.youtube.com/vi/${videoId}/default.jpg`,
-      ];
-      return thumbnailSizes;
-    }
-  } catch (error) {
-    console.error("Error extracting YouTube thumbnail:", error);
-  }
-  return null;
-};
+import { getYouTubeThumbnail } from "../../utils/videoUtils";
 
 const VideoCard = ({
   title,
@@ -42,8 +18,8 @@ const VideoCard = ({
   showMenu,
   onMenuClick,
   onCloseMenu,
+  tags = [],
 }) => {
-  console.log({ title, campaignName, userName, timestamp, status, thumbnail });
   // Try to get YouTube thumbnails if the thumbnail is a YouTube URL
   const youtubeThumbnails = thumbnail && getYouTubeThumbnail(thumbnail);
 
@@ -116,7 +92,22 @@ const VideoCard = ({
             {userName && <span className={styles.userName}>@{userName}</span>}
             <span className={styles.timestamp}>{timestamp}</span>
           </div>
-          <Tag text={status} variant={status.toLowerCase()} size="small" />
+          <div className={styles.tags}>
+            {/* Display the status tag if no custom tags are provided */}
+            {tags.length === 0 && status && (
+              <Tag text={status} variant={status.toLowerCase()} size="small" />
+            )}
+
+            {/* Display all custom tags */}
+            {tags.map((tag, index) => (
+              <Tag
+                key={index}
+                text={tag.text}
+                variant={tag.variant}
+                size="small"
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -137,6 +128,12 @@ VideoCard.propTypes = {
   showMenu: PropTypes.bool,
   onMenuClick: PropTypes.func,
   onCloseMenu: PropTypes.func,
+  tags: PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string.isRequired,
+      variant: PropTypes.string.isRequired,
+    })
+  ),
 };
 
 export default VideoCard;

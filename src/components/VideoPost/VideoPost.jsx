@@ -17,7 +17,6 @@ const VideoPost = ({ post }) => {
     return `${Math.floor(diffInDays / 30)} months ago`;
   };
 
-  console.log({ post });
   return (
     <div className={styles.container}>
       <div className={styles.header}>

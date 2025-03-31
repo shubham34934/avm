@@ -107,6 +107,13 @@
   white-space: nowrap;
 }
 
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-1);
+}
+
 .menuContainer {
   position: relative;
   display: flex;

@@ -109,7 +109,6 @@ export const fetchCompetitions = createAsyncThunk(
         params.status = status;
       }
 
-      console.log({ params }, "sfsfs");
       const response = await axios.get(`${ENV.VITE_APP_API_URL}/competitions`, {
         params,
       });

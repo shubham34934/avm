@@ -215,11 +215,16 @@ const UploadVideo = () => {
       const payload: any = {
         title: formData.title,
         description: formData.description,
-        url: formData.videoUrl,
         urlType: formData.urlType,
         tags: [],
         // topic: formData.topic,
       };
+
+      // Add videoUrl to payload for non-local uploads
+      if (formData.urlType !== "LocalVideoUpload" || isEditMode) {
+        payload.url = formData.videoUrl;
+        payload.videoUrl = formData.videoUrl; // Add both formats to ensure compatibility
+      }
 
       if (campaignId) {
         payload.competition = { id: parseInt(campaignId) };

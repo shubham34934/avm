@@ -128,9 +128,9 @@ const UploadVideo = () => {
     // Remove leading/trailing whitespace
     url = url.trim();
 
-    // YouTube URL validation
+    // YouTube URL validation (including Shorts)
     const youtubeRegex =
-      /^(https?\:\/\/)?(www\.youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      /^(https?\:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/;
 
     // Instagram URL validation (basic pattern)
     const instagramRegex =

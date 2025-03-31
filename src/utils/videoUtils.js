@@ -90,14 +90,14 @@ export const generateVideoTags = (video) => {
 
 /**
  * Extracts YouTube thumbnail URLs from a YouTube video URL
- * @param {string} videoUrl - The YouTube video URL
+ * @param {string} videoUrl - The YouTube video URL (standard or Shorts)
  * @returns {Array|null} Array of thumbnail URLs in different qualities, or null if not a valid YouTube URL
  */
 export const getYouTubeThumbnail = (videoUrl) => {
   try {
-    // Regular expressions to match different YouTube URL formats
+    // Regular expressions to match different YouTube URL formats (including Shorts)
     const youtubeRegex =
-      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const match = videoUrl.match(youtubeRegex);
 
     if (match && match[1]) {

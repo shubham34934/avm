@@ -222,9 +222,12 @@ const VideoPlayer = () => {
     let activeVideoIndex = -1;
     let closestDistance = Infinity;
 
-    playerRefs.current.forEach((player, index) => {
-      if (!player) return;
-      const rect = player.getBoundingClientRect();
+    // Find the closest video to the middle of the viewport
+    const videoElements = container.querySelectorAll(`.${styles.videoWrapper}`);
+    videoElements.forEach((element, index) => {
+      if (index >= videoList.length) return;
+      
+      const rect = element.getBoundingClientRect();
       const distanceToMiddle = Math.abs(
         rect.top + rect.height / 2 - middlePoint
       );
@@ -235,42 +238,24 @@ const VideoPlayer = () => {
       }
     });
 
-    if (activeVideoIndex !== -1) {
+    if (activeVideoIndex !== -1 && activeVideoIndex !== currentVideoIndex) {
       const videoId = videoList[activeVideoIndex].id;
 
+      // Update URL only if the video ID has changed
       if (currentVideoId !== videoId.toString()) {
         updateUrlWithDebounce(videoId);
       }
 
-      playerRefs.current.forEach((player, index) => {
-        if (!player) return;
-
-        try {
-          if (index === activeVideoIndex) {
-            player.contentWindow.postMessage(
-              JSON.stringify({
-                event: "command",
-                func: "playVideo",
-                args: "",
-              }),
-              "*"
-            );
-          } else {
-            player.contentWindow.postMessage(
-              JSON.stringify({
-                event: "command",
-                func: "pauseVideo",
-                args: "",
-              }),
-              "*"
-            );
-          }
-        } catch (error) {
-          console.error("Error controlling video:", error);
-        }
-      });
+      // Update the current video index in Redux
+      dispatch(
+        setVideoList({
+          videos: videoList,
+          initialIndex: activeVideoIndex,
+          context: navigationContext,
+        })
+      );
     }
-  }, [videoList, currentVideoId, updateUrlWithDebounce, isScrolling]);
+  }, [videoList, currentVideoId, updateUrlWithDebounce, isScrolling, currentVideoIndex, dispatch, navigationContext]);
 
   useEffect(() => {
     if (
@@ -315,7 +300,7 @@ const VideoPlayer = () => {
     };
   }, [handleScroll]);
 
-  const getEmbedUrl = (url) => {
+  const getEmbedUrl = (url, autoplay = false) => {
     if (!url) return "";
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
       let videoId = "";
@@ -329,12 +314,31 @@ const VideoPlayer = () => {
         if (videoId.includes("?")) {
           videoId = videoId.split("?")[0];
         }
+      } else if (url.includes("youtube.com/shorts")) {
+        videoId = url.split("/").pop();
+        if (videoId.includes("?")) {
+          videoId = videoId.split("?")[0];
+        }
       }
       if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=0&controls=1&rel=0&showinfo=0&modestbranding=1&origin=${window.location.origin}`;
+        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=${autoplay ? 1 : 0}&mute=0&controls=1&rel=0&showinfo=0&modestbranding=1&origin=${window.location.origin}`;
       }
     }
     return url;
+  };
+
+  const getVideoIdFromUrl = (url) => {
+    if (url.includes("youtube.com/watch")) {
+      const urlParams = new URLSearchParams(url.split("?")[1]);
+      return urlParams.get("v");
+    } else if (url.includes("youtu.be")) {
+      return url.split("/").pop();
+    } else if (url.includes("youtube.com/embed")) {
+      return url.split("/").pop().split("?")[0];
+    } else if (url.includes("youtube.com/shorts")) {
+      return url.split("/").pop().split("?")[0];
+    }
+    return "";
   };
 
   if (isLoading) {
@@ -384,69 +388,89 @@ const VideoPlayer = () => {
         className={styles.videoContainer}
         style={{ height: "100vh", overflowY: "scroll" }}
       >
-        {videoList.map((video, index) => (
-          <div key={video.id} className={styles.videoWrapper}>
-            <div
-              className={styles.video}
-              onClick={() => handleVideoClick(index)}
-            >
-              <iframe
-                ref={(el) => (playerRefs.current[index] = el)}
-                src={getEmbedUrl(video.url || video.videoUrl)}
-                title={video.title}
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope"
-                allowFullScreen
-                loading="lazy"
-                frameBorder="0"
-              />
-              <div className={styles.videoOverlay}></div>
-            </div>
-            <div className={styles.overlay}>
-              <div className={styles.videoInfo}>
-                <div className={styles.details}>
-                  <div className={styles.userInfo}>
+        {videoList.map((video, index) => {
+          // Only render iframe for current video and adjacent videos (for smoother navigation)
+          const shouldRenderIframe = Math.abs(index - currentVideoIndex) <= 1;
+          const videoUrl = video.url || video.videoUrl;
+
+          return (
+            <div key={video.id} className={styles.videoWrapper}>
+              <div
+                className={styles.video}
+                onClick={() => handleVideoClick(index)}
+              >
+                {shouldRenderIframe ? (
+                  <iframe
+                    ref={(el) => (playerRefs.current[index] = el)}
+                    src={getEmbedUrl(videoUrl, index === currentVideoIndex)}
+                    title={video.title}
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope"
+                    allowFullScreen
+                    loading="lazy"
+                    frameBorder="0"
+                  />
+                ) : (
+                  <div className={styles.placeholderVideo}>
                     <img
-                      src={video.userProfilePicture || defaultAvatar}
-                      alt={video.username}
-                      className={styles.avatar}
+                      src={
+                        video.thumbnail ||
+                        `https://img.youtube.com/vi/${getVideoIdFromUrl(
+                          videoUrl
+                        )}/hqdefault.jpg`
+                      }
+                      alt={video.title}
+                      className={styles.thumbnailImage}
                     />
-                    <div className={styles.userInfoDetails}>
-                      <h2 className={styles.title}>{video.title}</h2>
-                      <div className={styles.username}>@{video.createdBy}</div>
+                  </div>
+                )}
+              </div>
+              <div className={styles.overlay}>
+                <div className={styles.videoInfo}>
+                  <div className={styles.details}>
+                    <div className={styles.userInfo}>
+                      <img
+                        src={video.userProfilePicture || defaultAvatar}
+                        alt={video.username}
+                        className={styles.avatar}
+                      />
+                      <div className={styles.userInfoDetails}>
+                        <h2 className={styles.title}>{video.title}</h2>
+                        <div className={styles.username}>@{video.createdBy}</div>
+                      </div>
                     </div>
                   </div>
+                  <button className={styles.actionButton}>
+                    <MoreIconVerticle />
+                  </button>
                 </div>
-                <button className={styles.actionButton}>
-                  <MoreIconVerticle />
+                <div className={styles.sideActions}>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => handleLike(video.id)}
+                  >
+                    <LikeIcon />
+                    <span>{video.likes || 0}</span>
+                  </button>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => handleDislike(video.id)}
+                  >
+                    <DislikeIcon />
+                  </button>
+                  <button className={styles.actionButton}>
+                    <ShareIcon />
+                  </button>
+                </div>
+                <button
+                  className={styles.shortlistButton}
+                  onClick={() => handleShortlist(video.id)}
+                >
+                  Shortlist
                 </button>
               </div>
-              <div className={styles.sideActions}>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => handleLike(video.id)}
-                >
-                  <LikeIcon />
-                  <span>{video.likes || 0}</span>
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => handleDislike(video.id)}
-                >
-                  <DislikeIcon />
-                </button>
-                <button className={styles.actionButton}>
-                  <ShareIcon />
-                </button>
-              </div>
-              <button
-                className={styles.shortlistButton}
-                onClick={() => handleShortlist(video.id)}
-              >
-                Shortlist
-              </button>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

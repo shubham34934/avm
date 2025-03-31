@@ -244,6 +244,24 @@
   background-color: var(--primary-dark);
 }
 
+.placeholderVideo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  cursor: pointer;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: 100%;
+}
+
 /* Hide scrollbar */
 .videoContainer::-webkit-scrollbar {
   display: none;

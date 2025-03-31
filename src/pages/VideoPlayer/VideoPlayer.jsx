@@ -15,14 +15,18 @@ import { setVideoList } from "../../reducers/videoNavigation";
 import { fetchVideoPosts, fetchVideoPostById } from "../../reducers/videoPosts";
 import { toggleLike, toggleShortlist } from "../../reducers/submissions";
 import defaultAvatar from "../../assets/images/default-avatar.png";
+import { useUser } from "../../hooks/useUser";
+import { USER_ROLES } from "../../utils/constants";
 
 const VideoPlayer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id: currentVideoId } = useParams();
+  const location = useLocation();
   const { videoList, currentVideoIndex, navigationContext } = useSelector(
     (state) => state.videoNavigation
   );
+  const { user } = useUser();
   const videoContainerRef = useRef(null);
   const playerRefs = useRef([]);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -31,6 +35,18 @@ const VideoPlayer = () => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [initialScrollDone, setInitialScrollDone] = useState(false);
   const [urlUpdateInProgress, setUrlUpdateInProgress] = useState(false);
+  const [initialPath, setInitialPath] = useState("");
+
+  // Store the initial entry path
+  useEffect(() => {
+    // Only set the initial path once when the component mounts
+    if (!initialPath) {
+      // Check if we have a from path in location state, otherwise use -1
+      const fromPath = location.state?.from;
+      console.log("Initial navigation path:", fromPath);
+      setInitialPath(fromPath || "/videos");
+    }
+  }, [location.state, initialPath]);
 
   // Check if we already have the video in the list
   const findVideoInList = useCallback(
@@ -140,7 +156,15 @@ const VideoPlayer = () => {
       });
   };
 
-  const handleBack = () => navigate(-1);
+  const handleBack = () => {
+    // Navigate to the stored initial path if available, otherwise go to videos page
+    console.log("Navigating back to:", initialPath);
+    if (initialPath) {
+      navigate(initialPath, { replace: true });
+    } else {
+      navigate("/videos", { replace: true });
+    }
+  };
 
   const handleVideoClick = (index) => {
     const player = playerRefs.current[index];
@@ -341,6 +365,15 @@ const VideoPlayer = () => {
     return "";
   };
 
+  // Check if user is admin or super admin
+  const isAdminOrSuperAdmin = useCallback(() => {
+    if (!user || !user.authorities) return false;
+    return (
+      user.authorities.includes(USER_ROLES.ADMIN) ||
+      user.authorities.includes(USER_ROLES.SUPER_ADMIN)
+    );
+  }, [user]);
+
   if (isLoading) {
     return (
       <div className={styles.loadingContainer}>
@@ -461,12 +494,14 @@ const VideoPlayer = () => {
                     <ShareIcon />
                   </button>
                 </div>
-                <button
-                  className={styles.shortlistButton}
-                  onClick={() => handleShortlist(video.id)}
-                >
-                  Shortlist
-                </button>
+                {isAdminOrSuperAdmin() && (
+                  <button
+                    className={styles.shortlistButton}
+                    onClick={() => handleShortlist(video.id)}
+                  >
+                    Shortlist
+                  </button>
+                )}
               </div>
             </div>
           );

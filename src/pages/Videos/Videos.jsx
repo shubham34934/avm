@@ -257,8 +257,14 @@ const Submissions = () => {
       })
     );
 
-    // Navigate to the video player
-    navigate(`/videos/${submissionId}`);
+    // Store the exact current path for returning later
+    const currentPath = location.pathname + location.search;
+    console.log("Storing current path for back navigation:", currentPath);
+    
+    // Navigate to the video player with the current location as state
+    navigate(`/videos/${submissionId}`, {
+      state: { from: currentPath }
+    });
   };
 
   const handleShortlist = async (submissionId) => {

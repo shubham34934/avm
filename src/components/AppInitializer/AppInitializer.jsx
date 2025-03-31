@@ -1,33 +1,52 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getAccount } from "../../reducers/authentication";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 const AppInitializer = ({ children }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     const initializeApp = async () => {
-      // Skip if we already have account data or have initialized
+      // Skip if we already have initialized
       if (initialized) {
         return;
       }
+      
+      // Mark as initialized to prevent loops
       setInitialized(true);
+      
+      // Check if we're on a public route
+      const isPublicRoute = [
+        "/login",
+        "/register",
+        "/forgot-password",
+        "/reset-password",
+        "/logout",
+      ].some(route => location.pathname.startsWith(route));
+      
+      // Skip authentication check for public routes
+      if (isPublicRoute) {
+        return;
+      }
+      
       try {
+        // Uncomment this when backend is ready
         // await dispatch(getAccount()).unwrap();
       } catch (error) {
-        // If we get a 401 or any error, redirect to login
-        if (!window.location.pathname.startsWith("/login")) {
+        // Only redirect to login if not already on a public route
+        if (!isPublicRoute) {
           navigate("/login");
         }
       }
     };
 
     initializeApp();
-  }, [initialized]);
+  }, [dispatch, navigate, location.pathname, initialized]);
 
   // Show loading only during initial load
   if (!initialized) {

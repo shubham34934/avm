@@ -322,7 +322,11 @@ const Home = () => {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Loading...</div>;
+    return (
+      <div className={styles.loading}>
+        <div className={styles.loadingText}>Loading...</div>
+      </div>
+    );
   }
 
   // Determine the appropriate header title based on user role

@@ -45,9 +45,9 @@ const Submissions = () => {
 
   // Determine if we should show detailed view based on user role
   // Creators and End Users (ROLE_CREATOR and ROLE_USER) should see detailed view
-  const shouldShowDetailedView = 
-    isDetailed || 
-    userRole === USER_ROLES.CREATOR || 
+  const shouldShowDetailedView =
+    isDetailed ||
+    userRole === USER_ROLES.CREATOR ||
     userRole === USER_ROLES.USER;
 
   const [activeTab, setActiveTab] = useState("submissions");
@@ -260,10 +260,10 @@ const Submissions = () => {
     // Store the exact current path for returning later
     const currentPath = location.pathname + location.search;
     console.log("Storing current path for back navigation:", currentPath);
-    
+
     // Navigate to the video player with the current location as state
     navigate(`/videos/${submissionId}`, {
-      state: { from: currentPath }
+      state: { from: currentPath },
     });
   };
 
@@ -399,7 +399,9 @@ const Submissions = () => {
         </div>
       )}
       {videoPostsLoading ? (
-        <div className={styles.loading}>Loading...</div>
+        <div className={styles.loading}>
+          <div className={styles.loadingText}>Loading...</div>
+        </div>
       ) : (
         <InfiniteLoader
           onLoadMore={handleLoadMore}
@@ -446,9 +448,9 @@ const Submissions = () => {
                   onCloseMenu={handleCloseMenu}
                   data-menu-button={`menu-${video.id}`}
                   tags={(() => {
-                    console.log('Video object in Videos:', video);
+                    console.log("Video object in Videos:", video);
                     const tags = generateVideoTags(video);
-                    console.log('Generated tags in Videos:', tags);
+                    console.log("Generated tags in Videos:", tags);
                     return tags;
                   })()}
                 />

@@ -125,7 +125,7 @@ const Header = ({
                   value={searchValue}
                   onChange={handleSearchChange}
                   onBlur={handleSearchBlur}
-                  placeholder="Search campaigns..."
+                  placeholder={`Search ${title || config.title || 'items'}...`}
                   className={styles.searchInput}
                   autoFocus
                 />

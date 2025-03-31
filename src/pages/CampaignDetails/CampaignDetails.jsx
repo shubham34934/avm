@@ -551,7 +551,11 @@ const CampaignDetails = () => {
   };
 
   if (competitionLoading || userLoading || videoPostsLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className={styles.loading}>
+        <div className={styles.loadingText}>Loading...</div>
+      </div>
+    );
   }
 
   if (error) {

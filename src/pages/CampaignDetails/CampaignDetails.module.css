@@ -229,3 +229,18 @@
   font-size: var(--text-xs);
   color: var(--text-secondary);
 }
+
+.loading {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 160px);
+}
+
+.loadingText {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  text-align: center;
+  font-weight: var(--font-medium);
+}

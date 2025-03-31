@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { getAccount } from "../../reducers/authentication";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import styles from "./RouteGuard.module.css";
 
 const RouteGuard = ({ children, allowedRoles }) => {
   const [initialized, setInitialized] = useState(false);
@@ -38,7 +39,11 @@ const RouteGuard = ({ children, allowedRoles }) => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingText}>Loading...</div>
+      </div>
+    );
   }
 
   if (!user) {

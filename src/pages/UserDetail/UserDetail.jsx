@@ -17,6 +17,8 @@ import { toast } from "react-toastify";
 import editIcon from "../../assets/icons/edit.svg";
 import Tag from "../../components/Tag/Tag";
 import AvatarModal from "../../components/AvatarModal/AvatarModal";
+import { usePermissions } from "../../hooks/usePermissions";
+import { USER_ROLES } from "../../utils/constants";
 
 const UserDetail = () => {
   const { username } = useParams();
@@ -25,6 +27,10 @@ const UserDetail = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const { userRole } = usePermissions();
+
+  // Check if edit button should be visible (not visible for ROLE_CREATOR and ROLE_USER)
+  const showEditButton = userRole !== USER_ROLES.CREATOR && userRole !== USER_ROLES.USER;
 
   const {
     selectedUser: user,
@@ -322,7 +328,17 @@ const UserDetail = () => {
               Save Changes
             </Button>
           ) : (
-            <></>
+            showEditButton && (
+              <Button
+                onClick={handleEdit}
+                variant="secondary"
+                style={{ width: "100%" }}
+                className={styles.editButton}
+              >
+                <img src={editIcon} alt="" className={styles.buttonIcon} />
+                Edit Profile
+              </Button>
+            )
           )}
         </div>
 

@@ -42,11 +42,6 @@ export const routes = [
     ],
   },
   {
-    path: "/user-home",
-    component: UserHome,
-    allowedRoles: [USER_ROLES.USER],
-  },
-  {
     path: "/brands",
     component: Brands,
     allowedRoles: [USER_ROLES.SUPER_ADMIN],

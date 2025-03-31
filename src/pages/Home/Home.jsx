@@ -397,15 +397,6 @@ const Home = () => {
         />
       )}
 
-      {/* Category Grid/Quick Filters - visible to User and Creator */}
-      {canViewCategoryGrid && (
-        <CategoryGrid
-          title="Quick Filters"
-          categories={categories}
-          viewAllLink="/categories"
-        />
-      )}
-
       {/* Live Campaigns section - visible to Creator, Admin, Super Admin */}
       {canViewLiveCampaigns && (
         <section className={styles.section}>
@@ -510,6 +501,15 @@ const Home = () => {
             )}
           </div>
         </section>
+      )}
+
+      {/* Category Grid/Quick Filters - visible to User and Creator */}
+      {canViewCategoryGrid && (
+        <CategoryGrid
+          title="Quick Filters"
+          categories={categories}
+          viewAllLink="/categories"
+        />
       )}
 
       {/* Video Carousel - visible to User and Creator */}

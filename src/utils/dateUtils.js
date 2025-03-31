@@ -1,8 +1,8 @@
 export const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
   });
 };
 
@@ -12,7 +12,7 @@ export const formatTimeAgo = (dateString) => {
   const diffInSeconds = Math.floor((now - date) / 1000);
 
   if (diffInSeconds < 60) {
-    return 'just now';
+    return "just now";
   }
 
   const diffInMinutes = Math.floor(diffInSeconds / 60);
@@ -41,14 +41,30 @@ export const formatTimeAgo = (dateString) => {
  */
 export const isCampaignInProgress = (startDate, endDate) => {
   const today = new Date();
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  let start, end;
   
+  // Handle date strings in format "Mar 31" or "Apr 05"
+  if (typeof startDate === 'string' && startDate.length <= 6) {
+    // For short date strings like "Mar 31", add the current year
+    const currentYear = today.getFullYear();
+    start = new Date(`${startDate}, ${currentYear}`);
+  } else {
+    start = new Date(startDate);
+  }
+  
+  if (typeof endDate === 'string' && endDate.length <= 6) {
+    // For short date strings like "Apr 05", add the current year
+    const currentYear = today.getFullYear();
+    end = new Date(`${endDate}, ${currentYear}`);
+  } else {
+    end = new Date(endDate);
+  }
+
   // Set all dates to the beginning of the day for consistent comparison
   today.setHours(0, 0, 0, 0);
   start.setHours(0, 0, 0, 0);
   end.setHours(23, 59, 59, 999); // End of the day for end date
-  
+
   return today >= start && today <= end;
 };
 
@@ -61,19 +77,41 @@ export const isCampaignInProgress = (startDate, endDate) => {
  */
 export const getCampaignTimeStatus = (startDate, endDate, status) => {
   const today = new Date();
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  let start, end;
   
-  // If the campaign is not active in the database, respect that status
-  if (status !== 'ACTIVE' && status !== 'Active') {
-    return 'inactive';
+  // Handle date strings in format "Mar 31" or "Apr 05"
+  if (typeof startDate === 'string' && startDate.length <= 6) {
+    // For short date strings like "Mar 31", add the current year
+    const currentYear = today.getFullYear();
+    start = new Date(`${startDate}, ${currentYear}`);
+  } else {
+    start = new Date(startDate);
   }
   
-  if (today < start) {
-    return 'upcoming';
-  } else if (today > end) {
-    return 'ended';
+  if (typeof endDate === 'string' && endDate.length <= 6) {
+    // For short date strings like "Apr 05", add the current year
+    const currentYear = today.getFullYear();
+    end = new Date(`${endDate}, ${currentYear}`);
   } else {
-    return 'active';
+    end = new Date(endDate);
+  }
+
+  // Set hours for proper comparison
+  today.setHours(0, 0, 0, 0);
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+
+  // Only check for inactive status if explicitly requested
+  // Most campaign cards just need the date-based status
+  // if (status && status !== 'ACTIVE' && status !== 'Active') {
+  //   return 'inactive';
+  // }
+
+  if (today < start) {
+    return "upcoming";
+  } else if (today > end) {
+    return "ended";
+  } else {
+    return "active";
   }
 };

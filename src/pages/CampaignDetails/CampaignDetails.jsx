@@ -512,20 +512,26 @@ const CampaignDetails = () => {
   ];
 
   const getStatusClass = (status) => {
-    switch (status) {
-      case "Draft":
+    switch (status.toLowerCase()) {
+      case "draft":
         return styles.statusDraft;
-      case "Scheduled":
+      case "scheduled":
         return styles.statusScheduled;
-      case "Active":
+      case "active":
         return styles.statusActive;
-      case "Paused":
+      case "upcoming":
+        return styles.statusScheduled; // Use scheduled style for upcoming
+      case "ended":
+        return styles.statusClosed; // Use closed style for ended
+      case "paused":
         return styles.statusPaused;
-      case "Blocked":
+      case "blocked":
         return styles.statusBlocked;
-      case "ClosedWinnersPending":
-      case "ClosedWinnersSelected":
-      case "ClosedWinnersAnnounced":
+      case "inactive":
+        return styles.statusPaused; // Use paused style for inactive
+      case "closedwinnerspending":
+      case "closedwinnersselected":
+      case "closedwinnersannounced":
         return styles.statusClosed;
       default:
         return "";
@@ -533,25 +539,31 @@ const CampaignDetails = () => {
   };
 
   const formatStatus = (status) => {
-    switch (status) {
-      case "Draft":
+    switch (status.toLowerCase()) {
+      case "draft":
         return "Draft";
-      case "Scheduled":
+      case "scheduled":
         return "Scheduled";
-      case "Active":
+      case "active":
         return "Active";
-      case "Paused":
+      case "upcoming":
+        return "Upcoming";
+      case "ended":
+        return "Ended";
+      case "paused":
         return "Paused";
-      case "Blocked":
+      case "blocked":
         return "Blocked";
-      case "ClosedWinnersPending":
+      case "inactive":
+        return "Inactive";
+      case "closedwinnerspending":
         return "Closed - Winners Pending";
-      case "ClosedWinnersSelected":
+      case "closedwinnersselected":
         return "Closed - Winners Selected";
-      case "ClosedWinnersAnnounced":
+      case "closedwinnersannounced":
         return "Closed - Winners Announced";
       default:
-        return "";
+        return status;
     }
   };
 
@@ -633,10 +645,20 @@ const CampaignDetails = () => {
           About Campaign{" "}
           <span
             className={`${styles.statusBadge} ${getStatusClass(
-              selectedCompetition.status
+              getCampaignTimeStatus(
+                selectedCompetition.startDate,
+                selectedCompetition.endDate,
+                selectedCompetition.status
+              )
             )}`}
           >
-            {formatStatus(selectedCompetition.status)}
+            {formatStatus(
+              getCampaignTimeStatus(
+                selectedCompetition.startDate,
+                selectedCompetition.endDate,
+                selectedCompetition.status
+              )
+            )}
           </span>
         </h2>
         <div className={styles.sponsorInfo}>

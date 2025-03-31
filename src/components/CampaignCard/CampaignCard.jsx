@@ -1,9 +1,11 @@
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import styles from "./CampaignCard.module.css";
 import DateRange from "../DateRange/DateRange";
-import moreIcon from "./../../assets/icons/more.svg";
-import Tag from "../Tag/Tag";
 import Button from "../Button/Button";
+import Tag from "../Tag/Tag";
+import moreIcon from "../../assets/icons/more.svg";
+import { isCampaignInProgress, getCampaignTimeStatus } from "../../utils/dateUtils";
 
 const CampaignCard = ({
   name,
@@ -19,6 +21,13 @@ const CampaignCard = ({
   actionText,
   onActionClick,
 }) => {
+  // Calculate the actual status based on dates
+  const displayStatus = getCampaignTimeStatus(
+    startDate,
+    endDate,
+    status
+  );
+  
   const handleMenuClick = (e) => {
     e.stopPropagation();
     if (onMenuClick) {
@@ -53,7 +62,7 @@ const CampaignCard = ({
       <div className={styles.header}>
         <div className={styles.titleWrapper}>
           <h3 className={styles.title}>{name}</h3>
-          <Tag text={status} variant={status.toLowerCase()} size="small" />
+          <Tag text={displayStatus} variant={displayStatus.toLowerCase()} size="small" />
         </div>
         <div className={styles.menuContainer}>
           <button

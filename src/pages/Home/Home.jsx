@@ -255,6 +255,9 @@ const Home = () => {
       } else if (url.includes("youtube.com/embed")) {
         // Format: https://www.youtube.com/embed/VIDEO_ID
         return url.split("/").pop().split("?")[0];
+      } else if (url.includes("youtube.com/shorts")) {
+        // Format: https://www.youtube.com/shorts/VIDEO_ID
+        return url.split("/shorts/")[1]?.split("?")[0];
       }
     } catch (error) {
       console.error("Error extracting YouTube video ID:", error);
@@ -390,13 +393,15 @@ const Home = () => {
 
       {/* Most Upvoted Videos - visible to User and Creator */}
       {canViewMostUpvoted && (
-        <SubmissionsSection
-          title="Most Upvoted Videos"
-          submissions={topVideos}
-          loading={loadingTopVideos}
-          viewAllLink="/videos?tag=popular"
-          emptyMessage="No videos available"
-        />
+        <div style={{ marginBottom: "10px" }}>
+          <SubmissionsSection
+            title="Most Upvoted Videos"
+            submissions={topVideos}
+            loading={loadingTopVideos}
+            viewAllLink="/videos?tag=popular"
+            emptyMessage="No videos available"
+          />
+        </div>
       )}
 
       {/* Live Campaigns section - visible to Creator, Admin, Super Admin */}
@@ -489,32 +494,30 @@ const Home = () => {
             ) : videoPosts.length === 0 ? (
               <p className={styles.emptyMessage}>No videos available.</p>
             ) : (
-              videoPosts
-                .slice(0, 5)
-                .map((video) => {
-                  console.log("Video object in Home:", video);
-                  const tags = generateVideoTags(video);
-                  console.log("Generated tags:", tags);
-                  return (
-                    <VideoCard
-                      key={video.id}
-                      id={video.id}
-                      title={video.title}
-                      campaignName={video.competition || "General Campaign"}
-                      userName={video.updatedBy || "Anonymous"}
-                      timestamp={
-                        video.createdOn
-                          ? new Date(video.createdOn).toLocaleDateString()
-                          : "Recent"
-                      }
-                      status={video.status || "PUBLISHED"}
-                      views={video.views || "0"}
-                      thumbnail={video.url}
-                      onClick={() => navigate(`/videos/${video.id}`)}
-                      tags={tags}
-                    />
-                  );
-                })
+              videoPosts.slice(0, 5).map((video) => {
+                console.log("Video object in Home:", video);
+                const tags = generateVideoTags(video);
+                console.log("Generated tags:", tags);
+                return (
+                  <VideoCard
+                    key={video.id}
+                    id={video.id}
+                    title={video.title}
+                    campaignName={video.competition || "General Campaign"}
+                    userName={video.updatedBy || "Anonymous"}
+                    timestamp={
+                      video.createdOn
+                        ? new Date(video.createdOn).toLocaleDateString()
+                        : "Recent"
+                    }
+                    status={video.status || "PUBLISHED"}
+                    views={video.views || "0"}
+                    thumbnail={video.url}
+                    onClick={() => navigate(`/videos/${video.id}`)}
+                    tags={tags}
+                  />
+                );
+              })
             )}
           </div>
         </section>

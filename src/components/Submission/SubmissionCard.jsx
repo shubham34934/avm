@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import styles from './SubmissionCard.module.css';
 import likeColored from "./../../assets/icons/like_colored.svg";
 import { setVideoList } from '../../reducers/videoNavigation';
+import defaultThumbnail from "../../assets/images/default-thumbnail.png";
 
 const SubmissionCard = ({ id, image, title, views, allSubmissions, index }) => {
   const navigate = useNavigate();
@@ -27,10 +28,21 @@ const SubmissionCard = ({ id, image, title, views, allSubmissions, index }) => {
     navigate(`/videos/${id}`);
   };
 
+  // Handle image error by using default thumbnail
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Prevent infinite loop
+    e.target.src = defaultThumbnail;
+  };
+
   return (
     <div className={styles.card} onClick={handleCardClick}>
       <div className={styles.imageContainer}>
-        <img src={image} alt={title} className={styles.image} />
+        <img 
+          src={image || defaultThumbnail} 
+          alt={title} 
+          className={styles.image} 
+          onError={handleImageError}
+        />
       </div>
       <div className={styles.content}>
         <h3 className={styles.title}>{title}</h3>

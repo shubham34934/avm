@@ -35,12 +35,15 @@ import winnerAnnouncedIcon from "../../assets/icons/campaign_timeline/winner_ann
 import paymentSentIcon from "../../assets/icons/campaign_timeline/payment_sent.svg";
 import doneIcon from "../../assets/icons/campaign_timeline/done.svg";
 import pauseIcon from "../../assets/icons/campaign_timeline/pause.svg";
+import brandDefaultIcon from "../../assets/icons/brands.svg";
+
 const CampaignDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id } = useParams();
   const { userRole } = usePermissions();
-  const isAdminOrSuperAdmin = userRole === USER_ROLES.ADMIN || userRole === USER_ROLES.SUPER_ADMIN;
+  const isAdminOrSuperAdmin =
+    userRole === USER_ROLES.ADMIN || userRole === USER_ROLES.SUPER_ADMIN;
 
   const {
     selectedCompetition,
@@ -71,7 +74,10 @@ const CampaignDetails = () => {
           fetchCompetitionById(parseInt(id))
         ).unwrap();
         // Fetch user details if createdBy is available and it's not 'admin'
-        if (competitionResult.createdBy && competitionResult.createdBy !== 'admin') {
+        if (
+          competitionResult.createdBy &&
+          competitionResult.createdBy !== "admin"
+        ) {
           await dispatch(fetchUserByUsername(competitionResult.createdBy));
         }
       } catch (error) {
@@ -193,15 +199,21 @@ const CampaignDetails = () => {
           // Extract video ID and get thumbnail
           const videoUrl = video.url || video.videoUrl;
           const videoId = getYouTubeVideoId(videoUrl);
-          const thumbnailUrl = videoId
-            ? getYouTubeThumbnail(videoId)
-            : videoUrl;
+          let thumbnailUrl = null;
+
+          if (videoId) {
+            // Use YouTube thumbnail if video ID is available
+            thumbnailUrl = getYouTubeThumbnail(videoId);
+          } else {
+            // Fallback to the video URL or a default
+            thumbnailUrl = video.thumbnail || videoUrl;
+          }
 
           return {
             id: video.id,
-            image: thumbnailUrl, // Using YouTube thumbnail if available
+            image: thumbnailUrl,
             title: video.title,
-            views: "0", // Default value if views not available
+            views: video.likes?.toString() || "0", // Convert likes to string
             videoUrl: videoUrl,
           };
         });
@@ -234,6 +246,9 @@ const CampaignDetails = () => {
       } else if (url.includes("youtube.com/embed")) {
         // Format: https://www.youtube.com/embed/VIDEO_ID
         return url.split("/").pop().split("?")[0];
+      } else if (url.includes("youtube.com/shorts")) {
+        // Format: https://www.youtube.com/shorts/VIDEO_ID
+        return url.split("/shorts/")[1]?.split("?")[0];
       }
     } catch (error) {
       console.error("Error extracting YouTube video ID:", error);
@@ -603,10 +618,7 @@ const CampaignDetails = () => {
           {selectedCompetition.sponsor ? (
             <>
               <img
-                src={
-                  selectedCompetition.sponsor.logoUrl ||
-                  "https://via.placeholder.com/32"
-                }
+                src={selectedCompetition.sponsor.logoUrl || brandDefaultIcon}
                 alt="Sponsor"
                 className={styles.sponsorLogo}
               />
@@ -650,16 +662,18 @@ const CampaignDetails = () => {
           </button>
         </div>
 
-        <SubmissionsSection
-          title="Submissions"
-          submissions={submissions}
-          loading={loadingSubmissions}
-          viewAllLink={`/videos?campaignId=${id}&isSubmission=true&isDetailed=true`}
-          emptyMessage="No submissions yet"
-        />
+        <div style={{ margin: "0px 10px" }}>
+          <SubmissionsSection
+            title="Submissions"
+            submissions={submissions}
+            loading={loadingSubmissions}
+            viewAllLink={`/videos?campaignId=${id}&isSubmission=true&isDetailed=true`}
+            emptyMessage="No submissions yet"
+          />
+        </div>
 
-        <Timeline 
-          steps={timelineSteps} 
+        <Timeline
+          steps={timelineSteps}
           showActionButtons={isAdminOrSuperAdmin}
         />
       </div>

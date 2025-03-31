@@ -3,5 +3,8 @@
   "outputDirectory": "dist",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "env": {
+    "VITE_APP_API_URL": "http://13.235.82.163:8080/"
+  }
 }

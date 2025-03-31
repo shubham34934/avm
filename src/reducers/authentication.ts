@@ -36,9 +36,6 @@ axios.interceptors.response.use(
       // Dispatch logout action
       store.dispatch(logout());
 
-      // Show toast notification
-      toast.error("Your session has expired. Please log in again.");
-
       // Redirect to login page
       window.location.href = "/login";
     }

@@ -175,6 +175,46 @@
   margin-left: 2px;
 }
 
+/* Menu Popover Styles */
+.menuPopover {
+  position: fixed;
+  background-color: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.menuOptions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.menuOption {
+  padding: var(--spacing-2) var(--spacing-3);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+}
+
+.menuOption:hover {
+  background-color: var(--background-hover);
+}
+
+.deleteOption {
+  color: var(--color-error);
+}
+
+.deleteOption:hover {
+  background-color: var(--color-error-light);
+}
+
 @media (min-width: 640px) {
   .thumbnail {
     border-radius: 20px;

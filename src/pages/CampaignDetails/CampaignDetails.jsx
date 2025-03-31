@@ -70,8 +70,8 @@ const CampaignDetails = () => {
         const competitionResult = await dispatch(
           fetchCompetitionById(parseInt(id))
         ).unwrap();
-        // Fetch user details if createdBy is available
-        if (competitionResult.createdBy) {
+        // Fetch user details if createdBy is available and it's not 'admin'
+        if (competitionResult.createdBy && competitionResult.createdBy !== 'admin') {
           await dispatch(fetchUserByUsername(competitionResult.createdBy));
         }
       } catch (error) {

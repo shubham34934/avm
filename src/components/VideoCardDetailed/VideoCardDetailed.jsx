@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./VideoCardDetailed.module.css";
 import { LikeIcon, DislikeIcon, MoreIcon, CirclePlayIcon } from "../Icons/Icons";
 import defaultAvatar from "./../../assets/images/default-avatar.png";
@@ -35,7 +35,13 @@ const VideoCardDetailed = ({
   onLike,
   onDislike,
   onShortlist,
+  onEdit,
+  onDelete,
+  onView,
 }) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+
   // Try to get YouTube thumbnails if the thumbnail is a YouTube URL
   const youtubeThumbnails =
     video.thumbnail && getYouTubeThumbnail(video.thumbnail);
@@ -52,6 +58,39 @@ const VideoCardDetailed = ({
       day: "2-digit",
       month: "short",
     });
+  };
+
+  const handleMenuClick = (e) => {
+    e.stopPropagation();
+    const buttonRect = e.currentTarget.getBoundingClientRect();
+    setMenuPosition({
+      top: buttonRect.bottom,
+      left: buttonRect.right - 120, // Adjust to position the popover correctly
+    });
+    setShowMenu(!showMenu);
+  };
+
+  const handleCloseMenu = () => {
+    setShowMenu(false);
+  };
+
+  const handleActionClick = (action, e) => {
+    e.stopPropagation(); // Prevent card click
+    handleCloseMenu();
+
+    switch (action) {
+      case "view":
+        onView && onView(video.id);
+        break;
+      case "edit":
+        onEdit && onEdit(video.id);
+        break;
+      case "delete":
+        onDelete && onDelete(video.id);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -72,11 +111,43 @@ const VideoCardDetailed = ({
           </div>
         </div>
         <button
-          onClick={() => onShortlist(video.id)}
+          onClick={handleMenuClick}
           className={styles.moreButton}
         >
           <MoreIcon />
         </button>
+        {showMenu && (
+          <div
+            className={styles.menuPopover}
+            style={{
+              top: `${menuPosition.top}px`,
+              left: `${menuPosition.left}px`,
+              position: 'absolute',
+              zIndex: 1000,
+            }}
+          >
+            <div className={styles.menuOptions}>
+              <button
+                className={styles.menuOption}
+                onClick={(e) => handleActionClick("view", e)}
+              >
+                View
+              </button>
+              <button
+                className={styles.menuOption}
+                onClick={(e) => handleActionClick("edit", e)}
+              >
+                Edit
+              </button>
+              <button
+                className={`${styles.menuOption} ${styles.deleteOption}`}
+                onClick={(e) => handleActionClick("delete", e)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <h2 className={styles.videoTitle}>{video.title}</h2>

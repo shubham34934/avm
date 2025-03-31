@@ -418,6 +418,9 @@ const Submissions = () => {
                   onLike={handleLike}
                   onDislike={handleDislike}
                   onShortlist={handleShortlist}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onView={handleView}
                 />
               ) : (
                 <VideoCard

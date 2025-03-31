@@ -21,13 +21,13 @@ const UserDetail = lazy(() => import("../pages/UserDetail/UserDetail"));
 const AITools = lazy(() => import("../pages/AITools/AITools"));
 const Unauthorized = lazy(() => import("../pages/Auth/Unauthorized"));
 const NotFound = lazy(() => import("../pages/NotFound"));
-const Logout = lazy(() => import("../pages/auth/Logout"));
+const Logout = lazy(() => import("../pages/Auth/Logout"));
 
 // Authentication pages
-const Login = lazy(() => import("../pages/auth/Login"));
-const Register = lazy(() => import("../pages/auth/Register"));
-const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
-const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
+const Login = lazy(() => import("../pages/Auth/Login"));
+const Register = lazy(() => import("../pages/Auth/Register"));
+const ForgotPassword = lazy(() => import("../pages/Auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("../pages/Auth/ResetPassword"));
 
 export const routes = [
   {

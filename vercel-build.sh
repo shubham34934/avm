@@ -1,18 +1,23 @@
 #!/bin/bash
 
-# Print Node.js and npm versions
-node -v
-npm -v
+# Print Node.js and npm versions for debugging
+echo "Node version: $(node -v)"
+echo "NPM version: $(npm -v)"
 
-# Install dependencies
-npm install
+# Clean install dependencies
+echo "Installing dependencies..."
+npm ci
 
 # Build the application
+echo "Building the application..."
 npm run build
 
-# List the contents of the dist directory to verify output
-echo "Contents of dist directory:"
+# Verify the build output
+echo "Checking build output..."
 ls -la dist/
 
-# Output success message
-echo "Build completed successfully!"
+# Create a simple verification file in the dist directory
+echo "Creating verification file..."
+echo "Build completed successfully at $(date)" > dist/build-info.txt
+
+echo "Build process completed successfully!"

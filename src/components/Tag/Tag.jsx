@@ -38,7 +38,7 @@ const TAG_VARIANTS = {
 
 const Tag = ({ text, variant = "default", size = "medium", style = {} }) => {
   const variantStyles = TAG_VARIANTS[variant] || TAG_VARIANTS.default;
-  if (!text) return;
+  if (!text || text === "User") return;
   return (
     <span
       className={`${styles.tag} ${styles[size]}`}

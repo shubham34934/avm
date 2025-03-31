@@ -1,9 +1,9 @@
 // Mapping of user role authorities to display text
 export const USER_TYPE_DISPLAY = {
   ROLE_ADMIN: "Admin",
-  ROLE_USER: "Creator",
+  ROLE_USER: "User",
   ROLE_SUPER_ADMIN: "Super Admin",
-  ROLE_CREATOR: "End User",
+  ROLE_CREATOR: "Creator",
 };
 
 export const USER_ROLES = {

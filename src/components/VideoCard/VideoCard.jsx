@@ -43,6 +43,7 @@ const VideoCard = ({
   onMenuClick,
   onCloseMenu,
 }) => {
+  console.log({ title, campaignName, userName, timestamp, status, thumbnail });
   // Try to get YouTube thumbnails if the thumbnail is a YouTube URL
   const youtubeThumbnails = thumbnail && getYouTubeThumbnail(thumbnail);
 

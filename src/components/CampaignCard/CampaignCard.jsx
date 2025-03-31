@@ -1,8 +1,9 @@
-import PropTypes from 'prop-types';
-import styles from './CampaignCard.module.css';
-import DateRange from '../DateRange/DateRange';
-import moreIcon from "./../../assets/icons/more.svg"
-import Tag from '../Tag/Tag';
+import PropTypes from "prop-types";
+import styles from "./CampaignCard.module.css";
+import DateRange from "../DateRange/DateRange";
+import moreIcon from "./../../assets/icons/more.svg";
+import Tag from "../Tag/Tag";
+import Button from "../Button/Button";
 
 const CampaignCard = ({
   name,
@@ -14,7 +15,9 @@ const CampaignCard = ({
   status = "",
   onClick,
   onMenuClick,
-  menuContent
+  menuContent,
+  actionText,
+  onActionClick,
 }) => {
   const handleMenuClick = (e) => {
     e.stopPropagation();
@@ -25,21 +28,36 @@ const CampaignCard = ({
 
   const handleCardClick = (e) => {
     // Only trigger onClick if the click wasn't on the menu button or menu content
-    if (!e.target.closest(`.${styles.menuContainer}`)) {
+    if (
+      !e.target.closest(`.${styles.menuContainer}`) &&
+      !e.target.closest(`.${styles.actionButton}`)
+    ) {
       onClick?.(e);
     }
   };
 
+  const handleActionClick = (e) => {
+    e.stopPropagation();
+    if (onActionClick) {
+      onActionClick(e);
+    }
+  };
+
   return (
-    <div className={styles.card} onClick={handleCardClick} role="button" tabIndex={0}>
+    <div
+      className={styles.card}
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+    >
       <div className={styles.header}>
         <div className={styles.titleWrapper}>
           <h3 className={styles.title}>{name}</h3>
           <Tag text={status} variant={status.toLowerCase()} size="small" />
         </div>
         <div className={styles.menuContainer}>
-          <button 
-            className={styles.moreButton} 
+          <button
+            className={styles.moreButton}
             aria-label="More options"
             onClick={handleMenuClick}
             data-menu-button
@@ -52,13 +70,32 @@ const CampaignCard = ({
       <div className={styles.dateRange}>
         <DateRange startDate={startDate} endDate={endDate} />
       </div>
-      <div className={styles.footer}>
-        <div className={styles.brand}>
-          <img src={brandLogo} alt={brandName} className={styles.brandLogo} />
-          <span className={styles.brandName}>{brandName}</span>
+      {!actionText ? (
+        <div className={styles.footer}>
+          <div className={styles.brand}>
+            <img src={brandLogo} alt={brandName} className={styles.brandLogo} />
+            <span className={styles.brandName}>{brandName}</span>
+          </div>
+          <div className={styles.amount}>
+            Rs {amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </div>
         </div>
-        <div className={styles.amount}>Rs {amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-      </div>
+      ) : (
+        <div className={styles.footer}>
+          <div className={styles.amount}>
+            Rs {amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </div>
+          <div>
+            <Button
+              variant="text"
+              className={styles.actionButton}
+              onClick={handleActionClick}
+            >
+              {actionText}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -73,7 +110,9 @@ CampaignCard.propTypes = {
   status: PropTypes.string.isRequired,
   onClick: PropTypes.func,
   onMenuClick: PropTypes.func,
-  menuContent: PropTypes.node
+  menuContent: PropTypes.node,
+  actionText: PropTypes.string,
+  onActionClick: PropTypes.func,
 };
 
 export default CampaignCard;

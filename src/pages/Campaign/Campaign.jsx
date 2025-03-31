@@ -15,11 +15,14 @@ import Loader from "../../components/Loader/Loader";
 import Error from "../../components/Error/Error";
 import Popover from "../../components/Popover/Popover";
 import ConfirmationModal from "../../components/ConfirmationModal/ConfirmationModal";
+import { usePermissions } from "../../hooks/usePermissions";
+import { USER_ROLES } from "../../utils/constants";
 
 const Campaign = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const { userRole } = usePermissions();
   const {
     competitions = [],
     loading,
@@ -33,6 +36,9 @@ const Campaign = () => {
   const [campaignToDelete, setCampaignToDelete] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const pageSize = 20;
+
+  // Check if user is a creator
+  const isCreator = userRole === USER_ROLES.CREATOR;
 
   // Get status filter from URL query parameters
   const queryParams = new URLSearchParams(location.search);
@@ -127,6 +133,11 @@ const Campaign = () => {
         console.error("Failed to delete campaign:", error);
       }
     }
+  };
+
+  const handleSubmitVideo = (campaign) => {
+    // Navigate to upload video page with campaign ID as parameter
+    navigate(`/uploadVideo?campaignId=${campaign.id}`);
   };
 
   const handleMenuOptionClick = (e, option, campaign) => {
@@ -227,6 +238,9 @@ const Campaign = () => {
                 </Popover>
               ) : null
             }
+            actionText={isCreator ? "Submit Video" : null}
+            // actionText={isCreator && campaign.status === "ACTIVE" ? "Submit Video" : null}
+            onActionClick={() => handleSubmitVideo(campaign)}
           />
         ))}
       </div>

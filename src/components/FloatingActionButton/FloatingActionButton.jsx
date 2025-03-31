@@ -15,6 +15,9 @@ const FloatingActionButton = () => {
     return null;
   }
 
+  // Check if user is admin or super admin
+  const isAdmin = userRole === USER_ROLES.ADMIN || userRole === USER_ROLES.SUPER_ADMIN;
+
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
@@ -34,26 +37,28 @@ const FloatingActionButton = () => {
     <div className={styles.container}>
       {isOpen && (
         <div className={styles.menu}>
-          <button onClick={handleAddCampaign} className={styles.menuItem}>
-            <div className={styles.menuIcon}>
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12 5V19M5 12H19"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <span>Add Campaign</span>
-          </button>
+          {isAdmin && (
+            <button onClick={handleAddCampaign} className={styles.menuItem}>
+              <div className={styles.menuIcon}>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 5V19M5 12H19"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <span>Add Campaign</span>
+            </button>
+          )}
           <button onClick={handleAddVideo} className={styles.menuItem}>
             <div className={styles.menuIcon}>
               <svg

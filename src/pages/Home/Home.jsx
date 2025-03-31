@@ -331,6 +331,7 @@ const Home = () => {
   // Determine if we should show search and add buttons based on role
   const showSearch = [USER_ROLES.USER, USER_ROLES.CREATOR].includes(userRole);
   const showAdd = [USER_ROLES.CREATOR].includes(userRole);
+  const isCreator = userRole === USER_ROLES.CREATOR;
 
   return (
     <div className={styles.container}>
@@ -445,6 +446,7 @@ const Home = () => {
                     }
                   )}
                   amount={campaign.totalPrizeValue}
+                  actionText={isCreator ? "Submit Video" : null}
                   status={campaign.status}
                   brandName={campaign.sponsor?.name || "Brand Name"}
                   brandLogo={campaign.sponsor?.logo || brandLogo}

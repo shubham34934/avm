@@ -1,16 +1,16 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "../../hooks/useUser";
 import { FOOTER_ITEMS } from "../../constants/navigation";
 import styles from "./Footer.module.css";
-import { checkAllowedRole } from "../../utils/constants";
+import { usePermissions } from "../../hooks/usePermissions";
 
 const Footer = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUser();
+  const { userRole } = usePermissions();
 
+  // Filter navigation items based on user's role
   const filteredNavItems = FOOTER_ITEMS.filter((item) =>
-    checkAllowedRole(item.roles, user?.authorities)
+    item.roles.includes(userRole)
   );
 
   return (

@@ -2,9 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./FloatingActionButton.module.css";
 import addIcon from "./../../assets/icons/add.svg";
+import { usePermissions } from "../../hooks/usePermissions";
+import { USER_ROLES } from "../../utils/constants";
+
 const FloatingActionButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { userRole } = usePermissions();
+
+  // Hide FAB for regular users (ROLE_USER)
+  if (userRole === USER_ROLES.USER) {
+    return null;
+  }
 
   const handleToggle = () => {
     setIsOpen(!isOpen);

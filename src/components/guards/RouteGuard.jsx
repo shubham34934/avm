@@ -17,7 +17,7 @@ const RouteGuard = ({ children, allowedRoles }) => {
   const initializeApp = async () => {
     setInitialized(true);
     try {
-      await dispatch(getAccount());
+      await dispatch(getAccount()).unwrap();
     } catch (error) {
       if (!window.location.pathname.startsWith("/login")) {
         navigate("/login");

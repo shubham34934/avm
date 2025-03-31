@@ -45,7 +45,7 @@ export const SIDEBAR_ITEMS = [
     roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
   {
-    label: "Videos",
+    label: ({ userRole }) => userRole === USER_ROLES.CREATOR ? "My Videos" : "Videos",
     path: "/videos",
     icon: VideosIcon,
     roles: [
@@ -88,7 +88,7 @@ export const FOOTER_ITEMS = [
     roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.CREATOR],
   },
   {
-    label: "Videos",
+    label: ({ userRole }) => userRole === USER_ROLES.CREATOR ? "My Videos" : "Videos",
     path: "/videos",
     icon: VideosIcon,
     roles: [

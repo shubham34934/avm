@@ -11,9 +11,9 @@ import paymentSentIcon from "../../assets/icons/campaign_timeline/payment_sent.s
 import doneIcon from "../../assets/icons/campaign_timeline/done.svg";
 import Button from "../Button/Button";
 
-const Timeline = ({ steps }) => {
+const Timeline = ({ steps, showActionButtons = true }) => {
   // Find the index of the current active stage
-  const currentStageIndex = steps.findIndex(step => step.isActive);
+  const currentStageIndex = steps.findIndex((step) => step.isActive);
 
   return (
     <div className={styles.timeline}>
@@ -43,34 +43,35 @@ const Timeline = ({ steps }) => {
             </div>
           </div>
 
-          {/* Action buttons only for the current stage */}
-          {index === currentStageIndex && 
-           index < steps.length - 1 &&
-           step.actions &&
-           step.actions.length > 0 && (
-            <div className={styles.actionButtons}>
-              {step.actions.map((action, actionIndex) => (
-                <Button
-                  key={actionIndex}
-                  variant="text"
-                  className={styles.actionButton}
-                  onClick={action.onClick}
-                  disabled={action.disabled}
-                >
-                  {action.icon && (
-                    <span className={styles.actionIcon}>{action.icon}</span>
-                  )}
-                  {action.label}
-                </Button>
-              ))}
-            </div>
-          )}
+          {/* Action buttons only for the current stage and if showActionButtons is true */}
+          {showActionButtons &&
+            index === currentStageIndex &&
+            index < steps.length - 1 &&
+            step.actions &&
+            step.actions.length > 0 && (
+              <div className={styles.actionButtons}>
+                {step.actions.map((action, actionIndex) => (
+                  <Button
+                    key={actionIndex}
+                    variant="text"
+                    className={styles.actionButton}
+                    onClick={action.onClick}
+                    disabled={action.disabled}
+                  >
+                    {action.icon && (
+                      <span className={styles.actionIcon}>{action.icon}</span>
+                    )}
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
+            )}
 
-          {/* Small spacing line for non-current stages */}
-          {index !== currentStageIndex && 
-           index < steps.length - 1 && (
-            <div className={styles.spacingLine}></div>
-          )}
+          {/* Small spacing line for non-current stages or when action buttons are hidden */}
+          {(index !== currentStageIndex || !showActionButtons) &&
+            index < steps.length - 1 && (
+              <div className={styles.spacingLine}></div>
+            )}
         </div>
       ))}
     </div>
@@ -101,17 +102,15 @@ const getIconForStep = (type) => {
 const formatTimestamp = (timestamp) => {
   if (!timestamp) return "";
 
-  try {
-    const date = new Date(timestamp);
-    if (isNaN(date.getTime())) return timestamp; // Return as is if not a valid date
+  // Check if timestamp is already a Date object
+  const date = typeof timestamp === "string" ? new Date(timestamp) : timestamp;
 
-    return `${date.getHours()}:${String(date.getMinutes()).padStart(
-      2,
-      "0"
-    )} ${date.toLocaleString("default", { month: "long" })} ${date.getDate()}`;
-  } catch (error) {
-    return timestamp; // Return as is if there's an error
-  }
+  // Format the date
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
 Timeline.propTypes = {
@@ -119,19 +118,22 @@ Timeline.propTypes = {
     PropTypes.shape({
       type: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
-      timestamp: PropTypes.string,
+      timestamp: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.instanceOf(Date),
+      ]),
       isActive: PropTypes.bool,
       actions: PropTypes.arrayOf(
         PropTypes.shape({
           label: PropTypes.string.isRequired,
-          onClick: PropTypes.func,
-          variant: PropTypes.string,
+          onClick: PropTypes.func.isRequired,
           icon: PropTypes.node,
           disabled: PropTypes.bool,
         })
       ),
     })
   ).isRequired,
+  showActionButtons: PropTypes.bool,
 };
 
 export default Timeline;

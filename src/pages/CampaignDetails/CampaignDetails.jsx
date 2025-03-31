@@ -21,6 +21,8 @@ import Header from "../../components/Header/Header";
 import userAvatar from "./../../assets/images/users/1.png";
 import MoreIcon from "./../../assets/icons/more.svg";
 import rightArrow from "./../../assets/icons/rightArrow.svg";
+import { usePermissions } from "../../hooks/usePermissions";
+import { USER_ROLES } from "../../utils/constants";
 
 // Icons
 import rescheduleIcon from "../../assets/icons/campaign_timeline/reschedule.svg";
@@ -37,6 +39,9 @@ const CampaignDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id } = useParams();
+  const { userRole } = usePermissions();
+  const isAdminOrSuperAdmin = userRole === USER_ROLES.ADMIN || userRole === USER_ROLES.SUPER_ADMIN;
+
   const {
     selectedCompetition,
     loading: competitionLoading,
@@ -653,7 +658,10 @@ const CampaignDetails = () => {
           emptyMessage="No submissions yet"
         />
 
-        <Timeline steps={timelineSteps} />
+        <Timeline 
+          steps={timelineSteps} 
+          showActionButtons={isAdminOrSuperAdmin}
+        />
       </div>
       {isBlockModalOpen && (
         <BlockCampaignModal

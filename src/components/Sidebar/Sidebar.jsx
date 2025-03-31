@@ -32,6 +32,11 @@ const Sidebar = ({ isOpen, onClose }) => {
     checkAllowedRole(item.roles, user?.authorities)
   );
 
+  // Helper function to get the label (handles both string and function labels)
+  const getLabel = (item) => {
+    return typeof item.label === "function" ? item.label({ userRole }) : item.label;
+  };
+
   const handleNavigation = (path) => {
     navigate(path);
     onClose(); // Close sidebar regardless of screen size
@@ -91,7 +96,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 location.pathname === item.path ? styles.active : ""
               }`}
               onClick={() => handleNavigation(item.path)}
-              aria-label={item.label}
+              aria-label={getLabel(item)}
             >
               <img
                 src={item.icon}
@@ -99,7 +104,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 className={styles.icon}
                 aria-hidden="true"
               />
-              <span className={styles.label}>{item.label}</span>
+              <span className={styles.label}>{getLabel(item)}</span>
             </div>
           ))}
         </nav>

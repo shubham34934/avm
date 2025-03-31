@@ -13,6 +13,11 @@ const Footer = () => {
     item.roles.includes(userRole)
   );
 
+  // Helper function to get the label (handles both string and function labels)
+  const getLabel = (item) => {
+    return typeof item.label === "function" ? item.label({ userRole }) : item.label;
+  };
+
   return (
     <footer className={styles.footer}>
       <nav className={styles.nav}>
@@ -23,7 +28,7 @@ const Footer = () => {
               key={item.path}
               className={`${styles.navItem} ${isActive ? styles.active : ""}`}
               onClick={() => navigate(item.path)}
-              aria-label={item.label}
+              aria-label={getLabel(item)}
             >
               <img
                 src={item.icon}
@@ -31,7 +36,7 @@ const Footer = () => {
                 className={styles.icon}
                 aria-hidden="true"
               />
-              <span className={styles.label}>{item.label}</span>
+              <span className={styles.label}>{getLabel(item)}</span>
             </button>
           );
         })}

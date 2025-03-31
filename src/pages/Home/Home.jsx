@@ -87,15 +87,12 @@ const Home = () => {
             style={{ whiteSpace: "nowrap" }}
           />
         }
-        {/* {user.role === 'Super Admin' && (
-          <span className={styles.badge}>Super Admin</span>
-        )} */}
       </div>
 
       <div className={styles.stats}>
         {stats.map((stat, index) => (
-          <div 
-            key={stat.title} 
+          <div
+            key={stat.title}
             className={styles.statsCard}
             onClick={() => {
               if (stat.title === "Live") {
@@ -123,9 +120,9 @@ const Home = () => {
             <img
               className={styles.sectionIcon}
               src={campaignIcon}
-              alt="campaign"
+              alt="Live campaign"
             />
-            <h2>Campaigns</h2>
+            <h2>Live Campaigns</h2>
           </div>
           <button
             className={styles.viewAll}
@@ -179,7 +176,7 @@ const Home = () => {
             <img
               className={styles.sectionIcon}
               src={videosIcon}
-              alt="campaign"
+              alt="Videos"
               style={{ width: "24px" }}
             />
             <h2>Videos Uploaded</h2>

@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getAccount } from "../../reducers/authentication";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 const AppInitializer = ({ children }) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [initialized, setInitialized] = useState(false);
 

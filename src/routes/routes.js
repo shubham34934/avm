@@ -43,7 +43,7 @@ export const routes = [
   {
     path: "/brands",
     component: Brands,
-    allowedRoles: [USER_ROLES.SUPER_ADMIN],
+    allowedRoles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
   },
   {
     path: "/sponsor/create",

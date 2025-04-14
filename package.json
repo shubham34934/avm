@@ -1,7 +1,7 @@
 {
   "name": "avm",
   "private": true,
-  "proxy": "http://3.110.189.49:9001",
+  "proxy": "http://localhost:9001",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

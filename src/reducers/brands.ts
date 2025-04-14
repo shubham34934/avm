@@ -46,7 +46,7 @@ const initialState: BrandsState = {
 };
 
 // API base URL
-const API_URL = "http://localhost:9001/api/sponsors";
+const API_URL = ENV.VITE_APP_API_URL;
 
 // Async thunk to fetch brands
 export const fetchBrands = createAsyncThunk(

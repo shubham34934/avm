@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Container, Form, Button, Alert, Row, Col } from "react-bootstrap";
 import { AuthService } from "../../services/AuthService";
 import "./Auth.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { toggleLike, toggleShortlist } from "../../reducers/submissions";
 import { fetchVideoPosts, deleteVideoPost } from "../../reducers/videoPosts";
@@ -7,6 +7,7 @@ import InfiniteLoader from "../../components/InfiniteLoader/InfiniteLoader";
 import styles from "./Videos.module.css";
 import { toast } from "react-toastify";
 import Header from "../../components/Header/Header";
+import FilterModal from "../../components/FilterModal/FilterModal";
 import VideoCardDetailed from "../../components/VideoCardDetailed/VideoCardDetailed";
 import VideoCard from "../../components/VideoCard/VideoCard";
 import FloatingActionButton from "../../components/FloatingActionButton/FloatingActionButton";
@@ -16,7 +17,6 @@ import { setVideoList } from "../../reducers/videoNavigation";
 import { usePermissions } from "../../hooks/usePermissions";
 import { USER_ROLES } from "../../utils/constants";
 import { generateVideoTags } from "../../utils/videoUtils";
-
 // Debounce utility function
 const debounce = (func, delay) => {
   let timeoutId;
@@ -29,6 +29,18 @@ const debounce = (func, delay) => {
     }, delay);
   };
 };
+
+const userFilterSchema = [
+  { key: "name", type: "text", label: "Name" },
+  { key: "email", type: "text", label: "Email" },
+  {
+    key: "status",
+    type: "select",
+    label: "Status",
+    options: ["Active", "Inactive"],
+  },
+  { key: "createdAt", type: "date", label: "Created Date" },
+];
 
 const Submissions = () => {
   const navigate = useNavigate();
@@ -57,6 +69,7 @@ const Submissions = () => {
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
   const [videoToDelete, setVideoToDelete] = useState(null);
+  const [filters, setFilters] = useState({});
 
   // Ref for the popover element
   const popoverRef = useRef(null);
@@ -370,6 +383,12 @@ const Submissions = () => {
         onAdd={handleAdd}
         showMore
         onMore={handleMore}
+        filterProps={{
+          showFilters: true,
+          userFilterSchema,
+          setFilters,
+          filters,
+        }}
       />
 
       {isSearching && (
@@ -398,6 +417,7 @@ const Submissions = () => {
           </button>
         </div>
       )}
+
       {videoPostsLoading ? (
         <div className={styles.loading}>
           <div className={styles.loadingText}>Loading...</div>

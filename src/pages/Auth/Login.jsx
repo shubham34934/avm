@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Container, Form, Button, Alert, Row, Col } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { authenticate } from "../../reducers/authentication";
 import { useToast } from "../../context/ToastContext";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "./Auth.css";
 
 const Login = () => {

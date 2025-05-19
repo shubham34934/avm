@@ -10,6 +10,7 @@ import Layout from "./components/Layout/Layout";
 import { LayoutProvider } from "./context/LayoutContext";
 import "./styles/theme.css";
 import AppIntializer from "./components/AppInitializer/AppInitializer";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   return (

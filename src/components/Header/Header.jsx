@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import styles from "./Header.module.css";
 import menuIcon from "../../assets/icons/menu.svg";
 import searchIcon from "../../assets/icons/search.svg";
@@ -11,6 +11,7 @@ import backIcon from "../../assets/icons/back.svg";
 import { HEADER_CONFIG } from "../../constants/headerConfig";
 import { useLayout } from "../../context/LayoutContext";
 import { debounce } from "../../utils/debounce";
+import FilterModal from "../FilterModal/FilterModal";
 
 const Header = ({
   onMenu,
@@ -23,6 +24,7 @@ const Header = ({
   showSearch,
   showAdd,
   showMore,
+  filterProps = {},
 }) => {
   const location = useLocation();
   const { toggleSidebar } = useLayout();
@@ -125,7 +127,7 @@ const Header = ({
                   value={searchValue}
                   onChange={handleSearchChange}
                   onBlur={handleSearchBlur}
-                  placeholder={`Search ${title || config.title || 'items'}...`}
+                  placeholder={`Search ${title || config.title || "items"}...`}
                   className={styles.searchInput}
                   autoFocus
                 />
@@ -172,6 +174,13 @@ const Header = ({
             <img src={moreIcon} alt="More" className={styles.icon} />
           </button>
         )}
+        {filterProps.showFilters ? (
+          <FilterModal
+            schema={filterProps.userFilterSchema}
+            initialValues={filterProps.filters}
+            onApply={filterProps.setFilters}
+          />
+        ) : null}
       </div>
     </header>
   );
@@ -188,6 +197,7 @@ Header.propTypes = {
   showSearch: PropTypes.bool,
   showAdd: PropTypes.bool,
   showMore: PropTypes.bool,
+  filterProps: PropTypes.any,
 };
 
 Header.defaultProps = {

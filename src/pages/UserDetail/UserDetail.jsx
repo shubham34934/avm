@@ -48,6 +48,8 @@ const UserDetail = () => {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showCreatorModal, setShowCreatorModal] = useState(false);
   const [creatorModalMode, setCreatorModalMode] = useState('add');
+  const [showVideoUserModal, setShowVideoUserModal] = useState(false);
+  const [pendingVideoUserData, setPendingVideoUserData] = useState(null);
 
   useEffect(() => {
     if (username) {
@@ -117,53 +119,49 @@ const UserDetail = () => {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      setSaveError(null);
-      await dispatch(updateUser(editedUser)).unwrap();
-      toast.success("User updated successfully");
-      navigate(`/users/${username}`, { replace: true });
-    } catch (error) {
-      setSaveError(error);
-      toast.error("Failed to update user");
-    }
-  };
-
-  const handleRoleToggle = async (role) => {
+  const handleRoleToggle = (role) => {
     if (!isEditMode) return;
 
-    // Ensure authorities is an array
-    const currentAuthorities = Array.isArray(editedUser.authorities)
-      ? editedUser.authorities
-      : [];
-    const authorities = [...currentAuthorities];
-    const index = authorities.indexOf(role);
-    const isAdding = index === -1;
+    const newAuthorities = [...editedUser.authorities];
+    const roleIndex = newAuthorities.indexOf(role);
 
-    if (role === USER_ROLES.CREATOR) {
-      setCreatorModalMode(isAdding ? 'add' : 'remove');
-      setShowCreatorModal(true);
-      return;
-    }
-
-    if (isAdding) {
-      authorities.push(role);
+    if (roleIndex === -1) {
+      newAuthorities.push(role);
     } else {
-      authorities.splice(index, 1);
+      newAuthorities.splice(roleIndex, 1);
     }
 
-    handleInputChange("authorities", authorities);
+    setEditedUser({
+      ...editedUser,
+      authorities: newAuthorities,
+    });
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      // Check if creator role was added or removed
+      const hasCreatorRole = editedUser.authorities.includes(USER_ROLES.CREATOR);
+      const hadCreatorRole = user.authorities.includes(USER_ROLES.CREATOR);
+
+      if (hasCreatorRole !== hadCreatorRole) {
+        // Show modal for video user creation/deletion
+        setCreatorModalMode(hasCreatorRole ? 'add' : 'remove');
+        setShowCreatorModal(true);
+        return;
+      }
+
+      // If no creator role change, just update user
+      await dispatch(updateUser({ login: editedUser.login, ...editedUser })).unwrap();
+      toast.success('User updated successfully');
+    } catch (error) {
+      toast.error(error.message || 'Failed to update user');
+    }
   };
 
   const handleCreatorModalConfirm = async (phoneNumber) => {
     try {
-      const currentAuthorities = Array.isArray(editedUser.authorities)
-        ? editedUser.authorities
-        : [];
-      const authorities = [...currentAuthorities];
-
       if (creatorModalMode === 'add') {
-        // Create video user
+        // Create video user first
         await dispatch(createVideoUser({
           userId: editedUser.id.toString(),
           userName: editedUser.login,
@@ -171,28 +169,35 @@ const UserDetail = () => {
           phone: phoneNumber,
           email: editedUser.email
         })).unwrap();
-
-        // Add creator role
-        authorities.push(USER_ROLES.CREATOR);
-        handleInputChange("authorities", authorities);
-        toast.success("Creator role added successfully");
-        
-        // Navigate back to user list page
-        navigate('/users');
+        toast.success("Video user created successfully");
       } else {
-        // Delete video user
+        // Delete video user first
         await dispatch(deleteVideoUser(editedUser.id.toString())).unwrap();
-
-        // Remove creator role
-        const index = authorities.indexOf(USER_ROLES.CREATOR);
-        if (index !== -1) {
-          authorities.splice(index, 1);
-        }
-        handleInputChange("authorities", authorities);
-        toast.success("Creator role removed successfully");
+        toast.success("Video user deleted successfully");
       }
+
+      // After video user operation, update the user
+      await dispatch(updateUser({ login: editedUser.login, ...editedUser })).unwrap();
+      toast.success('User updated successfully');
+      
+      setShowCreatorModal(false);
     } catch (error) {
-      toast.error(error.message || "Failed to update creator role");
+      toast.error(error.message || "Failed to update user");
+    }
+  };
+
+  const handleVideoUserConfirm = async (phoneNumber) => {
+    try {
+      await dispatch(createVideoUser({
+        ...pendingVideoUserData,
+        phone: phoneNumber
+      })).unwrap();
+      
+      toast.success('Video user created successfully');
+      setShowVideoUserModal(false);
+      setPendingVideoUserData(null);
+    } catch (error) {
+      toast.error(error.message || 'Failed to create video user');
     }
   };
 
@@ -572,7 +577,7 @@ const UserDetail = () => {
           <div className={styles.actions}>
             {isEditMode ? (
               <Button
-                onClick={handleSave}
+                onClick={handleSaveChanges}
                 variant="primary"
                 style={{ width: "100%" }}
               >
@@ -609,6 +614,18 @@ const UserDetail = () => {
             onClose={handleAvatarModalClose}
             onSave={handleAvatarSave}
             currentImageUrl={editedUser.imageUrl}
+          />
+        )}
+
+        {showVideoUserModal && (
+          <CreatorRoleModal
+            isOpen={showVideoUserModal}
+            onClose={() => {
+              setShowVideoUserModal(false);
+              setPendingVideoUserData(null);
+            }}
+            onConfirm={handleVideoUserConfirm}
+            mode="add"
           />
         )}
       </div>

@@ -293,3 +293,35 @@
   width: 16px;
   height: 16px;
 }
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.infoItem label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.infoItem span {
+  color: var(--text-primary);
+}
+
+.active {
+  color: var(--success);
+  font-weight: 500;
+}
+
+.inactive {
+  color: var(--error);
+  font-weight: 500;
+}

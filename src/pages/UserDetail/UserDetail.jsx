@@ -161,6 +161,133 @@ const UserDetail = () => {
     </div>
   );
 
+  const renderBankDetails = () => {
+    if (!user?.bankDetails && !isEditMode) return null;
+
+    const bankDetails = user?.bankDetails || {};
+
+    return (
+        <div className={styles.infoGrid}>
+          <div className={styles.infoItem}>
+            <label>Account Name</label>
+            {isEditMode ? (
+              <input
+                type="text"
+                value={editedUser.bankDetails?.accountName || ''}
+                onChange={(e) => handleInputChange('bankDetails', {
+                  ...editedUser.bankDetails,
+                  accountName: e.target.value
+                })}
+                className={styles.editInput}
+              />
+            ) : (
+              <span>{bankDetails.accountName || 'Not provided'}</span>
+            )}
+          </div>
+          <div className={styles.infoItem}>
+            <label>Account Number</label>
+            {isEditMode ? (
+              <input
+                type="text"
+                value={editedUser.bankDetails?.accountNo || ''}
+                onChange={(e) => handleInputChange('bankDetails', {
+                  ...editedUser.bankDetails,
+                  accountNo: e.target.value
+                })}
+                className={styles.editInput}
+              />
+            ) : (
+              <span>{bankDetails.accountNo || 'Not provided'}</span>
+            )}
+          </div>
+          <div className={styles.infoItem}>
+            <label>Bank Name</label>
+            {isEditMode ? (
+              <input
+                type="text"
+                value={editedUser.bankDetails?.bankName || ''}
+                onChange={(e) => handleInputChange('bankDetails', {
+                  ...editedUser.bankDetails,
+                  bankName: e.target.value
+                })}
+                className={styles.editInput}
+              />
+            ) : (
+              <span>{bankDetails.bankName || 'Not provided'}</span>
+            )}
+          </div>
+          <div className={styles.infoItem}>
+            <label>IFSC Code</label>
+            {isEditMode ? (
+              <input
+                type="text"
+                value={editedUser.bankDetails?.ifsc || ''}
+                onChange={(e) => handleInputChange('bankDetails', {
+                  ...editedUser.bankDetails,
+                  ifsc: e.target.value
+                })}
+                className={styles.editInput}
+              />
+            ) : (
+              <span>{bankDetails.ifsc || 'Not provided'}</span>
+            )}
+          </div>
+          <div className={styles.infoItem}>
+            <label>Proof URL</label>
+            {isEditMode ? (
+              <input
+                type="url"
+                value={editedUser.bankDetails?.proofUrl || ''}
+                onChange={(e) => handleInputChange('bankDetails', {
+                  ...editedUser.bankDetails,
+                  proofUrl: e.target.value
+                })}
+                className={styles.editInput}
+              />
+            ) : (
+              <span>{bankDetails.proofUrl || 'Not provided'}</span>
+            )}
+          </div>
+          <div className={styles.infoItem}>
+            <label>UPI Handle</label>
+            {isEditMode ? (
+              <input
+                type="text"
+                value={editedUser.bankDetails?.upiHandle || ''}
+                onChange={(e) => handleInputChange('bankDetails', {
+                  ...editedUser.bankDetails,
+                  upiHandle: e.target.value
+                })}
+                className={styles.editInput}
+              />
+            ) : (
+              <span>{bankDetails.upiHandle || 'Not provided'}</span>
+            )}
+          </div>
+          <div className={styles.infoItem}>
+            <label>Status</label>
+            {isEditMode ? (
+              <select
+                value={editedUser.bankDetails?.isActive ? 'active' : 'inactive'}
+                onChange={(e) => handleInputChange('bankDetails', {
+                  ...editedUser.bankDetails,
+                  isActive: e.target.value === 'active'
+                })}
+                className={styles.editInput}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            ) : (
+              <span className={bankDetails.isActive ? styles.active : styles.inactive}>
+                {bankDetails.isActive ? 'Active' : 'Inactive'}
+              </span>
+            )}
+          </div>
+        </div>
+    );
+  };
+
   const renderContent = () => {
     if (loading) {
       return <Loader />;
@@ -283,6 +410,11 @@ const UserDetail = () => {
               </div>
               {renderEditableField("Language", "langKey", editedUser.langKey)}
             </div>
+          </div>
+
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Bank Information</h2>
+            {renderBankDetails()}
           </div>
 
           <div className={styles.section}>

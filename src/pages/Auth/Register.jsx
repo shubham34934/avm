@@ -6,7 +6,6 @@ import { useToast } from "../../context/ToastContext";
 import "./Auth.css";
 
 const Register = () => {
-  const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,7 +18,7 @@ const Register = () => {
     setError("");
 
     // Validation
-    if (!login || !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       errorToast("Please fill in all fields");
       return;
     }
@@ -35,8 +34,20 @@ const Register = () => {
       return;
     }
 
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errorToast("Please enter a valid email address");
+      return;
+    }
+
     try {
-      const result = await AuthService.register(login, email, password);
+      const result = await AuthService.register({
+        login: email, // Using email as username
+        email,
+        password,
+        langKey: "en"
+      });
 
       if (result.success) {
         navigate("/login", {
@@ -46,7 +57,6 @@ const Register = () => {
         });
       }
     } catch (err) {
-      // Error handling is now done in AuthService with toast
       setError(err.message);
     }
   };
@@ -60,17 +70,6 @@ const Register = () => {
 
             {error && <Alert variant="danger">{error}</Alert>}
 
-            <Form.Group controlId="formLogin" className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter username"
-                value={login}
-                onChange={(e) => setLogin(e.target.value)}
-                required
-              />
-            </Form.Group>
-
             <Form.Group controlId="formEmail" className="mb-3">
               <Form.Label>Email address</Form.Label>
               <Form.Control
@@ -80,6 +79,9 @@ const Register = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+              <Form.Text className="text-muted">
+                This will be used as your username
+              </Form.Text>
             </Form.Group>
 
             <Form.Group controlId="formPassword" className="mb-3">

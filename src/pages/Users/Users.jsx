@@ -243,7 +243,7 @@ const Users = () => {
             className={`${styles.tabButton} ${activeTab === 'admin' ? styles.active : ''}`}
             onClick={() => setActiveTab('admin')}
           >
-            Admin Users
+            All Users
           </button>
         </div>
         {renderContent()}

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../config/store";
 import { toggleLike, toggleShortlist } from "../../reducers/submissions";
-import { fetchVideoPosts, deleteVideoPost } from "../../reducers/videoPosts";
+import { fetchVideoPosts, deleteVideoPost, setVideoPostFilters, clearVideoPostFilters } from "../../reducers/videoPosts";
 import InfiniteLoader from "../../components/InfiniteLoader/InfiniteLoader";
 import styles from "./Videos.module.css";
 import { toast } from "react-toastify";
@@ -17,6 +17,7 @@ import { setVideoList } from "../../reducers/videoNavigation";
 import { usePermissions } from "../../hooks/usePermissions";
 import { USER_ROLES } from "../../utils/constants";
 import { generateVideoTags } from "../../utils/videoUtils";
+import { createFilter } from "../../utils/filterUtils";
 // Debounce utility function
 const debounce = (func, delay) => {
   let timeoutId;
@@ -30,16 +31,15 @@ const debounce = (func, delay) => {
   };
 };
 
-const userFilterSchema = [
-  { key: "name", type: "text", label: "Name" },
-  { key: "email", type: "text", label: "Email" },
-  {
-    key: "status",
-    type: "select",
-    label: "Status",
-    options: ["Active", "Inactive"],
-  },
-  { key: "createdAt", type: "date", label: "Created Date" },
+const videoFilterSchema = [
+  { key: "title", type: "text", label: "Title" },
+  { key: "description", type: "text", label: "Description" },
+  { key: "isAIGenerated", type: "boolean", label: "AI Generated" },
+  { key: "isPremium", type: "boolean", label: "Premium" },
+  { key: "isBlocked", type: "boolean", label: "Blocked" },
+  { key: "isModerated", type: "boolean", label: "Moderated" },
+  { key: "createdOn", type: "date", label: "Created Date" },
+  { key: "updatedOn", type: "date", label: "Updated Date" },
 ];
 
 const Submissions = () => {
@@ -120,17 +120,25 @@ const Submissions = () => {
 
       // Add competition filter if it's a submission page
       if (isSubmission && campaignId) {
-        filters.competition = { id: parseInt(campaignId) };
+        filters.filters = [
+          createFilter("competitionId", "equals", parseInt(campaignId))
+        ];
       }
 
       // Add search query if available
       if (searchQuery) {
-        filters.searchQuery = searchQuery;
+        filters.filters = [
+          ...(filters.filters || []),
+          createFilter("title", "contains", searchQuery)
+        ];
       }
 
       // Add tag filter if available
       if (tag) {
-        filters.tag = tag.toLowerCase();
+        filters.filters = [
+          ...(filters.filters || []),
+          createFilter("tag", "equals", tag.toLowerCase())
+        ];
 
         // Special handling for predefined tags
         if (tag.toLowerCase() === "popular") {
@@ -140,38 +148,64 @@ const Submissions = () => {
         }
       }
 
+      // Add any additional filters from the filter modal
+      if (Object.keys(filters).length > 0) {
+        filters.filters = [
+          ...(filters.filters || []),
+          ...Object.entries(filters).map(([key, value]) => {
+            if (typeof value === "boolean") {
+              return createFilter(key, "equals", value);
+            } else if (value instanceof Date) {
+              return createFilter(key, "equals", value.toISOString());
+            } else if (typeof value === "string") {
+              return createFilter(key, "contains", value);
+            }
+            return null;
+          }).filter(Boolean)
+        ];
+      }
+
       return filters;
     },
-    [isSubmission, campaignId, searchQuery, tag]
+    [isSubmission, campaignId, searchQuery, tag, filters]
   );
 
   // Debounced search handler
   const debouncedSearch = useCallback(
     debounce((query) => {
-      // Ensure the search query is preserved
       setSearchQuery(query);
       setIsSearching(true);
-
-      // Reset page to 0 when searching
       setCurrentPage(0);
 
-      // Get filters with search query
-      const filters = buildFilters(0);
-      if (query) {
-        filters.searchQuery = query;
-      }
-
-      dispatch(fetchVideoPosts(filters))
-        .then((response) => {
+      const filterParams = buildFilters(0);
+      dispatch(fetchVideoPosts(filterParams))
+        .then(() => {
           setIsSearching(false);
         })
         .catch((error) => {
           toast.error("Failed to perform search");
           setIsSearching(false);
         });
-    }, 500), // 500ms debounce delay
+    }, 500),
     [dispatch, buildFilters]
   );
+
+  // Handler for filter changes from FilterModal
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(0);
+    const filterParams = buildFilters(0);
+    dispatch(fetchVideoPosts(filterParams));
+  }, [dispatch, buildFilters]);
+
+  // Handler for clearing filters
+  const handleClearFilters = useCallback(() => {
+    setFilters({});
+    dispatch(clearVideoPostFilters());
+    setCurrentPage(0);
+    const filterParams = buildFilters(0);
+    dispatch(fetchVideoPosts(filterParams));
+  }, [dispatch, buildFilters]);
 
   // Handler for search from Header
   const handleSearch = useCallback(
@@ -385,9 +419,10 @@ const Submissions = () => {
         onMore={handleMore}
         filterProps={{
           showFilters: true,
-          userFilterSchema,
-          setFilters,
+          schema: videoFilterSchema,
           filters,
+          onFilterChange: handleFilterChange,
+          onClearFilters: handleClearFilters,
         }}
       />
 

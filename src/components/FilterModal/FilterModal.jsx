@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -12,18 +12,23 @@ import {
   InputLabel,
   IconButton,
   Stack,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 
-const FilterModal = ({ schema, initialValues = {}, onApply }) => {
+const FilterModal = ({ schema = [], initialValues = {}, onApply, onClear }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState(() => {
+  const [filters, setFilters] = useState({});
+
+  // Initialize filters when schema or initialValues change
+  useEffect(() => {
     const defaults = {};
     schema.forEach((field) => {
       defaults[field.key] = initialValues[field.key] ?? "";
     });
-    return defaults;
-  });
+    setFilters(defaults);
+  }, [schema, initialValues]);
 
   const handleChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -35,14 +40,16 @@ const FilterModal = ({ schema, initialValues = {}, onApply }) => {
   };
 
   const handleClear = () => {
-    // Reset all filters to empty string or initialValues
+    // Reset all filters to empty string
     const cleared = {};
     schema.forEach((field) => {
       cleared[field.key] = "";
     });
     setFilters(cleared);
+    if (onClear) {
+      onClear();
+    }
   };
-  console.log("Sfsfsfsf");
 
   return (
     <>
@@ -83,6 +90,21 @@ const FilterModal = ({ schema, initialValues = {}, onApply }) => {
                       ))}
                     </Select>
                   </FormControl>
+                );
+              }
+
+              if (field.type === "boolean") {
+                return (
+                  <FormControlLabel
+                    key={field.key}
+                    control={
+                      <Checkbox
+                        checked={value === true}
+                        onChange={(e) => handleChange(field.key, e.target.checked)}
+                      />
+                    }
+                    label={field.label}
+                  />
                 );
               }
 

@@ -120,18 +120,20 @@ export const fetchUsers = createAsyncThunk(
 // Async thunk for fetching user by username
 export const fetchUserByUsername = createAsyncThunk(
   "users/fetchUserByUsername",
-  async (username: string) => {
+  async (username: string, { rejectWithValue }) => {
     try {
       const response = await axios.get(
         `${ENV.VITE_APP_API_URL}/admin/users/${username}`
       );
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      // handleApiError(error);
       throw error;
     }
   }
 );
+
+
 
 // Async thunk for deleting user
 export const deleteUser = createAsyncThunk(

@@ -176,9 +176,10 @@ const Header = ({
         )}
         {filterProps.showFilters ? (
           <FilterModal
-            schema={filterProps.userFilterSchema}
+            schema={filterProps.schema}
             initialValues={filterProps.filters}
-            onApply={filterProps.setFilters}
+            onApply={filterProps.onFilterChange}
+            onClear={filterProps.onClearFilters}
           />
         ) : null}
       </div>

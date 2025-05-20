@@ -74,15 +74,27 @@ const Users = () => {
   };
 
   const handleUserClick = (user) => {
-    navigate(`/users/${user.login || user.userName}`);
+    if (activeTab === 'video') {
+      navigate(`/users/${user.userName}?vd=true`);
+    } else {
+      navigate(`/users/${user.login}`);
+    }
   };
 
   const handleViewUser = (user) => {
-    navigate(`/users/${user.login || user.userName}`);
+    if (activeTab === 'video') {
+      navigate(`/users/${user.userName}?vd=true`);
+    } else {
+      navigate(`/users/${user.login}`);
+    }
   };
 
   const handleEditUser = (user) => {
-    navigate(`/users/${user.login || user.userName}?edit=true`);
+    if (activeTab === 'video') {
+      navigate(`/users/${user.userName}?edit=true&vd=true`);
+    } else {
+      navigate(`/users/${user.login}?edit=true`);
+    }
   };
 
   const handleDeleteUser = async () => {

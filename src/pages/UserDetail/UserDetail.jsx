@@ -26,6 +26,7 @@ const UserDetail = () => {
   const { username } = useParams();
   const [searchParams] = useSearchParams();
   const isEditMode = searchParams.get("edit") === "true";
+  const isVideoUser = searchParams.get("vd") === "true";
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -244,127 +245,129 @@ const UserDetail = () => {
         </div>
       </div>
 
-      <div className={styles.section}>
-        <h3>Bank Information</h3>
-        <div className={styles.infoGrid}>
-          <div className={styles.infoItem}>
-            <label>Account Name</label>
-            {isEditMode ? (
-              <input
-                type="text"
-                value={editedUser.bankDetails?.accountName || ''}
-                onChange={(e) => handleInputChange('bankDetails', {
-                  ...editedUser.bankDetails,
-                  accountName: e.target.value
-                })}
-                className={styles.editInput}
-              />
-            ) : (
-              <span>{editedUser.bankDetails?.accountName || 'Not provided'}</span>
-            )}
-          </div>
-          <div className={styles.infoItem}>
-            <label>Account Number</label>
-            {isEditMode ? (
-              <input
-                type="text"
-                value={editedUser.bankDetails?.accountNo || ''}
-                onChange={(e) => handleInputChange('bankDetails', {
-                  ...editedUser.bankDetails,
-                  accountNo: e.target.value
-                })}
-                className={styles.editInput}
-              />
-            ) : (
-              <span>{editedUser.bankDetails?.accountNo || 'Not provided'}</span>
-            )}
-          </div>
-          <div className={styles.infoItem}>
-            <label>Bank Name</label>
-            {isEditMode ? (
-              <input
-                type="text"
-                value={editedUser.bankDetails?.bankName || ''}
-                onChange={(e) => handleInputChange('bankDetails', {
-                  ...editedUser.bankDetails,
-                  bankName: e.target.value
-                })}
-                className={styles.editInput}
-              />
-            ) : (
-              <span>{editedUser.bankDetails?.bankName || 'Not provided'}</span>
-            )}
-          </div>
-          <div className={styles.infoItem}>
-            <label>IFSC Code</label>
-            {isEditMode ? (
-              <input
-                type="text"
-                value={editedUser.bankDetails?.ifsc || ''}
-                onChange={(e) => handleInputChange('bankDetails', {
-                  ...editedUser.bankDetails,
-                  ifsc: e.target.value
-                })}
-                className={styles.editInput}
-              />
-            ) : (
-              <span>{editedUser.bankDetails?.ifsc || 'Not provided'}</span>
-            )}
-          </div>
-          <div className={styles.infoItem}>
-            <label>Proof URL</label>
-            {isEditMode ? (
-              <input
-                type="url"
-                value={editedUser.bankDetails?.proofUrl || ''}
-                onChange={(e) => handleInputChange('bankDetails', {
-                  ...editedUser.bankDetails,
-                  proofUrl: e.target.value
-                })}
-                className={styles.editInput}
-              />
-            ) : (
-              <span>{editedUser.bankDetails?.proofUrl || 'Not provided'}</span>
-            )}
-          </div>
-          <div className={styles.infoItem}>
-            <label>UPI Handle</label>
-            {isEditMode ? (
-              <input
-                type="text"
-                value={editedUser.bankDetails?.upiHandle || ''}
-                onChange={(e) => handleInputChange('bankDetails', {
-                  ...editedUser.bankDetails,
-                  upiHandle: e.target.value
-                })}
-                className={styles.editInput}
-              />
-            ) : (
-              <span>{editedUser.bankDetails?.upiHandle || 'Not provided'}</span>
-            )}
-          </div>
-          <div className={styles.infoItem}>
-            <label>Status</label>
-            {isEditMode ? (
-              <select
-                value={editedUser.bankDetails?.isActive ? 'active' : 'inactive'}
-                onChange={(e) => handleInputChange('bankDetails', {
-                  ...editedUser.bankDetails,
-                  isActive: e.target.value === 'active'
-                })}
-                className={styles.editInput}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            ) : (
-              <span className={editedUser.bankDetails?.isActive ? styles.active : styles.inactive}>
-                {editedUser.bankDetails?.isActive ? 'Active' : 'Inactive'}
-              </span>
-            )}
+      {isVideoUser && (
+        <div className={styles.section}>
+          <h3>Bank Information</h3>
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <label>Account Name</label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedUser.bankDetails?.accountName || ''}
+                  onChange={(e) => handleInputChange('bankDetails', {
+                    ...editedUser.bankDetails,
+                    accountName: e.target.value
+                  })}
+                  className={styles.editInput}
+                />
+              ) : (
+                <span>{editedUser.bankDetails?.accountName || 'Not provided'}</span>
+              )}
+            </div>
+            <div className={styles.infoItem}>
+              <label>Account Number</label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedUser.bankDetails?.accountNo || ''}
+                  onChange={(e) => handleInputChange('bankDetails', {
+                    ...editedUser.bankDetails,
+                    accountNo: e.target.value
+                  })}
+                  className={styles.editInput}
+                />
+              ) : (
+                <span>{editedUser.bankDetails?.accountNo || 'Not provided'}</span>
+              )}
+            </div>
+            <div className={styles.infoItem}>
+              <label>Bank Name</label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedUser.bankDetails?.bankName || ''}
+                  onChange={(e) => handleInputChange('bankDetails', {
+                    ...editedUser.bankDetails,
+                    bankName: e.target.value
+                  })}
+                  className={styles.editInput}
+                />
+              ) : (
+                <span>{editedUser.bankDetails?.bankName || 'Not provided'}</span>
+              )}
+            </div>
+            <div className={styles.infoItem}>
+              <label>IFSC Code</label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedUser.bankDetails?.ifsc || ''}
+                  onChange={(e) => handleInputChange('bankDetails', {
+                    ...editedUser.bankDetails,
+                    ifsc: e.target.value
+                  })}
+                  className={styles.editInput}
+                />
+              ) : (
+                <span>{editedUser.bankDetails?.ifsc || 'Not provided'}</span>
+              )}
+            </div>
+            <div className={styles.infoItem}>
+              <label>Proof URL</label>
+              {isEditMode ? (
+                <input
+                  type="url"
+                  value={editedUser.bankDetails?.proofUrl || ''}
+                  onChange={(e) => handleInputChange('bankDetails', {
+                    ...editedUser.bankDetails,
+                    proofUrl: e.target.value
+                  })}
+                  className={styles.editInput}
+                />
+              ) : (
+                <span>{editedUser.bankDetails?.proofUrl || 'Not provided'}</span>
+              )}
+            </div>
+            <div className={styles.infoItem}>
+              <label>UPI Handle</label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedUser.bankDetails?.upiHandle || ''}
+                  onChange={(e) => handleInputChange('bankDetails', {
+                    ...editedUser.bankDetails,
+                    upiHandle: e.target.value
+                  })}
+                  className={styles.editInput}
+                />
+              ) : (
+                <span>{editedUser.bankDetails?.upiHandle || 'Not provided'}</span>
+              )}
+            </div>
+            <div className={styles.infoItem}>
+              <label>Status</label>
+              {isEditMode ? (
+                <select
+                  value={editedUser.bankDetails?.isActive ? 'active' : 'inactive'}
+                  onChange={(e) => handleInputChange('bankDetails', {
+                    ...editedUser.bankDetails,
+                    isActive: e.target.value === 'active'
+                  })}
+                  className={styles.editInput}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              ) : (
+                <span className={editedUser.bankDetails?.isActive ? styles.active : styles.inactive}>
+                  {editedUser.bankDetails?.isActive ? 'Active' : 'Inactive'}
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className={styles.section}>
         <h3>System Information</h3>
@@ -553,34 +556,38 @@ const UserDetail = () => {
           </div>
         </div>
 
-        <div className={styles.tabsContainer}>
-          <div className={styles.tabList}>
-            <button
-              className={`${styles.tabButton} ${activeTab === 'profile' ? styles.active : ''}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              Profile Info
-            </button>
-            <button
-              className={`${styles.tabButton} ${activeTab === 'campaigns' ? styles.active : ''}`}
-              onClick={() => setActiveTab('campaigns')}
-            >
-              Campaigns
-            </button>
-            <button
-              className={`${styles.tabButton} ${activeTab === 'videos' ? styles.active : ''}`}
-              onClick={() => setActiveTab('videos')}
-            >
-              Videos
-            </button>
-          </div>
+        {isVideoUser ? (
+          <div className={styles.tabsContainer}>
+            <div className={styles.tabList}>
+              <button
+                className={`${styles.tabButton} ${activeTab === 'profile' ? styles.active : ''}`}
+                onClick={() => setActiveTab('profile')}
+              >
+                Profile Info
+              </button>
+              <button
+                className={`${styles.tabButton} ${activeTab === 'campaigns' ? styles.active : ''}`}
+                onClick={() => setActiveTab('campaigns')}
+              >
+                Campaigns
+              </button>
+              <button
+                className={`${styles.tabButton} ${activeTab === 'videos' ? styles.active : ''}`}
+                onClick={() => setActiveTab('videos')}
+              >
+                Videos
+              </button>
+            </div>
 
-          <div className={styles.tabContent}>
-            {activeTab === 'profile' && renderProfileInfo()}
-            {activeTab === 'campaigns' && renderCampaigns()}
-            {activeTab === 'videos' && renderVideos()}
+            <div className={styles.tabContent}>
+              {activeTab === 'profile' && renderProfileInfo()}
+              {activeTab === 'campaigns' && renderCampaigns()}
+              {activeTab === 'videos' && renderVideos()}
+            </div>
           </div>
-        </div>
+        ) : (
+          renderProfileInfo()
+        )}
 
         {saveError && <div className={styles.errorMessage}>{saveError}</div>}
 

@@ -151,8 +151,13 @@ const UserDetail = () => {
       }
 
       // If no creator role change, just update user
-      await dispatch(updateUser({ login: editedUser.login, ...editedUser })).unwrap();
+      const userToUpdate = {
+        ...editedUser,
+        authorities: editedUser.authorities || []
+      };
+      await dispatch(updateUser({ login: editedUser.login, ...userToUpdate })).unwrap();
       toast.success('User updated successfully');
+      navigate(`/users/${editedUser.login}`, { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to update user');
     }
@@ -167,7 +172,8 @@ const UserDetail = () => {
           userName: editedUser.login,
           name: `${editedUser.firstName || ''} ${editedUser.lastName || ''}`.trim(),
           phone: phoneNumber,
-          email: editedUser.email
+          email: editedUser.email,
+          isActive: editedUser.activated
         })).unwrap();
         toast.success("Video user created successfully");
       } else {
@@ -177,10 +183,15 @@ const UserDetail = () => {
       }
 
       // After video user operation, update the user
-      await dispatch(updateUser({ login: editedUser.login, ...editedUser })).unwrap();
+      const userToUpdate = {
+        ...editedUser,
+        authorities: editedUser.authorities || []
+      };
+      await dispatch(updateUser({ login: editedUser.login, ...userToUpdate })).unwrap();
       toast.success('User updated successfully');
       
       setShowCreatorModal(false);
+      navigate(`/users/${editedUser.login}`, { replace: true });
     } catch (error) {
       toast.error(error.message || "Failed to update user");
     }

@@ -147,7 +147,7 @@ export const fetchVideoUsers = createAsyncThunk(
   }) => {
     try {
       const response = await axios.get(
-        `${ENV.VITE_APP_API_URL}/api/video-users?page=${page}&size=${size}&sort=${sort}`
+        `${ENV.VITE_APP_API_URL}/video-users?page=${page}&size=${size}&sort=${sort}`
       );
       return {
         videoUsers: response.data,

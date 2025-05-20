@@ -13,6 +13,52 @@
   padding: 0 var(--spacing-4) 80px var(--spacing-4);
 }
 
+.tabsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.tabList {
+  display: flex;
+  gap: 16px;
+  padding: 0 var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--white);
+}
+
+.tabButton {
+  padding: 12px 24px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.tabButton:hover {
+  color: var(--text-primary);
+}
+
+.tabButton.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.tabButton.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
 .menuOptions {
   display: flex;
   flex-direction: column;
@@ -30,18 +76,18 @@
   text-align: left;
   cursor: pointer;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
   transition: background-color 0.2s;
 }
 
 .menuOptions button:hover {
-  background-color: #f5f5f5;
+  background-color: var(--hover-bg);
 }
 
 .menuOptions .deleteButton {
-  color: #dc3545;
+  color: var(--error-color);
 }
 
 .menuOptions .deleteButton:hover {
-  background-color: #ffebee;
+  background-color: var(--error-light);
 }

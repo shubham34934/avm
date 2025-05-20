@@ -8,6 +8,7 @@ import videoPosts from "../reducers/videoPosts";
 import videoNavigationReducer from "../reducers/videoNavigation";
 import brandsReducer from "../reducers/brands";
 import permissionsReducer from "../reducers/permissions";
+import videoUsersReducer from "../reducers/videoUsers";
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
     videoNavigation: videoNavigationReducer,
     brands: brandsReducer,
     permissions: permissionsReducer,
+    videoUsers: videoUsersReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

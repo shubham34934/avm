@@ -34,7 +34,7 @@ const FallbackLoader = () => (
 const Users = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [activeTab, setActiveTab] = useState('admin'); // 'admin' or 'video'
+  const [activeTab, setActiveTab] = useState('video'); // Changed default to 'video'
   
   // Admin users state
   const { users, loading: adminLoading, error: adminError, totalItems: adminTotalItems, currentPage: adminCurrentPage } = useAppSelector(
@@ -234,16 +234,16 @@ const Users = () => {
       <div className={styles.tabsContainer}>
         <div className={styles.tabList}>
           <button
-            className={`${styles.tabButton} ${activeTab === 'admin' ? styles.active : ''}`}
-            onClick={() => setActiveTab('admin')}
-          >
-            Admin Users
-          </button>
-          <button
             className={`${styles.tabButton} ${activeTab === 'video' ? styles.active : ''}`}
             onClick={() => setActiveTab('video')}
           >
             Video Users
+          </button>
+          <button
+            className={`${styles.tabButton} ${activeTab === 'admin' ? styles.active : ''}`}
+            onClick={() => setActiveTab('admin')}
+          >
+            Admin Users
           </button>
         </div>
         {renderContent()}

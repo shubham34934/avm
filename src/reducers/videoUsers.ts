@@ -96,7 +96,7 @@ export const uploadVideoUserAvatar = createAsyncThunk(
       formData.append("file", file);
 
       const response = await axios.post(
-        `${ENV.VITE_APP_API_URL}/api/video-users/${userId}/avatar`,
+        `${ENV.VITE_APP_API_URL}/video-users/${userId}/avatar`,
         formData,
         {
           headers: {
@@ -120,7 +120,7 @@ export const updateVideoUser = createAsyncThunk(
   async (userData: Partial<VideoUser>, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${ENV.VITE_APP_API_URL}/api/video-users/${userData.id}`,
+        `${ENV.VITE_APP_API_URL}/video-users/${userData.id}`,
         userData
       );
       return response.data;
@@ -167,7 +167,7 @@ export const fetchVideoUserCount = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get(
-        `${ENV.VITE_APP_API_URL}/api/video-users/count`
+        `${ENV.VITE_APP_API_URL}/video-users/count`
       );
       return response.data;
     } catch (error) {
@@ -183,7 +183,7 @@ export const fetchVideoUserById = createAsyncThunk(
   async (id: string) => {
     try {
       const response = await axios.get(
-        `${ENV.VITE_APP_API_URL}/api/video-users/${id}`
+        `${ENV.VITE_APP_API_URL}/video-users/${id}`
       );
       return response.data;
     } catch (error) {
@@ -198,7 +198,7 @@ export const deleteVideoUser = createAsyncThunk(
   "videoUsers/deleteVideoUser",
   async (id: string, { rejectWithValue }) => {
     try {
-      await axios.delete(`${ENV.VITE_APP_API_URL}/api/video-users/${id}`);
+      await axios.delete(`${ENV.VITE_APP_API_URL}/video-users/${id}`);
       return id;
     } catch (error) {
       handleApiError(error);

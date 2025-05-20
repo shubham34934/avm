@@ -209,6 +209,31 @@ export const deleteVideoUser = createAsyncThunk(
   }
 );
 
+// Async thunk for creating video user
+export const createVideoUser = createAsyncThunk(
+  "videoUsers/createVideoUser",
+  async (userData: {
+    userId: string;
+    userName: string;
+    name: string;
+    phone: string;
+    email: string;
+  }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${ENV.VITE_APP_API_URL}/video-users`,
+        userData
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create video user"
+      );
+    }
+  }
+);
+
 const videoUsersSlice = createSlice({
   name: "videoUsers",
   initialState,
@@ -301,6 +326,18 @@ const videoUsersSlice = createSlice({
       })
       .addCase(uploadVideoUserAvatar.rejected, (state, action) => {
         state.uploadingAvatar = false;
+        state.error = action.payload as string;
+      })
+      .addCase(createVideoUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createVideoUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.videoUsers.push(action.payload);
+      })
+      .addCase(createVideoUser.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
   },

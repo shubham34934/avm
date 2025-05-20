@@ -19,6 +19,8 @@ import Tag from "../../components/Tag/Tag";
 import AvatarModal from "../../components/AvatarModal/AvatarModal";
 import { usePermissions } from "../../hooks/usePermissions";
 import { USER_ROLES } from "../../utils/constants";
+import CreatorRoleModal from '../../components/Modals/CreatorRoleModal';
+import { createVideoUser, deleteVideoUser } from '../../reducers/videoUsers';
 
 const UserDetail = () => {
   const { username } = useParams();
@@ -44,6 +46,8 @@ const UserDetail = () => {
   const [saveError, setSaveError] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showCreatorModal, setShowCreatorModal] = useState(false);
+  const [creatorModalMode, setCreatorModalMode] = useState('add');
 
   useEffect(() => {
     if (username) {
@@ -125,7 +129,7 @@ const UserDetail = () => {
     }
   };
 
-  const handleRoleToggle = (role) => {
+  const handleRoleToggle = async (role) => {
     if (!isEditMode) return;
 
     // Ensure authorities is an array
@@ -134,14 +138,62 @@ const UserDetail = () => {
       : [];
     const authorities = [...currentAuthorities];
     const index = authorities.indexOf(role);
+    const isAdding = index === -1;
 
-    if (index === -1) {
+    if (role === USER_ROLES.CREATOR) {
+      setCreatorModalMode(isAdding ? 'add' : 'remove');
+      setShowCreatorModal(true);
+      return;
+    }
+
+    if (isAdding) {
       authorities.push(role);
     } else {
       authorities.splice(index, 1);
     }
 
     handleInputChange("authorities", authorities);
+  };
+
+  const handleCreatorModalConfirm = async (phoneNumber) => {
+    try {
+      const currentAuthorities = Array.isArray(editedUser.authorities)
+        ? editedUser.authorities
+        : [];
+      const authorities = [...currentAuthorities];
+
+      if (creatorModalMode === 'add') {
+        // Create video user
+        await dispatch(createVideoUser({
+          userId: editedUser.id.toString(),
+          userName: editedUser.login,
+          name: `${editedUser.firstName || ''} ${editedUser.lastName || ''}`.trim(),
+          phone: phoneNumber,
+          email: editedUser.email
+        })).unwrap();
+
+        // Add creator role
+        authorities.push(USER_ROLES.CREATOR);
+        handleInputChange("authorities", authorities);
+        toast.success("Creator role added successfully");
+        
+        // Navigate back to user list page
+        navigate('/users');
+      } else {
+        // Delete video user
+        await dispatch(deleteVideoUser(editedUser.id.toString())).unwrap();
+
+        // Remove creator role
+        const index = authorities.indexOf(USER_ROLES.CREATOR);
+        if (index !== -1) {
+          authorities.splice(index, 1);
+        }
+        handleInputChange("authorities", authorities);
+        toast.success("Creator role removed successfully");
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to update creator role");
+    }
   };
 
   const renderProfileInfo = () => (
@@ -540,6 +592,15 @@ const UserDetail = () => {
               )
             )}
           </div>
+        )}
+
+        {showCreatorModal && (
+          <CreatorRoleModal
+            isOpen={showCreatorModal}
+            onClose={() => setShowCreatorModal(false)}
+            onConfirm={handleCreatorModalConfirm}
+            mode={creatorModalMode}
+          />
         )}
 
         {showAvatarModal && (

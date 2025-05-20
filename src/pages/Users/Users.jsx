@@ -75,7 +75,7 @@ const Users = () => {
 
   const handleUserClick = (user) => {
     if (activeTab === 'video') {
-      navigate(`/users/${user.userName}?vd=true`);
+      navigate(`/users/${user.userName}?vd=true&videoId=${user.id}`);
     } else {
       navigate(`/users/${user.login}`);
     }
@@ -83,7 +83,7 @@ const Users = () => {
 
   const handleViewUser = (user) => {
     if (activeTab === 'video') {
-      navigate(`/users/${user.userName}?vd=true`);
+      navigate(`/users/${user.userName}?vd=true&videoId=${user.id}`);
     } else {
       navigate(`/users/${user.login}`);
     }
@@ -91,7 +91,7 @@ const Users = () => {
 
   const handleEditUser = (user) => {
     if (activeTab === 'video') {
-      navigate(`/users/${user.userName}?edit=true&vd=true`);
+      navigate(`/users/${user.userName}?edit=true&vd=true&videoId=${user.id}`);
     } else {
       navigate(`/users/${user.login}?edit=true`);
     }

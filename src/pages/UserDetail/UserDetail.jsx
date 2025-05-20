@@ -6,6 +6,7 @@ import {
   updateUser,
   uploadUserAvatar,
 } from "../../reducers/users";
+import { fetchVideoUserById } from "../../reducers/videoUsers";
 import styles from "./UserDetail.module.css";
 import Header from "../../components/Header/Header";
 import Loader from "../../components/Loader/Loader";
@@ -27,6 +28,7 @@ const UserDetail = () => {
   const [searchParams] = useSearchParams();
   const isEditMode = searchParams.get("edit") === "true";
   const isVideoUser = searchParams.get("vd") === "true";
+  const videoUserId = searchParams.get("videoId");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -38,10 +40,16 @@ const UserDetail = () => {
 
   const {
     selectedUser: user,
-    loading,
-    error,
+    loading: userLoading,
+    error: userError,
     uploadingAvatar,
   } = useAppSelector((state) => state.users);
+
+  const {
+    selectedVideoUser: videoUser,
+    loading: videoUserLoading,
+    error: videoUserError,
+  } = useAppSelector((state) => state.videoUsers);
 
   const [editedUser, setEditedUser] = useState(null);
   const [saveError, setSaveError] = useState(null);
@@ -54,16 +62,32 @@ const UserDetail = () => {
 
   useEffect(() => {
     if (username) {
+      // Always fetch user details
       dispatch(fetchUserByUsername(username));
+      
+      // If it's a video user and we have the video user ID, fetch video user details
+      if (isVideoUser && videoUserId) {
+        dispatch(fetchVideoUserById(videoUserId));
+      }
     }
-  }, [dispatch, username]);
+  }, [dispatch, username, isVideoUser, videoUserId]);
 
   useEffect(() => {
     if (user) {
-      setEditedUser(user);
+      // Merge user and video user data if available
+      const mergedUser = {
+        ...user,
+        ...(videoUser && {
+          bankDetails: videoUser.bankDetails,
+          campaigns: videoUser.campaigns,
+          videos: videoUser.videos,
+          phone: videoUser.phone,
+        }),
+      };
+      setEditedUser(mergedUser);
       setPreviewImage(user.imageUrl);
     }
-  }, [user]);
+  }, [user, videoUser]);
 
   const handleBack = () => {
     if (isEditMode) {
@@ -479,6 +503,9 @@ const UserDetail = () => {
   );
 
   const renderContent = () => {
+    const loading = isVideoUser ? (userLoading || videoUserLoading) : userLoading;
+    const error = isVideoUser ? (userError || videoUserError) : userError;
+
     if (loading) {
       return <Loader />;
     }
@@ -488,7 +515,12 @@ const UserDetail = () => {
         <Error
           title="Failed to Load User Details"
           message={error}
-          onRetry={() => dispatch(fetchUserByUsername(username))}
+          onRetry={() => {
+            dispatch(fetchUserByUsername(username));
+            if (isVideoUser && videoUserId) {
+              dispatch(fetchVideoUserById(videoUserId));
+            }
+          }}
         />
       );
     }
@@ -533,6 +565,7 @@ const UserDetail = () => {
               
               // Only show active roles when not in edit mode
               if (!isEditMode && !isActive) return null;
+              if(role === USER_ROLES.USER) return null;
               
               return (
                 <div

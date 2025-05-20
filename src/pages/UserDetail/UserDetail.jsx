@@ -28,6 +28,7 @@ const UserDetail = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const { userRole } = usePermissions();
+  const [activeTab, setActiveTab] = useState('profile');
 
   // Check if edit button should be visible (not visible for ROLE_CREATOR and ROLE_USER)
   const showEditButton = userRole !== USER_ROLES.CREATOR && userRole !== USER_ROLES.USER;
@@ -143,30 +144,40 @@ const UserDetail = () => {
     handleInputChange("authorities", authorities);
   };
 
-  const userTypeDisplay = getUserTypeDisplay(user?.authorities);
+  const renderProfileInfo = () => (
+    <div className={styles.tabContent}>
+      <div className={styles.section}>
+        <h3>Account Information</h3>
+        <div className={styles.detailsGrid}>
+          {renderEditableField("Username", "login", editedUser.login)}
+          {renderEditableField("Email", "email", editedUser.email, "email")}
+          {renderEditableField("First Name", "firstName", editedUser.firstName)}
+          {renderEditableField("Last Name", "lastName", editedUser.lastName)}
+          <div className={styles.detailItem}>
+            <label>Status</label>
+            {isEditMode ? (
+              <select
+                value={editedUser.activated ? "active" : "inactive"}
+                onChange={(e) =>
+                  handleInputChange("activated", e.target.value === "active")
+                }
+                className={styles.editInput}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            ) : (
+              <span className={editedUser.activated ? styles.active : styles.inactive}>
+                {editedUser.activated ? "Active" : "Inactive"}
+              </span>
+            )}
+          </div>
+          {renderEditableField("Language", "langKey", editedUser.langKey)}
+        </div>
+      </div>
 
-  const renderEditableField = (label, field, value, type = "text") => (
-    <div className={styles.detailItem}>
-      <label>{label}</label>
-      {isEditMode ? (
-        <input
-          type={type}
-          value={value || ""}
-          onChange={(e) => handleInputChange(field, e.target.value)}
-          className={styles.editInput}
-        />
-      ) : (
-        <span>{value}</span>
-      )}
-    </div>
-  );
-
-  const renderBankDetails = () => {
-    if (!user?.bankDetails && !isEditMode) return null;
-
-    const bankDetails = user?.bankDetails || {};
-
-    return (
+      <div className={styles.section}>
+        <h3>Bank Information</h3>
         <div className={styles.infoGrid}>
           <div className={styles.infoItem}>
             <label>Account Name</label>
@@ -181,7 +192,7 @@ const UserDetail = () => {
                 className={styles.editInput}
               />
             ) : (
-              <span>{bankDetails.accountName || 'Not provided'}</span>
+              <span>{editedUser.bankDetails?.accountName || 'Not provided'}</span>
             )}
           </div>
           <div className={styles.infoItem}>
@@ -197,7 +208,7 @@ const UserDetail = () => {
                 className={styles.editInput}
               />
             ) : (
-              <span>{bankDetails.accountNo || 'Not provided'}</span>
+              <span>{editedUser.bankDetails?.accountNo || 'Not provided'}</span>
             )}
           </div>
           <div className={styles.infoItem}>
@@ -213,7 +224,7 @@ const UserDetail = () => {
                 className={styles.editInput}
               />
             ) : (
-              <span>{bankDetails.bankName || 'Not provided'}</span>
+              <span>{editedUser.bankDetails?.bankName || 'Not provided'}</span>
             )}
           </div>
           <div className={styles.infoItem}>
@@ -229,7 +240,7 @@ const UserDetail = () => {
                 className={styles.editInput}
               />
             ) : (
-              <span>{bankDetails.ifsc || 'Not provided'}</span>
+              <span>{editedUser.bankDetails?.ifsc || 'Not provided'}</span>
             )}
           </div>
           <div className={styles.infoItem}>
@@ -245,7 +256,7 @@ const UserDetail = () => {
                 className={styles.editInput}
               />
             ) : (
-              <span>{bankDetails.proofUrl || 'Not provided'}</span>
+              <span>{editedUser.bankDetails?.proofUrl || 'Not provided'}</span>
             )}
           </div>
           <div className={styles.infoItem}>
@@ -261,7 +272,7 @@ const UserDetail = () => {
                 className={styles.editInput}
               />
             ) : (
-              <span>{bankDetails.upiHandle || 'Not provided'}</span>
+              <span>{editedUser.bankDetails?.upiHandle || 'Not provided'}</span>
             )}
           </div>
           <div className={styles.infoItem}>
@@ -279,14 +290,122 @@ const UserDetail = () => {
                 <option value="inactive">Inactive</option>
               </select>
             ) : (
-              <span className={bankDetails.isActive ? styles.active : styles.inactive}>
-                {bankDetails.isActive ? 'Active' : 'Inactive'}
+              <span className={editedUser.bankDetails?.isActive ? styles.active : styles.inactive}>
+                {editedUser.bankDetails?.isActive ? 'Active' : 'Inactive'}
               </span>
             )}
           </div>
         </div>
-    );
-  };
+      </div>
+
+      <div className={styles.section}>
+        <h3>System Information</h3>
+        <div className={styles.detailsGrid}>
+          <div className={styles.detailItem}>
+            <label>Created By</label>
+            <span>{editedUser.createdBy}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <label>Created Date</label>
+            <span>
+              {editedUser.createdDate
+                ? new Date(editedUser.createdDate).toLocaleString()
+                : "N/A"}
+            </span>
+          </div>
+          <div className={styles.detailItem}>
+            <label>Last Modified By</label>
+            <span>{editedUser.lastModifiedBy}</span>
+          </div>
+          <div className={styles.detailItem}>
+            <label>Last Modified Date</label>
+            <span>
+              {editedUser.lastModifiedDate
+                ? new Date(editedUser.lastModifiedDate).toLocaleString()
+                : "N/A"}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCampaigns = () => (
+    <div className={styles.tabContent}>
+      <div className={styles.section}>
+        <h3>Campaigns</h3>
+        <div className={styles.campaignsGrid}>
+          {user?.campaigns?.length > 0 ? (
+            user.campaigns.map((campaign, index) => (
+              <div key={index} className={styles.campaignCard}>
+                <div className={styles.campaignInfo}>
+                  <h4>{campaign.name}</h4>
+                  <p>{campaign.description}</p>
+                  <div className={styles.campaignStats}>
+                    <span>Status: {campaign.status}</span>
+                    <span>Start Date: {new Date(campaign.startDate).toLocaleDateString()}</span>
+                    <span>End Date: {new Date(campaign.endDate).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className={styles.noCampaigns}>
+              <p>No campaigns found</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderVideos = () => (
+    <div className={styles.tabContent}>
+      <div className={styles.section}>
+        <h3>Videos</h3>
+        <div className={styles.videosGrid}>
+          {user?.videos?.length > 0 ? (
+            user.videos.map((video, index) => (
+              <div key={index} className={styles.videoCard}>
+                <div className={styles.videoThumbnail}>
+                  <img src={video.thumbnailUrl} alt={video.title} />
+                </div>
+                <div className={styles.videoInfo}>
+                  <h4>{video.title}</h4>
+                  <p>{video.description}</p>
+                  <div className={styles.videoStats}>
+                    <span>Views: {video.views}</span>
+                    <span>Likes: {video.likes}</span>
+                    <span>Uploaded: {new Date(video.uploadDate).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className={styles.noVideos}>
+              <p>No videos uploaded yet</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderEditableField = (label, field, value, type = "text") => (
+    <div className={styles.detailItem}>
+      <label>{label}</label>
+      {isEditMode ? (
+        <input
+          type={type}
+          value={value || ""}
+          onChange={(e) => handleInputChange(field, e.target.value)}
+          className={styles.editInput}
+        />
+      ) : (
+        <span>{value}</span>
+      )}
+    </div>
+  );
 
   const renderContent = () => {
     if (loading) {
@@ -366,113 +485,62 @@ const UserDetail = () => {
           </div>
         </div>
 
-        <div className={styles.detailsContainer}>
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Account Information</h2>
-            <div className={styles.detailsGrid}>
-              {renderEditableField("Username", "login", editedUser.login)}
-              {renderEditableField("Email", "email", editedUser.email, "email")}
-              {renderEditableField(
-                "First Name",
-                "firstName",
-                editedUser.firstName
-              )}
-              {renderEditableField(
-                "Last Name",
-                "lastName",
-                editedUser.lastName
-              )}
-              <div className={styles.detailItem}>
-                <label>Status</label>
-                {isEditMode ? (
-                  <select
-                    value={editedUser.activated ? "active" : "inactive"}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "activated",
-                        e.target.value === "active"
-                      )
-                    }
-                    className={styles.editInput}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                ) : (
-                  <span
-                    className={
-                      editedUser.activated ? styles.active : styles.inactive
-                    }
-                  >
-                    {editedUser.activated ? "Active" : "Inactive"}
-                  </span>
-                )}
-              </div>
-              {renderEditableField("Language", "langKey", editedUser.langKey)}
-            </div>
+        <div className={styles.tabsContainer}>
+          <div className={styles.tabList}>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'profile' ? styles.active : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              Profile Info
+            </button>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'campaigns' ? styles.active : ''}`}
+              onClick={() => setActiveTab('campaigns')}
+            >
+              Campaigns
+            </button>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'videos' ? styles.active : ''}`}
+              onClick={() => setActiveTab('videos')}
+            >
+              Videos
+            </button>
           </div>
 
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Bank Information</h2>
-            {renderBankDetails()}
-          </div>
-
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>System Information</h2>
-            <div className={styles.detailsGrid}>
-              <div className={styles.detailItem}>
-                <label>Created By</label>
-                <span>{editedUser.createdBy}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <label>Created Date</label>
-                <span>
-                  {editedUser.createdDate
-                    ? new Date(editedUser.createdDate).toLocaleString()
-                    : "N/A"}
-                </span>
-              </div>
-              <div className={styles.detailItem}>
-                <label>Last Modified By</label>
-                <span>{editedUser.lastModifiedBy}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <label>Last Modified Date</label>
-                <span>
-                  {editedUser.lastModifiedDate
-                    ? new Date(editedUser.lastModifiedDate).toLocaleString()
-                    : "N/A"}
-                </span>
-              </div>
-            </div>
+          <div className={styles.tabContent}>
+            {activeTab === 'profile' && renderProfileInfo()}
+            {activeTab === 'campaigns' && renderCampaigns()}
+            {activeTab === 'videos' && renderVideos()}
           </div>
         </div>
 
         {saveError && <div className={styles.errorMessage}>{saveError}</div>}
 
-        <div className={styles.actions}>
-          {isEditMode ? (
-            <Button
-              onClick={handleSave}
-              variant="primary"
-              style={{ width: "100%" }}
-            >
-              Save Changes
-            </Button>
-          ) : (
-            showEditButton && (
+        {activeTab === 'profile' && (
+          <div className={styles.actions}>
+            {isEditMode ? (
               <Button
-                onClick={handleEdit}
-                variant="secondary"
+                onClick={handleSave}
+                variant="primary"
                 style={{ width: "100%" }}
-                className={styles.editButton}
               >
-                <img src={editIcon} alt="" className={styles.buttonIcon} />
-                Edit Profile
+                Save Changes
               </Button>
-            )
-          )}
-        </div>
+            ) : (
+              showEditButton && (
+                <Button
+                  onClick={handleEdit}
+                  variant="secondary"
+                  style={{ width: "100%" }}
+                  className={styles.editButton}
+                >
+                  <img src={editIcon} alt="" className={styles.buttonIcon} />
+                  Edit Profile
+                </Button>
+              )
+            )}
+          </div>
+        )}
 
         {showAvatarModal && (
           <AvatarModal

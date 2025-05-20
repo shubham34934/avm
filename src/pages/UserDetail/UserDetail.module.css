@@ -325,3 +325,159 @@
   color: var(--error);
   font-weight: 500;
 }
+
+.tabsContainer {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--spacing-4);
+}
+
+.tabList {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 var(--spacing-4);
+}
+
+.tabButton {
+  padding: var(--spacing-4) var(--spacing-6);
+  border: none;
+  background: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.tabButton:hover {
+  color: var(--text-primary);
+}
+
+.tabButton.active {
+  color: var(--primary-color);
+}
+
+.tabButton.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary-color);
+}
+
+.tabContent {
+  padding: var(--spacing-6);
+}
+
+/* Campaigns Grid */
+.campaignsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.campaignCard {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-4);
+  transition: all 0.3s ease;
+}
+
+.campaignCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.campaignInfo h4 {
+  margin: 0 0 var(--spacing-2);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.campaignInfo p {
+  margin: 0 0 var(--spacing-4);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.campaignStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Videos Grid */
+.videosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.videoCard {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.videoCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.videoThumbnail {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.videoThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.videoInfo {
+  padding: var(--spacing-4);
+}
+
+.videoInfo h4 {
+  margin: 0 0 var(--spacing-2);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.videoInfo p {
+  margin: 0 0 var(--spacing-4);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.videoStats {
+  display: flex;
+  gap: var(--spacing-4);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.noCampaigns,
+.noVideos {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--spacing-12);
+  background: var(--bg-color);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+}

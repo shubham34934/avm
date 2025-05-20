@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ENV } from "../config/env";
+import { FilterOptions, generateFilterQuery } from "../utils/filterUtils";
 
 // Types
 interface Sponsor {
@@ -66,18 +67,18 @@ const initialState: ShortListedVideosState = {
   currentPage: 1,
 };
 
-interface FetchShortListedVideosParams {
-  page: number;
-  size: number;
+interface FetchShortListedVideosParams extends FilterOptions {
+  // Add any additional params specific to short-listed videos if needed
 }
 
 // Async thunks
 export const fetchShortListedVideos = createAsyncThunk(
   "shortListedVideos/fetchShortListedVideos",
-  async ({ page = 1, size = 20 }: FetchShortListedVideosParams, { rejectWithValue }) => {
+  async (params: FetchShortListedVideosParams, { rejectWithValue }) => {
     try {
+      const queryString = generateFilterQuery(params);
       const response = await fetch(
-        `${ENV.VITE_APP_API_URL}/api/short-listed-videos?page=${page - 1}&size=${size}`
+        `${ENV.VITE_APP_API_URL}/api/short-listed-videos?${queryString}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch short-listed videos");

@@ -40,6 +40,7 @@ import paymentSentIcon from "../../assets/icons/campaign_timeline/payment_sent.s
 import doneIcon from "../../assets/icons/campaign_timeline/done.svg";
 import pauseIcon from "../../assets/icons/campaign_timeline/pause.svg";
 import brandDefaultIcon from "../../assets/icons/brands.svg";
+import { createFilter } from "../../utils/filterUtils";
 
 const CampaignDetails = () => {
   const navigate = useNavigate();
@@ -176,14 +177,16 @@ const CampaignDetails = () => {
       setLoadingSubmissions(true);
       try {
         // Fetch videos with competition filter
-        const result = await dispatch(
-          fetchVideoPosts({
-            competition: { id: parseInt(id) },
-            page: 0,
-            size: 20,
-            sort: "createdOn,desc",
-          })
-        ).unwrap();
+        const result = await dispatch(fetchVideoPosts({
+          page: 0,
+          size: 20,
+          sort: ['id,desc', 'createdOn,asc'],
+          distinct: true,
+          filters: [
+            createFilter('isActive', 'equals', true),
+            createFilter('competitionId', 'equals', parseInt(id)),
+          ],
+        })).unwrap();
 
         // Process the response based on its structure
         const videoContent = Array.isArray(result)

@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import handleApiError from "../utils/errorHandler";
 import { ENV } from "../config/env";
+import { FilterOptions, generateFilterQuery } from "../utils/filterUtils";
 
 // Define the VideoPost interface
 export interface VideoPost {
@@ -43,6 +44,10 @@ interface VideoPostFilters {
   size?: number;
 }
 
+interface FetchVideoPostsParams extends FilterOptions {
+  // Add any additional params specific to video posts if needed
+}
+
 // Initial state interface
 interface VideoPostState {
   videoPosts: VideoPost[];
@@ -61,67 +66,14 @@ const initialState: VideoPostState = {
   selectedVideoPost: null,
 };
 
-// Async thunk to fetch video posts
+// Async thunks
 export const fetchVideoPosts = createAsyncThunk(
   "videoPosts/fetchVideoPosts",
-  async (filters: VideoPostFilters = {}, { rejectWithValue }) => {
+  async (params: FetchVideoPostsParams, { rejectWithValue }) => {
     try {
-      // Construct query parameters
-      const params: Record<string, any> = {
-        // Default sorting
-        sort: filters.sort || "id,asc",
-
-        // Pagination
-        page: filters.page || 0,
-        size: filters.size || 20,
-      };
-
-      // Competition filtering
-      if (filters.competition) {
-        params["competition.id.equals"] = filters.competition.id;
-      }
-
-      // Text-based filters
-      if (filters.title) {
-        params["title.contains"] = filters.title;
-      }
-
-      if (filters.description) {
-        params["description.contains"] = filters.description;
-      }
-
-      // Boolean filters
-      if (filters.isAIGenerated !== undefined) {
-        params["isAIGenerated.equals"] = filters.isAIGenerated;
-      }
-
-      if (filters.isPremium !== undefined) {
-        params["isPremium.equals"] = filters.isPremium;
-      }
-
-      if (filters.isBlocked !== undefined) {
-        params["isBlocked.equals"] = filters.isBlocked;
-      }
-
-      if (filters.isModerated !== undefined) {
-        params["isModerated.equals"] = filters.isModerated;
-      }
-
-      if (filters.tag) {
-        params["tag.equals"] = filters.tag;
-      }
-
-      // Global search query (if supported by backend)
-      if (filters.searchQuery) {
-        params["searchQuery"] = filters.searchQuery;
-      }
-
-      // Fetch video posts with applied filters
-      const response = await axios.get<VideoPost[]>(
-        `${ENV.VITE_APP_API_URL}/video-posts`,
-        {
-          params,
-        }
+      const queryString = generateFilterQuery(params);
+      const response = await axios.get(
+        `${ENV.VITE_APP_API_URL}/video-posts?${queryString}`
       );
       return response.data;
     } catch (error) {
@@ -131,121 +83,42 @@ export const fetchVideoPosts = createAsyncThunk(
   }
 );
 
-// Async thunk to upload a video post
-export const uploadVideoPost = createAsyncThunk(
-  "videoPosts/uploadVideoPost",
-  async (
-    {
-      title,
-      description,
-      videoUrl,
-      urlType,
-      topic,
-      localFile,
-      creator,
-      competition,
-      tag = "", // Default to empty array if not provided
-      createdOn = new Date().toISOString(), // Default to current timestamp
-      createdBy = creator, // Default to creator if not specified
-    }: {
-      title: string;
-      description: string;
-      videoUrl: string;
-      urlType: string;
-      topic: string;
-      localFile?: File | null;
-      creator: { id: number };
-      competition: { id: number };
-      tag?: any;
-      createdOn?: string;
-      createdBy?: { id: number };
-    },
-    { rejectWithValue }
-  ) => {
+export const fetchVideoPostById = createAsyncThunk(
+  "videoPosts/fetchVideoPostById",
+  async (id: string, { rejectWithValue }) => {
     try {
-      // If local file, use FormData for file upload
-      if (localFile) {
-        const formData = new FormData();
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("urlType", urlType);
-        formData.append("topic", topic);
-        formData.append("videoFile", localFile);
-        formData.append("creator", JSON.stringify(creator));
-        formData.append("competition", JSON.stringify(competition));
-        formData.append("tag", JSON.stringify(tag));
-        formData.append("createdOn", createdOn);
-        formData.append("createdBy", JSON.stringify(createdBy));
+      const response = await axios.get(`${ENV.VITE_APP_API_URL}/video-posts/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue("Failed to fetch video post");
+    }
+  }
+);
 
-        const response = await axios.post<VideoPost>(
-          `${ENV.VITE_APP_API_URL}/video-posts/upload`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        return response.data;
-      }
-
-      // For external URLs
-      const response = await axios.post<VideoPost>(
+export const createVideoPost = createAsyncThunk(
+  "videoPosts/createVideoPost",
+  async (videoPost: Partial<VideoPost>, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
         `${ENV.VITE_APP_API_URL}/video-posts`,
-        {
-          title,
-          description,
-          url: videoUrl,
-          urlType,
-          topic,
-          creator,
-          competition,
-          tag, // Always send tag, even if empty
-          createdOn,
-          createdBy,
-        }
+        videoPost
       );
       return response.data;
     } catch (error) {
       handleApiError(error);
-      return rejectWithValue("Failed to upload video post");
+      return rejectWithValue("Failed to create video post");
     }
   }
 );
 
-// Async thunk to delete a video post
-export const deleteVideoPost = createAsyncThunk(
-  "videoPosts/deleteVideoPost",
-  async (videoId: number, { rejectWithValue }) => {
-    try {
-      // Delete the video post
-      await axios.delete(`${ENV.VITE_APP_API_URL}/video-posts/${videoId}`);
-      return videoId; // Return the ID of the deleted video
-    } catch (error) {
-      handleApiError(error);
-      return rejectWithValue("Failed to delete video post");
-    }
-  }
-);
-
-// Async thunk to update a video post
 export const updateVideoPost = createAsyncThunk(
   "videoPosts/updateVideoPost",
-  async (
-    {
-      videoId,
-      updateData,
-    }: {
-      videoId: number;
-      updateData: Partial<VideoPost>;
-    },
-    { rejectWithValue }
-  ) => {
+  async ({ id, videoPost }: { id: string; videoPost: Partial<VideoPost> }, { rejectWithValue }) => {
     try {
-      // Update the video post
-      const response = await axios.put<VideoPost>(
-        `${ENV.VITE_APP_API_URL}/video-posts/${videoId}`,
-        updateData
+      const response = await axios.put(
+        `${ENV.VITE_APP_API_URL}/video-posts/${id}`,
+        videoPost
       );
       return response.data;
     } catch (error) {
@@ -255,18 +128,47 @@ export const updateVideoPost = createAsyncThunk(
   }
 );
 
-// Async thunk to fetch a single video post by ID
-export const fetchVideoPostById = createAsyncThunk(
-  "videoPosts/fetchVideoPostById",
-  async (videoId: number, { rejectWithValue }) => {
+export const patchVideoPost = createAsyncThunk(
+  "videoPosts/patchVideoPost",
+  async ({ id, videoPost }: { id: string; videoPost: Partial<VideoPost> }, { rejectWithValue }) => {
     try {
-      const response = await axios.get<VideoPost>(
-        `${ENV.VITE_APP_API_URL}/video-posts/${videoId}`
+      const response = await axios.patch(
+        `${ENV.VITE_APP_API_URL}/video-posts/${id}`,
+        videoPost
       );
       return response.data;
     } catch (error) {
       handleApiError(error);
-      return rejectWithValue("Failed to fetch video post");
+      return rejectWithValue("Failed to update video post");
+    }
+  }
+);
+
+export const deleteVideoPost = createAsyncThunk(
+  "videoPosts/deleteVideoPost",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${ENV.VITE_APP_API_URL}/video-posts/${id}`);
+      return id;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue("Failed to delete video post");
+    }
+  }
+);
+
+export const getVideoPostsCount = createAsyncThunk(
+  "videoPosts/getVideoPostsCount",
+  async (params: FilterOptions, { rejectWithValue }) => {
+    try {
+      const queryString = generateFilterQuery(params);
+      const response = await axios.get(
+        `${ENV.VITE_APP_API_URL}/video-posts/count?${queryString}`
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return rejectWithValue("Failed to get video posts count");
     }
   }
 );
@@ -288,6 +190,9 @@ export const videoPostsSlice = createSlice({
     clearSelectedVideoPost: (state) => {
       state.selectedVideoPost = null;
     },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -303,30 +208,27 @@ export const videoPostsSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(uploadVideoPost.pending, (state) => {
+      .addCase(fetchVideoPostById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(uploadVideoPost.fulfilled, (state, action) => {
+      .addCase(fetchVideoPostById.fulfilled, (state, action) => {
         state.loading = false;
-        state.videoPosts.push(action.payload);
+        state.selectedVideoPost = action.payload;
       })
-      .addCase(uploadVideoPost.rejected, (state, action) => {
+      .addCase(fetchVideoPostById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(deleteVideoPost.pending, (state) => {
+      .addCase(createVideoPost.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteVideoPost.fulfilled, (state, action) => {
+      .addCase(createVideoPost.fulfilled, (state, action) => {
         state.loading = false;
-        // Remove the deleted video from the state
-        state.videoPosts = state.videoPosts.filter(
-          (video) => video.id !== action.payload
-        );
+        state.videoPosts.push(action.payload);
       })
-      .addCase(deleteVideoPost.rejected, (state, action) => {
+      .addCase(createVideoPost.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -348,15 +250,49 @@ export const videoPostsSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(fetchVideoPostById.pending, (state) => {
+      .addCase(patchVideoPost.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchVideoPostById.fulfilled, (state, action) => {
+      .addCase(patchVideoPost.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedVideoPost = action.payload;
+        // Update the video in the state
+        const index = state.videoPosts.findIndex(
+          (video) => video.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.videoPosts[index] = action.payload;
+        }
       })
-      .addCase(fetchVideoPostById.rejected, (state, action) => {
+      .addCase(patchVideoPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteVideoPost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteVideoPost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.videoPosts = state.videoPosts.filter((vp) => vp.id !== parseInt(action.payload));
+        if (state.selectedVideoPost?.id === parseInt(action.payload)) {
+          state.selectedVideoPost = null;
+        }
+      })
+      .addCase(deleteVideoPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getVideoPostsCount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getVideoPostsCount.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update the video count in the state
+        state.videoPosts = action.payload;
+      })
+      .addCase(getVideoPostsCount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
@@ -368,6 +304,7 @@ export const {
   setVideoPostFilters,
   clearVideoPostFilters,
   clearSelectedVideoPost,
+  clearError,
 } = videoPostsSlice.actions;
 
 export default videoPostsSlice.reducer;
